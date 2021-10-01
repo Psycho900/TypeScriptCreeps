@@ -1,19 +1,29 @@
 {
-  "compilerOptions": {
-    "module": "esnext",
-    "lib": ["es2018"],
-    "target": "es2018",
-    "moduleResolution": "Node",
-    "outDir": "dist",
-    "baseUrl": "src/",
-    "sourceMap": true,
-    "strict": true,
-    "experimentalDecorators": true,
-    "noImplicitReturns": true,
-    "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": false
-  },
-  "exclude": [
-    "node_modules"
-  ]
+	"compilerOptions": {
+		"module": "esnext",
+		"lib": [ "es2018" ],
+		"target": "ESNext",
+		"moduleResolution": "Node",
+		"outDir": "dist",
+		"baseUrl": "src/",
+		"sourceMap": false,
+		"strict": true,
+		"experimentalDecorators": true,
+		"noImplicitReturns": true,
+		"allowSyntheticDefaultImports": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"forceConsistentCasingInFileNames": true,
+		"importsNotUsedAsValues": "error",
+		"newLine": "crlf",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"pretty": true,
+		"removeComments": true
+	},
+	"exclude": [
+		"node_modules"
+	]
 }
