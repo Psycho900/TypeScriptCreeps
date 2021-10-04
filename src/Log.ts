@@ -40,7 +40,7 @@ export abstract /*static*/ class Log
 		}
 
 		return `
-${objectToLog}`; // ^ New line is intentional
+${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`; // ^ New line is intentional
 	}
 
 	private static GenerateMessage(
@@ -56,7 +56,7 @@ ${objectToLog}`; // ^ New line is intentional
 
 		if (hr)
 		{
-			message += `${c_hrToString[hr] || hr}! `;
+			message = `${c_hrToString[hr] || hr}! ${message}`;
 		}
 
 		return message

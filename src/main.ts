@@ -1,5 +1,5 @@
 import { Log } from "Log";
-import { Type, CreepType } from "Type";
+import { Type } from "Type";
 
 declare global
 {
@@ -23,7 +23,8 @@ declare global
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = function ()
 {
-	Log.Info(`[${Type.RoomPosition}] Current game tick is ${Game.time}`);
+	Log.Info(`[${Type.RoomPosition}] Current game tick is ${Game.time}`, ERR_NOT_OWNER, Object.values(Game.creeps)[0], Object.values(Game.rooms)[0].controller);
+	//Log.Info(`${RoomObject.prototype.toString == StructureController.prototype.toString}`);
 
 	if (Game.time & 0x1FF) // ~512 ticks
 	{

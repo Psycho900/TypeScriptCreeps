@@ -217,4 +217,4 @@ module.exports =
 
 */
 
-console.log(`[${Game.time}] ${c_spawns.length} spawns (last is ${c_spawns.GetLast()}). ${c_rooms.length} rooms (last is ${c_rooms.GetLast()})`);
+console.log(`[${Game.time}] ${c_spawns.length} spawns (last is ${c_spawns.GetLast()?.ToString()}). ${c_rooms.length} rooms (last is ${c_rooms.GetLast()?.ToString()})`);

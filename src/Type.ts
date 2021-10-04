@@ -137,34 +137,20 @@ Object.defineProperty(Room.prototype /*        */, "roomName" /* */, { get: func
 // Object.defineProperty(RoomPosition.prototype  , "roomName" /* */, { get: function (this: RoomPosition)      { return this.roomName; } });
 Object.defineProperty(RoomObject.prototype /*  */, "roomName" /* */, { get: function (this: RoomObject) /*  */ { return this.pos.roomName; } });
 
-function AppendPropertyString<T>(
-	/*inout*/ result: string[],
-	roomObject: RoomObject,
-	propertyName: string,
-	valueToStringFunction?: (value: T) => string)
+declare global
 {
-	// @ts-ignore: The whole point is to see if this specific roomObject happens to have the given property
-	const value = roomObject[propertyName];
-
-	if (value != null) // null || undefined
-	{
-		result.push(`${propertyName}: ${valueToStringFunction ? valueToStringFunction(value) : value}`);
-	}
+	interface Room /*         */ { ToString(): string; }
+	interface RoomPosition /* */ { ToString(): string; }
+	interface RoomObject /*   */ { ToString(): string; }
 }
 
-Object.prototype.toString = function ()
-{
-	// @ts-ignore: If this object happens to have a `name` property, then display it
-	return this.name || JSON.stringify(this);
-};
-
-Room.prototype.toString = function ()
+Room.prototype.ToString = function ()
 {
 	return `<a href="https://screeps.com/a/#!/room/shard2/${this.name}">${this.name}</a>`;
 };
 
 // @ts-ignore: TODO_KevSchil: Figure out how to do the generic prototype here
-Store.prototype.toString = function (this: StoreDefinitionUnlimited)
+Store.prototype.ToString = function (this: StoreDefinitionUnlimited)
 {
 	const resourceTypes = Object.keys(this);
 
@@ -176,17 +162,31 @@ Store.prototype.toString = function (this: StoreDefinitionUnlimited)
 	return `[ ${JSON.stringify(this)} / ${this.getCapacity(RESOURCE_ENERGY)} ]`;
 };
 
-RoomPosition.prototype.toString = function ()
+RoomPosition.prototype.ToString = function ()
 {
 	return `(${this.x}, ${this.y}, <a href="https://screeps.com/a/#!/room/shard2/${this.roomName}">${this.roomName}</a>)`;
 };
 
-RoomObject.prototype.toString = function ()
+function AppendPropertyString<T>(
+	/*inout*/ result: string[],
+	roomObject: RoomObject,
+	propertyName: string,
+	valueToStringFunction?: (value: T) => string)
+{
+	// @ts-ignore: The whole point is to see if this specific roomObject happens to have the given property
+	const value = roomObject[propertyName];
+
+	if (value != null) // null || undefined
+	{
+		result.push(`${propertyName}: ${valueToStringFunction ? valueToStringFunction(value) : (value.ToString ? value.ToString() : value)}`);
+	}
+}
+
+RoomObject.prototype.ToString = function ()
 {
 	let resultArray: string[] = [];
 	AppendPropertyString(resultArray, this, "name");
-	// @ts-ignore: Anything with a `.e` property should also have `.et` (and if not, then undefined is handled just fine here)
-	AppendPropertyString(resultArray, this, "e", (cachedEnergy) => this.et === Game.time ? cachedEnergy : "outdated"); // My custom cached ".store.energy" that I update within ticks
+	//AppendPropertyString(resultArray, this, "e", (cachedEnergy) => this.et === Game.time ? cachedEnergy : "outdated"); // My custom cached ".store.energy" that I update within ticks
 	AppendPropertyString(resultArray, this, "store");
 	// @ts-ignore: Anything with a `.energy` property should also have `.energyCapacity` (and if not, then undefined is handled just fine here)
 	AppendPropertyString(resultArray, this, "energy", (energy) => `[${energy}/${this.energyCapacity}]`);
@@ -200,7 +200,7 @@ RoomObject.prototype.toString = function ()
 	AppendPropertyString(resultArray, this, "ticksToLive");
 	AppendPropertyString(resultArray, this, "structureType");
 	AppendPropertyString(resultArray, this, "id");
-	AppendPropertyString(resultArray, this, "memory");
+	AppendPropertyString(resultArray, this, "memory", JSON.stringify);
 
 	return `${Type[this.type]}: { ${resultArray.join(", ")} }`;
 };
