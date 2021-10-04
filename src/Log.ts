@@ -22,7 +22,7 @@ let s_shouldReportError: boolean = true; // Gets reset every ~150 ticks or so
 
 export abstract /*static*/ class Log
 {
-	public static GetTimestamp(): Number
+	public static GetTimestamp(): number
 	{
 		return Game.time % 10000;
 	}
@@ -39,7 +39,8 @@ export abstract /*static*/ class Log
 			return "";
 		}
 
-		return "\n" + (objectToLog.ToString ? objectToLog.ToString() : JSON.stringify(objectToLog));
+		return `
+${objectToLog}`; // ^ New line is intentional
 	}
 
 	private static GenerateMessage(
