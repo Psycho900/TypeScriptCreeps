@@ -1,23 +1,33 @@
 
 
-interface RoomObject { GetCurrentEnergy(): number; }
-interface RoomObject { GetCurrentResources(): number; }
-interface RoomObject { GetCurrentNonEnergy(): number; }
-
-RoomObject.prototype.GetCurrentEnergy = function ()
+export abstract /*static*/ class Energy
 {
-	// @ts-ignore: Intentional Reflection
-	return 0 | (this.store ? this.store[RESOURCE_ENERGY] : this.energy);
-};
+	public static GetCurrentEnergy(roomObject: RoomObject): number
+	{
+		// @ts-ignore: Intentional Reflection
+		const store: StoreDefinition | undefined = roomObject.store;
 
-RoomObject.prototype.GetCurrentResources = function ()
-{
-	// @ts-ignore: Intentional Reflection
-	return (this.store && this.store.getUsedCapacity()) || this.amount || this.mineralAmount || (0 | this.energy);
-};
+		// @ts-ignore: Intentional Reflection
+		return 0 | (store ? store[RESOURCE_ENERGY] : roomObject.energy);
+	}
 
-RoomObject.prototype.GetCurrentNonEnergy = function ()
-{
-	// @ts-ignore: Intentional Reflection
-	return this.store ? (this.store.getUsedCapacity() - (0 | this.store[RESOURCE_ENERGY])) : (this.amount || this.mineralAmount);
-};
+	public static GetCurrentResources(roomObject: RoomObject): number
+	{
+		// @ts-ignore: Intentional Reflection
+		const store: StoreDefinition | undefined = roomObject.store;
+
+		return store
+			? store.getUsedCapacity() // @ts-ignore: Intentional Reflection
+			: (roomObject.amount || roomObject.mineralAmount || (0 | roomObject.energy));
+	}
+
+	public static GetCurrentNonEnergy(roomObject: RoomObject): number
+	{
+		// @ts-ignore: Intentional Reflection
+		const store: StoreDefinition | undefined = roomObject.store;
+
+		return store
+			? store.getUsedCapacity() - (0 | store[RESOURCE_ENERGY]) // @ts-ignore: Intentional Reflection
+			: (roomObject.amount || (0 | roomObject.mineralAmount));
+	}
+}

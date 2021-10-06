@@ -1,3 +1,8 @@
+function InclusiveGroup(min: number, max: number): number
+{
+	return max | (max - min);
+}
+
 export enum Type
 {
 	// Built-in types :
@@ -18,41 +23,58 @@ export enum Type
 	// Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
 	// {
 	Container /*       */ = 1 << 10,
-	Road /*            */ = 1 << 11,
-	Wall /*            */ = 1 << 12,
+	Portal /*          */ = 1 << 11,
+	Road /*            */ = 1 << 12,
+	Wall /*            */ = 1 << 13,
 
 	// OwnedStructure (my, owner)
 	// {
-	Controller /*      */ = 1 << 13,
-	Extension /*       */ = 1 << 14,
-	Extractor /*       */ = 1 << 15,
-	KeeperLair /*      */ = 1 << 16,
-	Lab /*             */ = 1 << 17,
-	Link /*            */ = 1 << 18,
-	Nuker /*           */ = 1 << 19,
-	Observer /*        */ = 1 << 20,
-	PowerBank /*       */ = 1 << 21,
-	PowerSpawn /*      */ = 1 << 22,
-	Rampart /*         */ = 1 << 23,
-	Spawn /*           */ = 1 << 24,
-	Storage /*         */ = 1 << 25,
-	Terminal /*        */ = 1 << 26,
-	Tower /*           */ = 1 << 27,
+	Controller /*      */ = 1 << 14,
+	Extension /*       */ = 1 << 15,
+	Extractor /*       */ = 1 << 16,
+	Factory /*         */ = 1 << 17,
+	InvaderCore /*     */ = 1 << 18,
+	KeeperLair /*      */ = 1 << 19,
+	Lab /*             */ = 1 << 20,
+	Link /*            */ = 1 << 21,
+	Nuker /*           */ = 1 << 22,
+	Observer /*        */ = 1 << 23,
+	PowerBank /*       */ = 1 << 24,
+	PowerSpawn /*      */ = 1 << 25,
+	Rampart /*         */ = 1 << 26,
+	Spawn /*           */ = 1 << 27,
+	Storage /*         */ = 1 << 28,
+	Terminal /*        */ = 1 << 29,
+	Tower /*           */ = 1 << 30,
 	// }
 	// }
 	// }
+
+	FirstRoomObject = Creep,
+	FirstStructure = Container,
+	FirstOwnedStructure = Controller,
+	LastOwnedStructure = Tower,
+	LastStructure = Tower,
+	LastRoomObject = Tower,
+
+	AllRoomObjects = InclusiveGroup(FirstRoomObject, LastRoomObject),
+	AllStructures = InclusiveGroup(FirstStructure, LastStructure),
+	AllOwnedStructures = InclusiveGroup(FirstOwnedStructure, LastOwnedStructure),
 }
 
 export enum CreepType
 {
-	None /*     */ = 0,
-	Harvester /**/ = 1 << 0,
-	Runner /*   */ = 1 << 1,
-	Builder /*  */ = 1 << 2,
-	Upgrader /* */ = 1 << 3,
-	Miner /*    */ = 1 << 4,
-	Claimer /*  */ = 1 << 5,
-	Attacker /* */ = 1 << 6,
+	None /*      */ = 0,
+	Harvester /* */ = 1 << 0,
+	Runner /*    */ = 1 << 1,
+	Builder /*   */ = 1 << 2,
+	Upgrader /*  */ = 1 << 3,
+	Miner /*     */ = 1 << 4,
+	Claimer /*   */ = 1 << 5,
+	Attacker /*  */ = 1 << 6,
+	Enemy /*     */ = 1 << 7, // Keep this one last before the groups! (Or update the "All" definition below)
+
+	All = (Enemy << 1) - 1,
 
 	Producers = Harvester | Miner,
 	Consumers = Builder | Upgrader,
@@ -83,6 +105,7 @@ Tombstone.prototype.type = Type.Tombstone;
 // Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
 // {
 StructureContainer.prototype.type = Type.Container;
+StructurePortal.prototype.type = Type.Portal;
 StructureRoad.prototype.type = Type.Road;
 StructureWall.prototype.type = Type.Wall;
 
@@ -91,6 +114,8 @@ StructureWall.prototype.type = Type.Wall;
 StructureController.prototype.type = Type.Controller;
 StructureExtension.prototype.type = Type.Extension;
 StructureExtractor.prototype.type = Type.Extractor;
+StructureFactory.prototype.type = Type.Factory;
+StructureInvaderCore.prototype.type = Type.InvaderCore;
 StructureKeeperLair.prototype.type = Type.KeeperLair;
 StructureLab.prototype.type = Type.Lab;
 StructureLink.prototype.type = Type.Link;
@@ -127,7 +152,7 @@ declare global
 Room.prototype.creepType /*        */ = CreepType.None;
 RoomPosition.prototype.creepType /**/ = CreepType.None;
 RoomObject.prototype.creepType /*  */ = CreepType.None;
-Object.defineProperty(Creep.prototype /*       */, "creepType" /**/, { get: function (this: Creep) /*       */ { return this.memory.t; } });
+Object.defineProperty(Creep.prototype /*       */, "creepType" /**/, { get: function (this: Creep) /*       */ { return this.memory ? this.memory.t : CreepType.Enemy; } });
 
 Object.defineProperty(Room.prototype /*        */, "room" /*     */, { get: function (this: Room) /*        */ { return this; } });
 Object.defineProperty(RoomPosition.prototype /**/, "room" /*     */, { get: function (this: RoomPosition) /**/ { return Game.rooms[this.roomName]; } });

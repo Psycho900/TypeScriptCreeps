@@ -1,4 +1,4 @@
-
+//import { Type, CreepType } from "Type";
 
 export abstract /*static*/ class Cache
 {
