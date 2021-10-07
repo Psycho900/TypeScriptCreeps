@@ -34,7 +34,7 @@ export const loop = function ()
 		return;
 	}
 
-	// Automatically delete memory of missing creeps
+	// Automatically delete Memory of missing creeps
 	for (const name in Memory.creeps)
 	{
 		if (!(name in Game.creeps))

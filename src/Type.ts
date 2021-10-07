@@ -152,7 +152,7 @@ declare global
 Room.prototype.creepType /*        */ = CreepType.None;
 RoomPosition.prototype.creepType /**/ = CreepType.None;
 RoomObject.prototype.creepType /*  */ = CreepType.None;
-Object.defineProperty(Creep.prototype /*       */, "creepType" /**/, { get: function (this: Creep) /*       */ { return this.memory ? this.memory.t : CreepType.Enemy; } });
+Object.defineProperty(Creep.prototype /*       */, "creepType" /**/, { get: function (this: Creep) /*       */ { const creepMemory = Memory.creeps[this.name]; return creepMemory ? creepMemory.t : CreepType.Enemy; } });
 
 Object.defineProperty(Room.prototype /*        */, "room" /*     */, { get: function (this: Room) /*        */ { return this; } });
 Object.defineProperty(RoomPosition.prototype /**/, "room" /*     */, { get: function (this: RoomPosition) /**/ { return Game.rooms[this.roomName]; } });

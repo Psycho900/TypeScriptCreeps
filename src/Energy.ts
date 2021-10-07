@@ -18,7 +18,7 @@ export abstract /*static*/ class Energy
 
 		return store
 			? store.getUsedCapacity() // @ts-ignore: Intentional Reflection
-			: (roomObject.amount || roomObject.mineralAmount || (0 | roomObject.energy));
+			: (roomObject.amount ?? roomObject.mineralAmount ?? (0 | roomObject.energy));
 	}
 
 	public static GetCurrentNonEnergy(roomObject: RoomObject): number
@@ -28,6 +28,6 @@ export abstract /*static*/ class Energy
 
 		return store
 			? store.getUsedCapacity() - (0 | store[RESOURCE_ENERGY]) // @ts-ignore: Intentional Reflection
-			: (roomObject.amount || (0 | roomObject.mineralAmount));
+			: (roomObject.amount ?? (0 | roomObject.mineralAmount));
 	}
 }
