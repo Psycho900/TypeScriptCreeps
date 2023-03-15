@@ -1,6 +1,6 @@
 
 
-export abstract /*static*/ class Energy
+export abstract /* static */ class Energy
 {
 	public static GetCurrentEnergy(roomObject: RoomObject): number
 	{

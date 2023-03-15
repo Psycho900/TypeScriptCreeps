@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 const c_hrToString: Record<ScreepsReturnCode, string> =
 {
 	[0]: "OK",
@@ -20,7 +23,7 @@ const c_hrToString: Record<ScreepsReturnCode, string> =
 let s_currentError: Error | null = null;
 let s_shouldReportError: boolean = true; // Gets reset every ~150 ticks or so
 
-export abstract /*static*/ class Log
+export abstract /* static */ class Log
 {
 	public static GetTimestamp(): number
 	{
@@ -32,15 +35,12 @@ export abstract /*static*/ class Log
 		return `[${Game.time} @ ${(100 * Game.cpu.getUsed() / Game.cpu.limit) | 0}% CPU]: `;
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private static ToLogString(objectToLog: any | null | undefined): string
 	{
-		if (objectToLog == null) // null || undefined
-		{
-			return "";
-		}
-
-		return `
-${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`; // ^ New line is intentional
+		return objectToLog == null // null || undefined
+			? "" // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+			: `\n${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`;
 	}
 
 	private static GenerateMessage(
@@ -71,6 +71,8 @@ ${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`; // ^ New line i
 		targetToLog?: RoomObject): void
 	{
 		message = Log.GenerateMessage(message, hr, creepToLog, targetToLog);
+
+		// eslint-disable-next-line no-console
 		console.log(Log.GetMessagePrefix() + message);
 	}
 
@@ -95,6 +97,7 @@ ${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`; // ^ New line i
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): void
 	{
+		// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
 		message = "Warning: " + message;
 
 		if (Game.time % 1000)
@@ -126,7 +129,7 @@ ${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`; // ^ New line i
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): boolean
 	{
-		////if (Game.cpu.getUsed() > 1.4 * Game.cpu.limit)
+		// //if (Game.cpu.getUsed() > 1.4 * Game.cpu.limit)
 		if (s_shouldReportError && Game.cpu.bucket < 9900)
 		{
 			Log.Error("Approaching CPU limit!", hr, creepToLog, targetToLog);
@@ -171,7 +174,7 @@ ${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`; // ^ New line i
 	{
 		if (!condition)
 		{
-			Log.Error(message, OK /*hr*/, creepToLog, targetToLog);
+			Log.Error(message, OK /* hr */, creepToLog, targetToLog);
 		}
 
 		return condition;

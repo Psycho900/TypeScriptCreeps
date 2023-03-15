@@ -1,6 +1,6 @@
+import { Find } from "Find";
 import { Log } from "Log";
 import { Type } from "Type";
-import { Find } from "Find";
 
 declare global
 {
@@ -13,21 +13,21 @@ declare global
 	Interfaces matching on name from @types/screeps will be merged. This is how you can extend the 'built-in' interfaces from @types/screeps.
 	*/
 	// Memory extension samples
-	interface Memory
-	{
-		/*uuid: number;*/
-		/*log: any;*/
-	}
+	// interface Memory
+	// {
+	// 	/*uuid: number;*/
+	// 	/*log: any;*/
+	// }
 }
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
-export const loop = function ()
+export const loop = function (): void
 {
 	Find.ResetCacheForBeginningOfTick(); // THIS MUST BE THE VERY FIRST THING WE DO! Otherwise our cache will be outdated
 
-	Log.Info(`[${Type.RoomPosition}] Current game tick is ${Game.time}`, ERR_NOT_OWNER, Object.values(Game.creeps)[0], Object.values(Game.rooms)[0].controller);
-	//Log.Info(`${RoomObject.prototype.toString == StructureController.prototype.toString}`);
+	Log.Info(`[${Type.RoomPosition}] Current game tick is ${Game.time}`, OK, Object.values(Game.creeps)[0], Object.values(Game.rooms)[0].controller);
+	// Log.Info(`${RoomObject.prototype.toString == StructureController.prototype.toString}`);
 
 	if (Game.time & 0x1FF) // ~512 ticks
 	{

@@ -1,8 +1,8 @@
-import { Type, CreepType } from "Type";
+import { CreepType, Type } from "Type";
 
 // Should be safe for these to live forever:
-let s_roomNameToSources /* */: Record<string, /* */ Source[][]> = {};
-let s_roomNameToMinerals /**/: Record<string, /**/ Mineral[][]> = {};
+const s_roomNameToSources /* */: Record<string, /* */ Source[][]> = {};
+const s_roomNameToMinerals /**/: Record<string, /**/ Mineral[][]> = {};
 
 // Should reset on each tick:
 let s_spawns: StructureSpawn[] = Object.values(Game.spawns);
@@ -29,7 +29,7 @@ declare global
 		};
 }
 
-export abstract /*static*/ class Find
+export abstract /* static */ class Find
 {
 	public static ResetCacheForBeginningOfTick(): void
 	{
@@ -93,11 +93,11 @@ export abstract /*static*/ class Find
 			roomObjectsCache[Type.AllStructures] ??= [Find.CacheEachStructureType(roomObjectsCache, room.find(FIND_STRUCTURES))];
 
 			// This should succeed for AllStructures OR if requesting a single structure type OR anything else that happens to already be cached.
-			let roomObjectsArraysToAdd: RoomObject[/* Hash(range, pos) */][] | undefined = roomObjectsCache[structureTypes];
+			const roomObjectsArraysToAdd: RoomObject[/* Hash(range, pos) */][] | undefined = roomObjectsCache[structureTypes];
 
 			if (!roomObjectsArraysToAdd)
 			{
-				for (let structureType = Type.FirstStructure; structureType != Type.LastStructure; structureType <<= 1)
+				for (let structureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 				{
 					if ((roomObjectTypes & structureType) &&
 						(roomObjectsToAdd = (roomObjectsCache[structureType] as AnyStructure[][])[0]).length)
@@ -162,19 +162,19 @@ export abstract /*static*/ class Find
 
 		if (roomObjectArraysOfType.length > 1)
 		{
-			return Array.prototype.concat.apply([], roomObjectArraysOfType);
+			return Array.prototype.concat.apply([], roomObjectArraysOfType) as RoomObject[];
 		}
 
 		return roomObjectArraysOfType.length
 			? roomObjectArraysOfType[0]
-			: roomObjectArraysOfType as unknown as RoomObject[]; // All T[0] are the same type in JavaScript
+			: roomObjectArraysOfType as unknown as RoomObject[]; // All empty arrays are the same type in JavaScript
 	}
 
 	private static CacheEachStructureType(
 		roomObjectsCache: RoomObjectCache,
 		allStructures: AnyStructure[]): AnyStructure[]
 	{
-		for (let structureType = Type.FirstStructure; structureType != Type.LastStructure; structureType <<= 1)
+		for (let structureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 		{
 			roomObjectsCache[structureType] = [[]];
 		}
@@ -291,22 +291,22 @@ export abstract /*static*/ class Find
 			scoreFunction = secondaryScoreFunction;
 		}
 
-		let bestElement: T = elements[0];
-		let bestScore: number = scoreFunction(bestElement);
+		let bestElement2: T = elements[0];
+		let bestScore2: number = scoreFunction(bestElement2);
 
 		for (let i = 1; i < elements.length; ++i)
 		{
 			const currentElement: T = elements[i];
 			const currentScore: number = scoreFunction(currentElement);
 
-			if (currentScore > bestScore) // Take the 1st one with the highest score
+			if (currentScore > bestScore2) // Take the 1st one with the highest score
 			{
-				bestElement = currentElement;
-				bestScore = currentScore;
+				bestElement2 = currentElement;
+				bestScore2 = currentScore;
 			}
 		}
 
-		return bestElement;
+		return bestElement2;
 	}
 
 	public static HighestScoringRoomObject<T extends RoomObject>(roomPosition: RoomPosition, elements: T[], scoreFunction: (element: T) => number): T | undefined
@@ -326,16 +326,16 @@ export abstract /*static*/ class Find
 
 		return 50 * Game.map.getRoomLinearDistance(fromRoomName, toRoomName); // TODO_KevSchil: PathFinder.search is too expensive
 
-		////to.range = 1; // PathFinder requires this if a creep can't be on top of "to".
-		////const pathResult = PathFinder.search(this.pos, to);
-		////
-		////if (pathResult.incomplete !== false)
-		////{
-		////    Log.Error("GetDistance: PathFinder.search did not complete!", null, this, to);
-		////    return 1000000;
-		////}
-		////
-		////return pathResult.path.length + 1; // +1 because of the "to.range = 1;" above
+		// //to.range = 1; // PathFinder requires this if a creep can't be on top of "to".
+		// //const pathResult = PathFinder.search(this.pos, to);
+		// //
+		// //if (pathResult.incomplete !== false)
+		// //{
+		// //    Log.Error("GetDistance: PathFinder.search did not complete!", null, this, to);
+		// //    return 1000000;
+		// //}
+		// //
+		// //return pathResult.path.length + 1; // +1 because of the "to.range = 1;" above
 	}
 
 	public static Destination(creep: Creep): RoomPosition | undefined
@@ -384,4 +384,5 @@ RoomObject.prototype.FindClosest = function (roomObjects)
 
 */
 
+// eslint-disable-next-line no-console
 console.log(`[${Game.time}] ${s_spawns.length} spawns (last is ${Find.Last(s_spawns)?.ToString()}). ${s_rooms.length} rooms (last is ${Find.Last(s_rooms)?.ToString()})`);

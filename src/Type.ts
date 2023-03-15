@@ -152,15 +152,15 @@ declare global
 Room.prototype.creepType /*        */ = CreepType.None;
 RoomPosition.prototype.creepType /**/ = CreepType.None;
 RoomObject.prototype.creepType /*  */ = CreepType.None;
-Object.defineProperty(Creep.prototype /*       */, "creepType" /**/, { get: function (this: Creep) /*       */ { const creepMemory = Memory.creeps[this.name]; return creepMemory ? creepMemory.t : CreepType.Enemy; } });
+Object.defineProperty(Creep.prototype /*       */, "creepType" /**/, { "get": function (this: Creep) /*       */ { const creepMemory = Memory.creeps[this.name]; return creepMemory ? creepMemory.t : CreepType.Enemy; } });
 
-Object.defineProperty(Room.prototype /*        */, "room" /*     */, { get: function (this: Room) /*        */ { return this; } });
-Object.defineProperty(RoomPosition.prototype /**/, "room" /*     */, { get: function (this: RoomPosition) /**/ { return Game.rooms[this.roomName]; } });
-// Object.defineProperty(RoomObject.prototype    , "room"          , { get: function (this: RoomObject)        { return this.room; } });
+Object.defineProperty(Room.prototype /*        */, "room" /*     */, { "get": function (this: Room) /*        */ { return this; } });
+Object.defineProperty(RoomPosition.prototype /**/, "room" /*     */, { "get": function (this: RoomPosition) /**/ { return Game.rooms[this.roomName]; } });
+// Object.defineProperty(RoomObject.prototype    , "room"          , { "get": function (this: RoomObject)        { return this.room; } });
 
-Object.defineProperty(Room.prototype /*        */, "roomName" /* */, { get: function (this: Room) /*        */ { return this.name; } });
-// Object.defineProperty(RoomPosition.prototype  , "roomName" /* */, { get: function (this: RoomPosition)      { return this.roomName; } });
-Object.defineProperty(RoomObject.prototype /*  */, "roomName" /* */, { get: function (this: RoomObject) /*  */ { return this.pos.roomName; } });
+Object.defineProperty(Room.prototype /*        */, "roomName" /* */, { "get": function (this: Room) /*        */ { return this.name; } });
+// Object.defineProperty(RoomPosition.prototype  , "roomName" /* */, { "get": function (this: RoomPosition)      { return this.roomName; } });
+Object.defineProperty(RoomObject.prototype /*  */, "roomName" /* */, { "get": function (this: RoomObject) /*  */ { return this.pos.roomName; } });
 
 declare global
 {
@@ -169,17 +169,17 @@ declare global
 	interface RoomObject /*   */ { ToString(): string; }
 }
 
-Room.prototype.ToString = function ()
+Room.prototype.ToString = function (): string
 {
 	return `<a href="https://screeps.com/a/#!/room/shard2/${this.name}">${this.name}</a>`;
 };
 
 // @ts-ignore: TODO_KevSchil: Figure out how to do the generic prototype here
-Store.prototype.ToString = function (this: StoreDefinitionUnlimited)
+Store.prototype.ToString = function (this: StoreDefinitionUnlimited): string
 {
-	const resourceTypes = Object.keys(this);
+	const resourceTypes: string[] = Object.keys(this);
 
-	if (resourceTypes.length == 0 || (resourceTypes.length == 1 && resourceTypes[0] === RESOURCE_ENERGY))
+	if (resourceTypes.length === 0 || (resourceTypes.length === 1 && resourceTypes[0] === RESOURCE_ENERGY))
 	{
 		return `[${this.energy}/${this.getCapacity(RESOURCE_ENERGY)}]`;
 	}
@@ -187,16 +187,16 @@ Store.prototype.ToString = function (this: StoreDefinitionUnlimited)
 	return `[ ${JSON.stringify(this)} / ${this.getCapacity(RESOURCE_ENERGY)} ]`;
 };
 
-RoomPosition.prototype.ToString = function ()
+RoomPosition.prototype.ToString = function (): string
 {
 	return `(${this.x}, ${this.y}, <a href="https://screeps.com/a/#!/room/shard2/${this.roomName}">${this.roomName}</a>)`;
 };
 
 function AppendPropertyString<T>(
-	/*inout*/ result: string[],
+	/* inout */ result: string[],
 	roomObject: RoomObject,
 	propertyName: string,
-	valueToStringFunction?: (value: T) => string)
+	valueToStringFunction?: (value: T) => string): void
 {
 	// @ts-ignore: The whole point is to see if this specific roomObject happens to have the given property
 	const value = roomObject[propertyName];
@@ -207,19 +207,19 @@ function AppendPropertyString<T>(
 	}
 }
 
-RoomObject.prototype.ToString = function ()
+RoomObject.prototype.ToString = function (): string
 {
-	let resultArray: string[] = [];
+	const resultArray: string[] = [];
 	AppendPropertyString(resultArray, this, "name");
-	//AppendPropertyString(resultArray, this, "e", (cachedEnergy) => this.et === Game.time ? cachedEnergy : "outdated"); // My custom cached ".store.energy" that I update within ticks
+	// AppendPropertyString(resultArray, this, "e", (cachedEnergy) => this.et === Game.time ? cachedEnergy : "outdated"); // My custom cached ".store.energy" that I update within ticks
 	AppendPropertyString(resultArray, this, "store");
 	// @ts-ignore: Anything with a `.energy` property should also have `.energyCapacity` (and if not, then undefined is handled just fine here)
-	AppendPropertyString(resultArray, this, "energy", (energy) => `[${energy}/${this.energyCapacity}]`);
+	AppendPropertyString(resultArray, this, "energy", (energy): string => `[${energy}/${this.energyCapacity}]`);
 	// @ts-ignore: Anything with a `.progress` property should also have `.progressTotal` (and if not, then undefined is handled just fine here)
-	AppendPropertyString(resultArray, this, "progress", (progress) => `[${progress}/${this.progressTotal}]`);
+	AppendPropertyString(resultArray, this, "progress", (progress): string => `[${progress}/${this.progressTotal}]`);
 	AppendPropertyString(resultArray, this, "pos");
 	// @ts-ignore: Anything with a `.hits` property should also have `.hitsMax` (and if not, then undefined is handled just fine here)
-	AppendPropertyString(resultArray, this, "hits", (hits) => `[${hits}/${this.hitsMax}]`);
+	AppendPropertyString(resultArray, this, "hits", (hits): string => `[${hits}/${this.hitsMax}]`);
 	AppendPropertyString(resultArray, this, "fatigue");
 	AppendPropertyString(resultArray, this, "ticksToRegeneration");
 	AppendPropertyString(resultArray, this, "ticksToLive");
