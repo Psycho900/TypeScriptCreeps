@@ -1,8 +1,8 @@
 import { CreepType, Type } from "Type";
 
 // Should be safe for these to live forever:
-const s_roomNameToSources /* */: Record<string, /* */ Source[][]> = {};
-const s_roomNameToMinerals /**/: Record<string, /**/ Mineral[][]> = {};
+const s_roomNameToSources /* */: Record<string, /* */ Source[]> = {};
+const s_roomNameToMinerals /**/: Record<string, /**/ Mineral[]> = {};
 
 // Should reset on each tick:
 let s_spawns: StructureSpawn[] = Object.values(Game.spawns);
@@ -10,23 +10,19 @@ let s_rooms: Room[] = Object.values(Game.rooms);
 
 declare global
 {
-	interface CreepMemory { _move: { dest: { x: number; y: number; room: string; }; }; }
+	type RoomObjectCache = Record<Type, RoomObject[] | undefined>;
+	type CreepCache = Record<CreepType, Creep[] | undefined>;
+
+	interface CreepMemory
+	{
+		_move: { dest: { x: number; y: number; room: string; }; };
+	}
 
 	interface Room
 	{
 		cache: RoomObjectCache | undefined;
 		creepsCache: CreepCache | undefined;
 	}
-
-	type RoomObjectCache =
-		{
-			[P in Type]: RoomObject[/* Hash(range, pos) */][] | undefined;
-		};
-
-	type CreepCache =
-		{
-			[P in CreepType]: Creep[/* Hash(range, pos) */][] | undefined;
-		};
 }
 
 export abstract /* static */ class Find
@@ -48,7 +44,7 @@ export abstract /* static */ class Find
 	public static Types(room: Room, types: Type): RoomObject[]
 	{
 		const cache: RoomObjectCache = (room.cache ??= Find.GenerateDefaultRoomCache(room));
-		return (cache[types] ??= [Find.GenerateRoomObjectsOfTypeArray(room, cache, types)])[0];
+		return cache[types] ??= Find.GenerateRoomObjectsOfTypeArray(room, cache, types);
 	}
 
 	public static TypesInRange(roomObject: RoomObject, types: Type, range: number): RoomObject[]
@@ -57,14 +53,14 @@ export abstract /* static */ class Find
 		const pos: RoomPosition = roomObject.pos;
 
 		const cache: RoomObjectCache = (room.cache ??= Find.GenerateDefaultRoomCache(room));
-		const rangeCache: RoomObject[/* Hash(range, pos) */][] = (cache[types] ??= [Find.GenerateRoomObjectsOfTypeArray(room, cache, types)]);
-		return rangeCache[(range << 12) | (pos.x << 6) | pos.y] ??= Find.GetRoomObjectsInRange(rangeCache[0], pos, range);
+		const rangeCache: RoomObject[] = (cache[types] ??= Find.GenerateRoomObjectsOfTypeArray(room, cache, types));
+		return Find.GetRoomObjectsInRange(rangeCache, pos, range);
 	}
 
 	public static CreepsOfTypes(room: Room, creepTypes: CreepType): Creep[]
 	{
-		const creepsCache: CreepCache = (room.creepsCache ??= { [CreepType.All]: [room.find(FIND_CREEPS)] });
-		return (creepsCache[creepTypes] ??= [Find.GenerateCreepsOfTypeArray((creepsCache[CreepType.All] as Creep[/* Hash(range, pos) */][])[0], creepTypes)])[0];
+		const creepsCache: CreepCache = (room.creepsCache ??= { [CreepType.All]: room.find(FIND_CREEPS) });
+		return creepsCache[creepTypes] ??= Find.GenerateCreepsOfTypeArray(creepsCache[CreepType.All] as Creep[], creepTypes);
 	}
 
 	private static GenerateDefaultRoomCache(room: Room): RoomObjectCache
@@ -73,8 +69,8 @@ export abstract /* static */ class Find
 
 		return (
 			{
-				[Type.Source] /* */: s_roomNameToSources[roomName] /* */ ??= [room.find(FIND_SOURCES)],
-				[Type.Mineral] /**/: s_roomNameToMinerals[roomName] /**/ ??= [room.find(FIND_MINERALS)],
+				[Type.Source] /* */: s_roomNameToSources[roomName] /* */ ??= room.find(FIND_SOURCES),
+				[Type.Mineral] /**/: s_roomNameToMinerals[roomName] /**/ ??= room.find(FIND_MINERALS),
 			});
 	}
 
@@ -90,23 +86,23 @@ export abstract /* static */ class Find
 
 		if (structureTypes)
 		{
-			roomObjectsCache[Type.AllStructures] ??= [Find.CacheEachStructureType(roomObjectsCache, room.find(FIND_STRUCTURES))];
+			roomObjectsCache[Type.AllStructures] ??= Find.CacheEachStructureType(roomObjectsCache, room.find(FIND_STRUCTURES));
 
 			// This should succeed for AllStructures OR if requesting a single structure type OR anything else that happens to already be cached.
-			const roomObjectsArraysToAdd: RoomObject[/* Hash(range, pos) */][] | undefined = roomObjectsCache[structureTypes];
+			const roomObjectsArraysToAdd: RoomObject[] | undefined = roomObjectsCache[structureTypes];
 
 			if (!roomObjectsArraysToAdd)
 			{
 				for (let structureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 				{
 					if ((roomObjectTypes & structureType) &&
-						(roomObjectsToAdd = (roomObjectsCache[structureType] as AnyStructure[][])[0]).length)
+						(roomObjectsToAdd = roomObjectsCache[structureType] as AnyStructure[]).length)
 					{
 						roomObjectArraysOfType.push(roomObjectsToAdd);
 					}
 				}
 			}
-			else if ((roomObjectsToAdd = roomObjectsArraysToAdd[0]).length)
+			else if ((roomObjectsToAdd = roomObjectsArraysToAdd).length)
 			{
 				roomObjectArraysOfType.push(roomObjectsToAdd);
 			}
@@ -119,43 +115,43 @@ export abstract /* static */ class Find
 		}
 
 		if ((roomObjectTypes & Type.ConstructionSite) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.ConstructionSite] ??= [room.find(FIND_CONSTRUCTION_SITES)])[0]).length)
+			(roomObjectsToAdd = (roomObjectsCache[Type.ConstructionSite] ??= room.find(FIND_CONSTRUCTION_SITES))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
 		if ((roomObjectTypes & Type.Flag) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Flag] ??= [room.find(FIND_FLAGS)])[0]).length)
+			(roomObjectsToAdd = (roomObjectsCache[Type.Flag] ??= room.find(FIND_FLAGS))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
 		if ((roomObjectTypes & Type.Mineral) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Mineral] as Mineral[/* Hash(range, pos) */][])[0]).length)
+			(roomObjectsToAdd = (roomObjectsCache[Type.Mineral] as Mineral[])).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
 		if ((roomObjectTypes & Type.Resource) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Resource] ??= [room.find(FIND_DROPPED_RESOURCES)])[0]).length)
+			(roomObjectsToAdd = (roomObjectsCache[Type.Resource] ??= room.find(FIND_DROPPED_RESOURCES))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
 		if ((roomObjectTypes & Type.Ruin) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Ruin] ??= [room.find(FIND_RUINS)])[0]).length)
+			(roomObjectsToAdd = (roomObjectsCache[Type.Ruin] ??= room.find(FIND_RUINS))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
 		if ((roomObjectTypes & Type.Source) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Source] as Source[/* Hash(range, pos) */][])[0]).length)
+			(roomObjectsToAdd = (roomObjectsCache[Type.Source] as Source[])).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
 		if ((roomObjectTypes & Type.Tombstone) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Tombstone] ??= [room.find(FIND_TOMBSTONES)])[0]).length)
+			(roomObjectsToAdd = (roomObjectsCache[Type.Tombstone] ??= room.find(FIND_TOMBSTONES))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
@@ -176,12 +172,12 @@ export abstract /* static */ class Find
 	{
 		for (let structureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 		{
-			roomObjectsCache[structureType] = [[]];
+			roomObjectsCache[structureType] = [];
 		}
 
 		for (const structure of allStructures)
 		{
-			(roomObjectsCache[structure.type] as RoomObject[/* Hash(range, pos) */][])[0].push(structure);
+			(roomObjectsCache[structure.type] as RoomObject[]).push(structure);
 		}
 
 		return allStructures;
@@ -192,6 +188,11 @@ export abstract /* static */ class Find
 		pos: RoomPosition,
 		range: number): T[]
 	{
+		if (roomObjects.length <= 0)
+		{
+			return roomObjects;
+		}
+
 		const x: number = pos.x;
 		const y: number = pos.y;
 		const minX: number = x - range;
