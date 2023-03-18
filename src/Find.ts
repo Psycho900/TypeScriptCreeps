@@ -1,4 +1,4 @@
-import { CreepType, Type } from "Type";
+import { CreepType, Type } from "./Type";
 
 // Should be safe for these to live forever:
 const s_roomNameToSources /* */: Record<string, /* */ Source[]> = {};
@@ -6,12 +6,12 @@ const s_roomNameToMinerals /**/: Record<string, /**/ Mineral[]> = {};
 
 // Should reset on each tick:
 let s_spawns: StructureSpawn[] = Object.values(Game.spawns);
-let s_rooms: Room[] = Object.values(Game.rooms);
+let s_rooms: Room[] /*      */ = Object.values(Game.rooms);
 
 declare global
 {
 	type RoomObjectCache = Record<Type, RoomObject[] | undefined>;
-	type CreepCache = Record<CreepType, Creep[] | undefined>;
+	type CreepCache /**/ = Record<CreepType, Creep[] | undefined>;
 
 	interface CreepMemory
 	{
@@ -77,12 +77,12 @@ export abstract /* static */ class Find
 	private static GenerateRoomObjectsOfTypeArray(
 		room: Room,
 		roomObjectsCache: RoomObjectCache,
-		roomObjectTypes: Type): RoomObject[]
+		roomObjectTypesToInclude: Type): RoomObject[]
 	{
 		const roomObjectArraysOfType: RoomObject[][] = [];
 		let roomObjectsToAdd: RoomObject[] | undefined;
 
-		const structureTypes = roomObjectTypes & Type.AllStructures;
+		const structureTypes = roomObjectTypesToInclude & Type.AllStructures;
 
 		if (structureTypes)
 		{
@@ -95,7 +95,7 @@ export abstract /* static */ class Find
 			{
 				for (let structureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 				{
-					if ((roomObjectTypes & structureType) &&
+					if ((roomObjectTypesToInclude & structureType) &&
 						(roomObjectsToAdd = roomObjectsCache[structureType] as AnyStructure[]).length)
 					{
 						roomObjectArraysOfType.push(roomObjectsToAdd);
@@ -108,49 +108,49 @@ export abstract /* static */ class Find
 			}
 		}
 
-		if ((roomObjectTypes & Type.Creep) &&
+		if ((roomObjectTypesToInclude & Type.Creep) &&
 			(roomObjectsToAdd = Find.CreepsOfTypes(room, CreepType.All)).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypes & Type.ConstructionSite) &&
+		if ((roomObjectTypesToInclude & Type.ConstructionSite) &&
 			(roomObjectsToAdd = (roomObjectsCache[Type.ConstructionSite] ??= room.find(FIND_CONSTRUCTION_SITES))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypes & Type.Flag) &&
+		if ((roomObjectTypesToInclude & Type.Flag) &&
 			(roomObjectsToAdd = (roomObjectsCache[Type.Flag] ??= room.find(FIND_FLAGS))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypes & Type.Mineral) &&
+		if ((roomObjectTypesToInclude & Type.Mineral) &&
 			(roomObjectsToAdd = (roomObjectsCache[Type.Mineral] as Mineral[])).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypes & Type.Resource) &&
+		if ((roomObjectTypesToInclude & Type.Resource) &&
 			(roomObjectsToAdd = (roomObjectsCache[Type.Resource] ??= room.find(FIND_DROPPED_RESOURCES))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypes & Type.Ruin) &&
+		if ((roomObjectTypesToInclude & Type.Ruin) &&
 			(roomObjectsToAdd = (roomObjectsCache[Type.Ruin] ??= room.find(FIND_RUINS))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypes & Type.Source) &&
+		if ((roomObjectTypesToInclude & Type.Source) &&
 			(roomObjectsToAdd = (roomObjectsCache[Type.Source] as Source[])).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypes & Type.Tombstone) &&
+		if ((roomObjectTypesToInclude & Type.Tombstone) &&
 			(roomObjectsToAdd = (roomObjectsCache[Type.Tombstone] ??= room.find(FIND_TOMBSTONES))).length)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
@@ -386,4 +386,4 @@ RoomObject.prototype.FindClosest = function (roomObjects)
 */
 
 // eslint-disable-next-line no-console
-console.log(`[${Game.time}] ${s_spawns.length} spawns (last is ${Find.Last(s_spawns)?.ToString()}). ${s_rooms.length} rooms (last is ${Find.Last(s_rooms)?.ToString()})`);
+console.log(`[${Game.time}] ${s_spawns.length} spawns (last is ${Find.Last(s_spawns)?.ToString() ?? 'undefined'}). ${s_rooms.length} rooms (last is ${Find.Last(s_rooms)?.ToString() ?? 'undefined'})`);

@@ -1,6 +1,6 @@
-import { Find } from "Find";
-import { Log } from "Log";
-import { Type } from "Type";
+import { Find } from "./Find";
+import { Log } from "./Log";
+import { Type } from "./Type";
 
 declare global
 {
