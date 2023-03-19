@@ -64,15 +64,15 @@ export enum Type
 
 export enum CreepType
 {
-	None /*      */ = 0,
-	Harvester /* */ = 1 << 0,
-	Runner /*    */ = 1 << 1,
-	Builder /*   */ = 1 << 2,
-	Upgrader /*  */ = 1 << 3,
-	Miner /*     */ = 1 << 4,
-	Claimer /*   */ = 1 << 5,
-	Attacker /*  */ = 1 << 6,
-	Enemy /*     */ = 1 << 7, // Keep this one last before the groups! (Or update the "All" definition below)
+	None /*     */ = 0,
+	Harvester /**/ = 1 << 0,
+	Runner /*   */ = 1 << 1,
+	Builder /*  */ = 1 << 2,
+	Upgrader /* */ = 1 << 3,
+	Miner /*    */ = 1 << 4,
+	Claimer /*  */ = 1 << 5,
+	Attacker /* */ = 1 << 6,
+	Enemy /*    */ = 1 << 7, // Keep this one last before the groups! (Or update the "All" definition below)
 
 	All = (Enemy << 1) - 1,
 
@@ -136,37 +136,37 @@ declare global
 {
 	interface CreepMemory { t: CreepType; }
 
-	interface Room /*         */ { creepType: CreepType; }
-	interface RoomPosition /* */ { creepType: CreepType; }
-	interface RoomObject /*   */ { creepType: CreepType; }
+	interface Room /*        */ { creepType: CreepType; }
+	interface RoomPosition /**/ { creepType: CreepType; }
+	interface RoomObject /*  */ { creepType: CreepType; }
 
-	interface Room /*         */ { room: Room; }
-	interface RoomPosition /* */ { room: Room | undefined; }
-	// interface RoomObject /**/ { room: Room | undefined; }
+	interface Room /*        */ { room: Room; }
+	interface RoomPosition /**/ { room: Room | undefined; }
+	// interface RoomObject     { room: Room | undefined; }
 
-	interface Room /*         */ { roomName: string; }
-	// interface RoomPosition    { roomName: string; }
-	interface RoomObject /*   */ { roomName: string; }
+	interface Room /*        */ { roomName: string; }
+	// interface RoomPosition   { roomName: string; }
+	interface RoomObject /*  */ { roomName: string; }
 }
 
 Room.prototype.creepType /*        */ = CreepType.None;
 RoomPosition.prototype.creepType /**/ = CreepType.None;
 RoomObject.prototype.creepType /*  */ = CreepType.None;
-Object.defineProperty(Creep.prototype /*       */, "creepType" /**/, { "get": function (this: Creep) /*       */ { const creepMemory = Memory.creeps[this.name]; return creepMemory ? creepMemory.t : CreepType.Enemy; } });
+Object.defineProperty(Creep.prototype, "creepType", { get(this: Creep): CreepType { const creepMemory = Memory.creeps[this.name]; return creepMemory ? creepMemory.t : CreepType.Enemy; } });
 
-Object.defineProperty(Room.prototype /*        */, "room" /*     */, { "get": function (this: Room) /*        */ { return this; } });
-Object.defineProperty(RoomPosition.prototype /**/, "room" /*     */, { "get": function (this: RoomPosition) /**/ { return Game.rooms[this.roomName]; } });
-// Object.defineProperty(RoomObject.prototype    , "room"          , { "get": function (this: RoomObject)        { return this.room; } });
+Object.defineProperty(Room.prototype /*        */, "room", { get(this: Room /*   */): Room /*       */ { return this; } });
+Object.defineProperty(RoomPosition.prototype /**/, "room", { get(this: RoomPosition): Room | undefined { return Game.rooms[this.roomName]; } });
+// Object.defineProperty(RoomObject.prototype    , "room", { get(this: RoomObject  ): Room | undefined { return this.room; } });
 
-Object.defineProperty(Room.prototype /*        */, "roomName" /* */, { "get": function (this: Room) /*        */ { return this.name; } });
-// Object.defineProperty(RoomPosition.prototype  , "roomName" /* */, { "get": function (this: RoomPosition)      { return this.roomName; } });
-Object.defineProperty(RoomObject.prototype /*  */, "roomName" /* */, { "get": function (this: RoomObject) /*  */ { return this.pos.roomName; } });
+Object.defineProperty(Room.prototype /*        */, "roomName", { get(this: Room /*      */): string { return this.name; } });
+// Object.defineProperty(RoomPosition.prototype  , "roomName", { get(this: RoomPosition   ): string { return this.roomName; } });
+Object.defineProperty(RoomObject.prototype /*  */, "roomName", { get(this: RoomObject /**/): string { return this.pos.roomName; } });
 
 declare global
 {
-	interface Room /*         */ { ToString(): string; }
-	interface RoomPosition /* */ { ToString(): string; }
-	interface RoomObject /*   */ { ToString(): string; }
+	interface Room /*        */ { ToString(): string; }
+	interface RoomPosition /**/ { ToString(): string; }
+	interface RoomObject /*  */ { ToString(): string; }
 }
 
 Room.prototype.ToString = function (): string
@@ -174,22 +174,24 @@ Room.prototype.ToString = function (): string
 	return `<a href="https://screeps.com/a/#!/room/shard2/${this.name}">${this.name}</a>`;
 };
 
-// @ts-ignore: TODO_KevSchil: Figure out how to do the generic prototype here
-Store.prototype.ToString = function (this: StoreDefinitionUnlimited): string
+// @ts-ignore: I think this is the best we can do for this type that isn't declared in our code anywhere
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+Store.prototype.ToString = function (this: StoreDefinition): string
 {
 	const resourceTypes: string[] = Object.keys(this);
+	const energyCapacity: number = this.getCapacity(RESOURCE_ENERGY);
 
 	if (resourceTypes.length === 0 || (resourceTypes.length === 1 && resourceTypes[0] === RESOURCE_ENERGY))
 	{
-		return `[${this.energy}/${this.getCapacity(RESOURCE_ENERGY)}]`;
+		return `[${this.energy}/${energyCapacity}]`;
 	}
 
-	return `[ ${JSON.stringify(this)} / ${this.getCapacity(RESOURCE_ENERGY)} ]`;
+	return `[ ${JSON.stringify(this)} / ${energyCapacity} ]`;
 };
 
 RoomPosition.prototype.ToString = function (): string
 {
-	return `(${this.x}, ${this.y}, <a href="https://screeps.com/a/#!/room/shard2/${this.roomName}">${this.roomName}</a>)`;
+	return `(${this.x}, ${this.y}, <a href="https://screeps.com/a/#!/room/shard3/${this.roomName}">${this.roomName}</a>)`;
 };
 
 function AppendPropertyString<T>(
@@ -199,10 +201,12 @@ function AppendPropertyString<T>(
 	valueToStringFunction?: (value: T) => string): void
 {
 	// @ts-ignore: The whole point is to see if this specific roomObject happens to have the given property
-	const value = roomObject[propertyName];
+	const value: T = roomObject[propertyName] as T;
 
 	if (value != null) // null || undefined
 	{
+		// @ts-ignore: The whole point is to see if this specific roomObject happens to have the given property
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		result.push(`${propertyName}: ${valueToStringFunction ? valueToStringFunction(value) : (value.ToString ? value.ToString() : value)}`);
 	}
 }

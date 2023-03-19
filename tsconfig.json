@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "ES2020",
-		"lib": [ "ES2021" ],
-		"target": "ES2021",
+		"module": "esnext",
+		"lib": [ "ESNext" ],
+		"target": "ESNext",
 		"moduleResolution": "Node",
 		"outDir": "dist",
 		"baseUrl": "src/",
@@ -23,6 +23,11 @@
 		"pretty": true,
 		"removeComments": true
 	},
+	"include": [
+		"src/*.ts",
+		"src/Behaviors/*.ts",
+		".eslintrc.js"
+	],
 	"exclude": [
 		"node_modules"
 	]

@@ -16,7 +16,7 @@ module.exports = {
 	],
 	parser: "@typescript-eslint/parser",
 	parserOptions: {
-		project: "tsconfig.json",
+		project: "C:\\Repos\\TypeScriptCreeps\\tsconfig.json",
 		sourceType: "module",
 		ecmaVersion: "latest",
 	},
@@ -29,8 +29,9 @@ module.exports = {
 			typescript: {}
 		}
 	},
-	"rules": {
+	rules: {
 		"@typescript-eslint/array-type": "error",
+		"@typescript-eslint/ban-ts-comment": "off",
 		"@typescript-eslint/consistent-type-assertions": "error",
 		"@typescript-eslint/consistent-type-definitions": "error",
 		"@typescript-eslint/explicit-function-return-type": "error",
@@ -52,6 +53,7 @@ module.exports = {
 		"@typescript-eslint/no-unused-expressions": "error",
 		"@typescript-eslint/no-use-before-define": ["error", { functions: false }],
 		"@typescript-eslint/prefer-for-of": "error",
+		"@typescript-eslint/restrict-template-expressions": "off",
 		"@typescript-eslint/space-within-parens": ["off", "never"],
 		"@typescript-eslint/unified-signatures": "error",
 		"arrow-parens": ["off", "as-needed"],
@@ -75,7 +77,7 @@ module.exports = {
 		"no-invalid-this": "error",
 		"no-multiple-empty-lines": "error",
 		"no-new-wrappers": "error",
-		"no-shadow": "error",
+		"no-shadow": "off",
 		"no-throw-literal": "error",
 		"no-trailing-spaces": "error",
 		"no-undef-init": "error",
@@ -85,7 +87,7 @@ module.exports = {
 		"object-shorthand": "error",
 		"one-var": ["error", "never"],
 		"prettier/prettier": "off",
-		"quote-props": "error",
+		"quote-props": "off",
 		"radix": "error",
 		"sort-imports": "error",
 		"spaced-comment": "error",

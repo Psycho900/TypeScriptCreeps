@@ -386,4 +386,4 @@ RoomObject.prototype.FindClosest = function (roomObjects)
 */
 
 // eslint-disable-next-line no-console
-console.log(`[${Game.time}] ${s_spawns.length} spawns (last is ${Find.Last(s_spawns)?.ToString() ?? 'undefined'}). ${s_rooms.length} rooms (last is ${Find.Last(s_rooms)?.ToString() ?? 'undefined'})`);
+console.log(`[${Game.time}] ${s_spawns.length} spawns (last is ${Find.Last(s_spawns)?.ToString()}). ${s_rooms.length} rooms (last is ${Find.Last(s_rooms)?.ToString()})`);
