@@ -26,9 +26,10 @@
 	"include": [
 		"src/*.ts",
 		"src/Behaviors/*.ts",
-		".eslintrc.js"
 	],
 	"exclude": [
-		"node_modules"
+		"node_modules",
+		"*.js",
+		"dist/*.js"
 	]
 }

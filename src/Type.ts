@@ -147,6 +147,10 @@ declare global
 	interface Room /*        */ { roomName: string; }
 	// interface RoomPosition   { roomName: string; }
 	interface RoomObject /*  */ { roomName: string; }
+
+	// interface Room /*     */ { pos: RoomPosition; }
+	interface RoomPosition /**/ { pos: RoomPosition; }
+	// interface RoomObject     { pos: RoomPosition; }
 }
 
 Room.prototype.creepType /*        */ = CreepType.None;
@@ -161,6 +165,10 @@ Object.defineProperty(RoomPosition.prototype /**/, "room", { get(this: RoomPosit
 Object.defineProperty(Room.prototype /*        */, "roomName", { get(this: Room /*      */): string { return this.name; } });
 // Object.defineProperty(RoomPosition.prototype  , "roomName", { get(this: RoomPosition   ): string { return this.roomName; } });
 Object.defineProperty(RoomObject.prototype /*  */, "roomName", { get(this: RoomObject /**/): string { return this.pos.roomName; } });
+
+// Object.defineProperty(Room.prototype /*     */, "pos", { get(this: Room /*   */): RoomPosition /*       */ { return this; } });
+Object.defineProperty(RoomPosition.prototype /**/, "pos", { get(this: RoomPosition): RoomPosition | undefined { return this; } });
+// Object.defineProperty(RoomObject.prototype    , "pos", { get(this: RoomObject  ): RoomPosition | undefined { return this.pos; } });
 
 declare global
 {

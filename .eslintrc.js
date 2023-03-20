@@ -16,7 +16,7 @@ module.exports = {
 	],
 	parser: "@typescript-eslint/parser",
 	parserOptions: {
-		project: "C:\\Repos\\TypeScriptCreeps\\tsconfig.json",
+		project: "C:/Repos/TypeScriptCreeps/tsconfig.json",
 		sourceType: "module",
 		ecmaVersion: "latest",
 	},
@@ -73,6 +73,7 @@ module.exports = {
 		"no-caller": "error",
 		"no-cond-assign": "error",
 		"no-console": "error",
+		"no-constant-condition": "off",
 		"no-eval": "error",
 		"no-invalid-this": "error",
 		"no-multiple-empty-lines": "error",

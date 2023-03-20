@@ -41,10 +41,14 @@ export abstract /* static */ class Find
 		}
 	}
 
-	public static Types(room: Room, types: Type): RoomObject[]
+	public static Spawns(): StructureSpawn[]
 	{
-		const cache: RoomObjectCache = (room.cache ??= Find.GenerateDefaultRoomCache(room));
-		return cache[types] ??= Find.GenerateRoomObjectsOfTypeArray(room, cache, types);
+		return s_spawns;
+	}
+
+	public static Rooms(): Room[]
+	{
+		return s_rooms;
 	}
 
 	public static TypesInRange(roomObject: RoomObject, types: Type, range: number): RoomObject[]
@@ -57,11 +61,178 @@ export abstract /* static */ class Find
 		return Find.GetRoomObjectsInRange(rangeCache, pos, range);
 	}
 
+	public static Creeps(room: Room): Creep[]
+	{
+		return Find.CreepsOfTypes(room, CreepType.All);
+	}
+
 	public static CreepsOfTypes(room: Room, creepTypes: CreepType): Creep[]
 	{
 		const creepsCache: CreepCache = (room.creepsCache ??= { [CreepType.All]: room.find(FIND_CREEPS) });
 		return creepsCache[creepTypes] ??= Find.GenerateCreepsOfTypeArray(creepsCache[CreepType.All] as Creep[], creepTypes);
 	}
+
+	public static Last<T>(elements: T[]): T | undefined
+	{
+		return elements[elements.length - 1];
+	}
+
+	public static HighestScoringElement<T>(
+		elements: T[],
+		scoreFunction: (element: T) => number,
+		secondaryScoreFunction?: (element: T) => number): T | undefined
+	{
+		if (elements.length <= 1)
+		{
+			return elements[0];
+		}
+
+		if (secondaryScoreFunction)
+		{
+			// ONLY non-null when we have more than 1 element tied for highest score
+			let bestElements: null | T[/* 2+ */] = null;
+			let bestElement: T = elements[0];
+			let bestScore: number = scoreFunction(bestElement);
+
+			for (let i = 1; i < this.length; ++i)
+			{
+				const currentElement: T = elements[i];
+				const currentScore: number = scoreFunction(currentElement);
+
+				if (currentScore < bestScore) // Common case
+				{
+					continue;
+				}
+
+				if (currentScore > bestScore) // New highest score
+				{
+					bestElements = null; // No more tie-breaker!
+					bestElement = currentElement;
+					bestScore = currentScore;
+					continue;
+				}
+
+				if (!bestElements) // 2-way tie for highest score
+				{
+					bestElements = [bestElement, currentElement];
+					continue;
+				}
+
+				bestElements.push(currentElement); // 3+ way tie for highest score
+			}
+
+			if (!bestElements) // Only 1 highest score
+			{
+				return bestElement; // bestElement is only valid when bestElements is null
+			}
+
+			// Treat the normal search below as the tie-breaker search
+			elements = bestElements;
+			scoreFunction = secondaryScoreFunction;
+		}
+
+		let bestElement2: T = elements[0];
+		let bestScore2: number = scoreFunction(bestElement2);
+
+		for (let i = 1; i < elements.length; ++i)
+		{
+			const currentElement: T = elements[i];
+			const currentScore: number = scoreFunction(currentElement);
+
+			if (currentScore > bestScore2) // Take the 1st one with the highest score
+			{
+				bestElement2 = currentElement;
+				bestScore2 = currentScore;
+			}
+		}
+
+		return bestElement2;
+	}
+
+	public static HighestScoringRoomObject<T extends RoomObject>(
+		roomPosition: RoomPosition,
+		elements: T[],
+		scoreFunction: (element: T) => number): T | undefined
+	{
+		return Find.HighestScoringElement(elements, scoreFunction, (test) => -Find.Distance(roomPosition, test));
+	}
+
+	public static Distance(
+		fromObjectOrPosition: RoomObject | RoomPosition,
+		toObjectOrPosition: RoomObject | RoomPosition): number
+	{
+		const from: RoomPosition = fromObjectOrPosition.pos;
+		const to: RoomPosition = toObjectOrPosition.pos;
+
+		let fromX: number = from.x;
+		let fromY: number = from.y;
+		let toX: number = to.x;
+		let toY: number = to.y;
+
+		const fromRoomName: string = from.roomName;
+		const toRoomName: string = to.roomName;
+
+		if (fromRoomName !== toRoomName)
+		{
+			let characterIndex: number;
+			let magnitude: number;
+			let char: number;
+
+			// toRoomName adjustments
+			magnitude = toRoomName.charCodeAt(characterIndex = toRoomName.length - 1) - 0x30; // '0'
+			if ((char = toRoomName.charCodeAt(--characterIndex)) <= 0x39) // '9'
+			{
+				magnitude += 10 * (char - 0x30); // '0'
+				char = toRoomName.charCodeAt(--characterIndex);
+			}
+			toY += (char === 0x4E /* 'N' */ ? -50 * magnitude : 50 * magnitude + 50); // Origin is in the upper-left
+
+			magnitude = toRoomName.charCodeAt(--characterIndex) - 0x30; // '0'
+			if ((char = toRoomName.charCodeAt(--characterIndex)) <= 0x39) // '9'
+			{
+				magnitude += 10 * (char - 0x30); // '0'
+				char = toRoomName.charCodeAt(0);
+			}
+			toX += (char === 0x57 /* 'W' */ ? -50 * magnitude : 50 * magnitude + 50); // Origin is in the upper-left
+
+			// fromRoomName adjustments
+			magnitude = fromRoomName.charCodeAt(characterIndex = fromRoomName.length - 1) - 0x30; // '0'
+			if ((char = fromRoomName.charCodeAt(--characterIndex)) <= 0x39) // '9'
+			{
+				magnitude += 10 * (char - 0x30); // '0'
+				char = fromRoomName.charCodeAt(--characterIndex);
+			}
+			fromY += (char === 0x4E /* 'N' */ ? -50 * magnitude : 50 * magnitude + 50); // Origin is in the upper-left
+
+			magnitude = fromRoomName.charCodeAt(--characterIndex) - 0x30; // '0'
+			if ((char = fromRoomName.charCodeAt(--characterIndex)) <= 0x39) // '9'
+			{
+				magnitude += 10 * (char - 0x30); // '0'
+				char = fromRoomName.charCodeAt(0);
+			}
+			fromX += (char === 0x57 /* 'W' */ ? -50 * magnitude : 50 * magnitude + 50); // Origin is in the upper-left
+		}
+
+		return Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY));
+	}
+
+	public static Destination(creep: Creep): RoomPosition | undefined
+	{
+		const creepMemory: CreepMemory = Memory.creeps[creep.name];
+		let destination: { x: number; y: number; room: string; } | undefined;
+
+		return (destination = creepMemory?._move?.dest)
+			&& new RoomPosition(destination.x, destination.y, destination.room);
+	}
+
+	public static DistanceToDestination(creep: Creep): number
+	{
+		const destinationPosition: RoomPosition | undefined = Find.Destination(creep);
+		return destinationPosition
+			? Math.max(Find.Distance(creep.pos, destinationPosition) - ((creep.creepType & CreepType.Consumers) ? 3 : 1), 0)
+			: 0; // ^ Builders can build from 3 away, pretty much everything else needs to be right next to their destination
+	}
+
 
 	private static GenerateDefaultRoomCache(room: Room): RoomObjectCache
 	{
@@ -233,136 +404,6 @@ export abstract /* static */ class Find
 		return creepsOfType;
 	}
 
-	public static Last<T>(elements: T[]): T | undefined
-	{
-		return elements[elements.length - 1];
-	}
-
-	public static HighestScoringElement<T>(
-		elements: T[],
-		scoreFunction: (element: T) => number,
-		secondaryScoreFunction?: (element: T) => number): T | undefined
-	{
-		if (elements.length <= 1)
-		{
-			return elements[0];
-		}
-
-		if (secondaryScoreFunction)
-		{
-			// ONLY non-null when we have more than 1 element tied for highest score
-			let bestElements: null | T[/* 2+ */] = null;
-			let bestElement: T = elements[0];
-			let bestScore: number = scoreFunction(bestElement);
-
-			for (let i = 1; i < this.length; ++i)
-			{
-				const currentElement: T = elements[i];
-				const currentScore: number = scoreFunction(currentElement);
-
-				if (currentScore < bestScore) // Common case
-				{
-					continue;
-				}
-
-				if (currentScore > bestScore) // New highest score
-				{
-					bestElements = null; // No more tie-breaker!
-					bestElement = currentElement;
-					bestScore = currentScore;
-					continue;
-				}
-
-				if (!bestElements) // 2-way tie for highest score
-				{
-					bestElements = [bestElement, currentElement];
-					continue;
-				}
-
-				bestElements.push(currentElement); // 3+ way tie for highest score
-			}
-
-			if (!bestElements) // Only 1 highest score
-			{
-				return bestElement; // bestElement is only valid when bestElements is null
-			}
-
-			// Treat the normal search below as the tie-breaker search
-			elements = bestElements;
-			scoreFunction = secondaryScoreFunction;
-		}
-
-		let bestElement2: T = elements[0];
-		let bestScore2: number = scoreFunction(bestElement2);
-
-		for (let i = 1; i < elements.length; ++i)
-		{
-			const currentElement: T = elements[i];
-			const currentScore: number = scoreFunction(currentElement);
-
-			if (currentScore > bestScore2) // Take the 1st one with the highest score
-			{
-				bestElement2 = currentElement;
-				bestScore2 = currentScore;
-			}
-		}
-
-		return bestElement2;
-	}
-
-	public static HighestScoringRoomObject<T extends RoomObject>(roomPosition: RoomPosition, elements: T[], scoreFunction: (element: T) => number): T | undefined
-	{
-		return Find.HighestScoringElement(elements, scoreFunction, (test) => -Find.Distance(roomPosition, test.pos));
-	}
-
-	public static Distance(from: RoomPosition, to: RoomPosition): number
-	{
-		const fromRoomName: string = from.roomName;
-		const toRoomName: string = to.roomName;
-
-		if (fromRoomName === toRoomName)
-		{
-			return from.getRangeTo(to);
-		}
-
-		return 50 * Game.map.getRoomLinearDistance(fromRoomName, toRoomName); // TODO_KevSchil: PathFinder.search is too expensive
-
-		// //to.range = 1; // PathFinder requires this if a creep can't be on top of "to".
-		// //const pathResult = PathFinder.search(this.pos, to);
-		// //
-		// //if (pathResult.incomplete !== false)
-		// //{
-		// //    Log.Error("GetDistance: PathFinder.search did not complete!", null, this, to);
-		// //    return 1000000;
-		// //}
-		// //
-		// //return pathResult.path.length + 1; // +1 because of the "to.range = 1;" above
-	}
-
-	public static Destination(creep: Creep): RoomPosition | undefined
-	{
-		const creepMemory = Memory.creeps[creep.name];
-		let destination: { x: number; y: number; room: string; } | undefined;
-
-		return creepMemory
-			&& creepMemory._move
-			&& (destination = creepMemory._move.dest)
-			&& new RoomPosition(destination.x, destination.y, destination.room);
-	}
-
-	public static DistanceToDestination(creep: Creep): number
-	{
-		const destinationPosition = Find.Destination(creep);
-
-		if (!destinationPosition)
-		{
-			return 0;
-		}
-
-		const destinationDistance = Find.Distance(creep.pos, destinationPosition);
-		const maxDistanceToBeNearDestination = (creep.creepType & CreepType.Consumers) ? 3 : 1; // Builders can build from 3 away, pretty much everything else needs to be right next to their destination
-		return Math.max(destinationDistance - maxDistanceToBeNearDestination, 0);
-	}
 }
 
 /*
