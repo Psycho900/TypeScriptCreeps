@@ -1,4 +1,5 @@
-import { CreepType, Type } from "./Type";
+import { AnyCreepType, CreepType, ToCreepInterface } from "./CreepType";
+import { AnyRoomObjectType, AnyStructureType, ToInterface, Type } from "./Type";
 
 // Should be safe for these to live forever:
 const s_roomNameToSources /* */: Record<string, /* */ Source[]> = {};
@@ -6,13 +7,24 @@ const s_roomNameToMinerals /**/: Record<string, /**/ Mineral[]> = {};
 
 // Should reset on each tick:
 let s_spawns: StructureSpawn[] = Object.values(Game.spawns);
-let s_rooms: Room[] /*      */ = Object.values(Game.rooms);
+let s_rooms: /*      */ Room[] = Object.values(Game.rooms);
+
+type RoomObjectCache =
+	{
+		[TRoomObjectType in AnyRoomObjectType]?: ToInterface<TRoomObjectType>[];
+	} /* | {
+		[key: number]: AnyRoomObject[] | undefined;
+	}*/;
+
+type CreepCache =
+	{
+		[TCreepTypes in AnyCreepType]?: Creep[];
+	} /* | {
+		[key: number]: Creep[] | undefined;
+	}*/;
 
 declare global
 {
-	type RoomObjectCache = Record<Type, RoomObject[] | undefined>;
-	type CreepCache /**/ = Record<CreepType, Creep[] | undefined>;
-
 	interface CreepMemory
 	{
 		_move: { dest: { x: number; y: number; room: string; }; };
@@ -20,8 +32,8 @@ declare global
 
 	interface Room
 	{
-		cache: RoomObjectCache | undefined;
-		creepsCache: CreepCache | undefined;
+		cache: RoomObjectCache;
+		creepsCache: CreepCache;
 	}
 }
 
@@ -35,9 +47,16 @@ export abstract /* static */ class Find
 
 		for (const room of s_rooms)
 		{
+			const roomName: string = room.name;
+
 			// Clear whatever existing caches we had from the previous tick
-			room.cache = undefined;
-			room.creepsCache = undefined;
+			room.cache = (
+				{
+					[Type.Source] /* */: s_roomNameToSources[roomName] /* */ ??= room.find(FIND_SOURCES),
+					[Type.Mineral] /**/: s_roomNameToMinerals[roomName] /**/ ??= room.find(FIND_MINERALS),
+				});
+
+			room.creepsCache = { [CreepType.All]: room.find(FIND_CREEPS) };
 		}
 	}
 
@@ -51,25 +70,30 @@ export abstract /* static */ class Find
 		return s_rooms;
 	}
 
-	public static TypesInRange(roomObject: RoomObject, types: Type, range: number): RoomObject[]
+	public static Types<TRoomObjectTypes extends AnyRoomObjectType>(
+		room: Room,
+		types: TRoomObjectTypes): ToInterface<TRoomObjectTypes>[]
 	{
-		const room: Room = roomObject.room as Room; // Just don't call this in cases where .room is undefined
-		const cache: RoomObjectCache = (room.cache ??= Find.GenerateDefaultRoomCache(room));
+		const cache: RoomObjectCache = room.cache;
+		return (cache[types] as ToInterface<TRoomObjectTypes>[] | undefined)
+			??= Find.GenerateRoomObjectsOfTypeArray(room, cache, types);
+	}
+
+	public static TypesInRange<TRoomObjectTypes extends AnyRoomObjectType>(
+		roomObject: RoomObject,
+		types: TRoomObjectTypes,
+		range: number): ToInterface<TRoomObjectTypes>[]
+	{
 		return Find.GetRoomObjectsInRange(
-			cache[types] ??= Find.GenerateRoomObjectsOfTypeArray(room, cache, types),
+			Find.Types(roomObject.room!, types),
 			roomObject.pos,
 			range);
 	}
 
-	public static Creeps(room: Room): Creep[]
+	public static CreepsOfTypes<TCreepType extends AnyCreepType>(room: Room, creepTypes: TCreepType): Creep[]
 	{
-		return Find.CreepsOfTypes(room, CreepType.All);
-	}
-
-	public static CreepsOfTypes(room: Room, creepTypes: CreepType): Creep[]
-	{
-		const creepsCache: CreepCache = (room.creepsCache ??= { [CreepType.All]: room.find(FIND_CREEPS) });
-		return creepsCache[creepTypes] ??= Find.GenerateCreepsOfTypeArray(creepsCache[CreepType.All] as Creep[], creepTypes);
+		const creepsCache: CreepCache = room.creepsCache;
+		return creepsCache[creepTypes] ??= Find.GenerateCreepsOfTypeArray(creepsCache[CreepType.All]!, creepTypes);
 	}
 
 	public static Last<T>(elements: T[]): T | undefined
@@ -79,87 +103,118 @@ export abstract /* static */ class Find
 
 	public static HighestScoringElement<T>(
 		elements: T[],
-		scoreFunction: (element: T) => number,
-		secondaryScoreFunction?: (element: T) => number): T | undefined
+		scoreFunction: (element: T) => number): T | undefined
 	{
-		if (elements.length <= 1)
+		const elementsLength: number = elements.length;
+		let bestElement: T = elements[0];
+
+		if (elementsLength <= 1)
 		{
-			return elements[0];
+			return bestElement;
 		}
 
-		if (secondaryScoreFunction)
-		{
-			// ONLY non-null when we have more than 1 element tied for highest score
-			let bestElements: null | T[/* 2+ */] = null;
-			let bestElement: T = elements[0];
-			let bestScore: number = scoreFunction(bestElement);
+		let bestScore: number = scoreFunction(bestElement);
 
-			for (let i = 1; i < this.length; ++i)
-			{
-				const currentElement: T = elements[i];
-				const currentScore: number = scoreFunction(currentElement);
-
-				if (currentScore < bestScore) // Common case
-				{
-					continue;
-				}
-
-				if (currentScore > bestScore) // New highest score
-				{
-					bestElements = null; // No more tie-breaker!
-					bestElement = currentElement;
-					bestScore = currentScore;
-					continue;
-				}
-
-				if (!bestElements) // 2-way tie for highest score
-				{
-					bestElements = [bestElement, currentElement];
-					continue;
-				}
-
-				bestElements.push(currentElement); // 3+ way tie for highest score
-			}
-
-			if (!bestElements) // Only 1 highest score
-			{
-				return bestElement; // bestElement is only valid when bestElements is null
-			}
-
-			// Treat the normal search below as the tie-breaker search
-			elements = bestElements;
-			scoreFunction = secondaryScoreFunction;
-		}
-
-		let bestElement2: T = elements[0];
-		let bestScore2: number = scoreFunction(bestElement2);
-
-		for (let i = 1; i < elements.length; ++i)
+		for (let i: number = 1; i < elementsLength; ++i)
 		{
 			const currentElement: T = elements[i];
 			const currentScore: number = scoreFunction(currentElement);
 
-			if (currentScore > bestScore2) // Take the 1st one with the highest score
+			if (currentScore > bestScore) // Take the 1st one with the highest score
 			{
-				bestElement2 = currentElement;
-				bestScore2 = currentScore;
+				bestElement = currentElement;
+				bestScore = currentScore;
 			}
 		}
 
-		return bestElement2;
+		return bestElement;
 	}
 
-	public static HighestScoringRoomObject<T extends RoomObject>(
-		roomPosition: RoomPosition,
+	public static HighestScoringElement2<T>(
 		elements: T[],
-		scoreFunction: (element: T) => number): T | undefined
+		/*    */ scoreFunction: (element: T) => number,
+		secondaryScoreFunction: (element: T) => number): T | undefined
 	{
-		return Find.HighestScoringElement(elements, scoreFunction, (test) => -Find.Distance(roomPosition, test));
+		let elementsLength: number = elements.length;
+		let bestElement: T = elements[0];
+
+		if (elementsLength <= 1)
+		{
+			return bestElement;
+		}
+
+		let bestScore: number = scoreFunction(bestElement);
+
+		// ONLY non-null when we have more than 1 element tied for highest score
+		let bestElements: null | T[/* 2+ */] = null;
+
+		for (let i: number = 1; i < elementsLength; ++i)
+		{
+			const currentElement: T = elements[i];
+			const currentScore: number = scoreFunction(currentElement);
+
+			if (currentScore < bestScore) // Common case
+			{
+				continue;
+			}
+
+			if (currentScore > bestScore) // New highest score
+			{
+				bestElements = null; // No more tie-breaker!
+				bestElement = currentElement;
+				bestScore = currentScore;
+				continue;
+			}
+
+			if (bestElements === null) // 2-way tie for highest score
+			{
+				bestElements = [bestElement, currentElement];
+				continue;
+			}
+
+			bestElements.push(currentElement); // 3+ way tie for highest score
+		}
+
+		if (bestElements === null) // Only 1 highest score
+		{
+			return bestElement; // bestElement is only valid when bestElements is null
+		}
+
+		// Treat the normal search below as the tie-breaker search
+		elements = bestElements;
+		elementsLength = bestElements.length;
+		// bestElement = bestElements[0]; // This should still be the 1st element in bestElements
+		bestScore = secondaryScoreFunction(bestElement);
+
+		for (let i: number = 1; i < elementsLength; ++i)
+		{
+			const currentElement: T = elements[i];
+			const currentScore: number = secondaryScoreFunction(currentElement);
+
+			if (currentScore > bestScore) // Take the 1st one with the highest score
+			{
+				bestElement = currentElement;
+				bestScore = currentScore;
+			}
+		}
+
+		return bestElement;
+	}
+
+	public static HighestScoringRoomObject<TRoomObject extends AnyRoomObject>(
+		roomPosition: RoomPosition,
+		elements: TRoomObject[],
+		scoreFunction: (element: TRoomObject) => number): TRoomObject | undefined
+	{
+		return Find.HighestScoringElement2(
+			elements,
+			scoreFunction,
+			(test: TRoomObject): number => -Find.Distance(roomPosition, test));
 	}
 
 	public static Distance(
-		fromObjectOrPosition: RoomObject | RoomPosition,
-		toObjectOrPosition: RoomObject | RoomPosition): number
+		fromObjectOrPosition: AnyRoomObject | RoomPosition,
+		toObjectOrPosition: AnyRoomObject | RoomPosition): number
 	{
 		const from: RoomPosition = fromObjectOrPosition.pos;
 		const to: RoomPosition = toObjectOrPosition.pos;
@@ -227,48 +282,40 @@ export abstract /* static */ class Find
 	public static DistanceToDestination(creep: Creep): number
 	{
 		const destinationPosition: RoomPosition | undefined = Find.Destination(creep);
+
 		return destinationPosition
-			? Math.max(Find.Distance(creep.pos, destinationPosition) - ((creep.creepType & CreepType.Consumers) ? 3 : 1), 0)
+			? Math.max(Find.Distance(creep.pos, destinationPosition) - (creep.IsAny(CreepType.AllConsumers) ? 3 : 1), 0)
 			: 0; // ^ Builders can build from 3 away, pretty much everything else needs to be right next to their destination
 	}
 
-
-	private static GenerateDefaultRoomCache(room: Room): RoomObjectCache
+	private static GenerateRoomObjectsOfTypeArray<
+		TRoomObjectTypes extends AnyRoomObjectType,
+		TRoomObjects extends ToInterface<TRoomObjectTypes>>(
+			room: Room,
+			roomObjectsCache: RoomObjectCache,
+			roomObjectTypesToInclude: TRoomObjectTypes): TRoomObjects[]
 	{
-		const roomName: string = room.name;
+		const roomObjectArraysOfType: TRoomObjects[][] = [];
+		let roomObjectsToAdd: TRoomObjects[] | undefined;
 
-		return (
-			{
-				[Type.Source] /* */: s_roomNameToSources[roomName] /* */ ??= room.find(FIND_SOURCES),
-				[Type.Mineral] /**/: s_roomNameToMinerals[roomName] /**/ ??= room.find(FIND_MINERALS),
-			});
-	}
-
-	private static GenerateRoomObjectsOfTypeArray(
-		room: Room,
-		roomObjectsCache: RoomObjectCache,
-		roomObjectTypesToInclude: Type): RoomObject[]
-	{
-		const roomObjectArraysOfType: RoomObject[][] = [];
-		let roomObjectsToAdd: RoomObject[] | undefined;
-
-		const structureTypes = roomObjectTypesToInclude & Type.AllStructures;
+		const structureTypes: TRoomObjectTypes & AnyStructureType = (roomObjectTypesToInclude & Type.AllStructures) as TRoomObjectTypes & AnyStructureType;
 
 		if (structureTypes)
 		{
-			roomObjectsCache[Type.AllStructures] ??= Find.CacheEachStructureType(roomObjectsCache, room.find(FIND_STRUCTURES));
+			(roomObjectsCache[Type.AllStructures] as AnyStructure[] | undefined)
+				??= Find.CacheEachStructureType(roomObjectsCache, room.find(FIND_STRUCTURES));
 
 			// This should succeed for AllStructures OR if requesting a single structure type OR anything else that happens to already be cached.
-			if ((roomObjectsToAdd = roomObjectsCache[structureTypes]))
+			if ((roomObjectsToAdd = roomObjectsCache[structureTypes] as (TRoomObjects & AnyStructure)[] | undefined))
 			{
 				roomObjectArraysOfType.push(roomObjectsToAdd);
 			}
 			else
 			{
-				for (let structureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
+				for (let structureType: AnyStructureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 				{
-					if ((roomObjectTypesToInclude & structureType) &&
-						(roomObjectsToAdd = roomObjectsCache[structureType] as AnyStructure[]).length)
+					if ((roomObjectTypesToInclude & structureType) !== 0 &&
+						(roomObjectsToAdd = roomObjectsCache[structureType as AnyStructureType] as (TRoomObjects & AnyStructure)[]).length !== 0)
 					{
 						roomObjectArraysOfType.push(roomObjectsToAdd);
 					}
@@ -276,83 +323,83 @@ export abstract /* static */ class Find
 			}
 		}
 
-		if (roomObjectTypesToInclude & Type.Creep)
+		if ((roomObjectTypesToInclude & Type.Creep) !== 0)
 		{
-			roomObjectArraysOfType.push(Find.CreepsOfTypes(room, CreepType.All));
+			roomObjectArraysOfType.push(Find.CreepsOfTypes(room, CreepType.All) as (TRoomObjects & Creep)[]);
 		}
 
-		if ((roomObjectTypesToInclude & Type.ConstructionSite) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.ConstructionSite] ??= room.find(FIND_CONSTRUCTION_SITES))).length)
-		{
-			roomObjectArraysOfType.push(roomObjectsToAdd);
-		}
-
-		if ((roomObjectTypesToInclude & Type.Flag) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Flag] ??= room.find(FIND_FLAGS))).length)
+		if ((roomObjectTypesToInclude & Type.ConstructionSite) !== 0 &&
+			(roomObjectsToAdd = (roomObjectsCache[Type.ConstructionSite] ??= room.find(FIND_CONSTRUCTION_SITES)) as (TRoomObjects & ConstructionSite<BuildableStructureConstant>)[]).length !== 0)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypesToInclude & Type.Mineral) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Mineral] as Mineral[])).length)
+		if ((roomObjectTypesToInclude & Type.Flag) !== 0 &&
+			(roomObjectsToAdd = (roomObjectsCache[Type.Flag] ??= room.find(FIND_FLAGS)) as (TRoomObjects & Flag)[]).length !== 0)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypesToInclude & Type.Resource) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Resource] ??= room.find(FIND_DROPPED_RESOURCES))).length)
+		if ((roomObjectTypesToInclude & Type.Mineral) !== 0 &&
+			(roomObjectsToAdd = (roomObjectsCache[Type.Mineral] as (TRoomObjects & Mineral)[])).length !== 0)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypesToInclude & Type.Ruin) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Ruin] ??= room.find(FIND_RUINS))).length)
+		if ((roomObjectTypesToInclude & Type.Resource) !== 0 &&
+			(roomObjectsToAdd = (roomObjectsCache[Type.Resource] ??= room.find(FIND_DROPPED_RESOURCES)) as (TRoomObjects & Resource)[]).length !== 0)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if (roomObjectTypesToInclude & Type.Source)
+		if ((roomObjectTypesToInclude & Type.Ruin) !== 0 &&
+			(roomObjectsToAdd = (roomObjectsCache[Type.Ruin] ??= room.find(FIND_RUINS)) as (TRoomObjects & Ruin)[]).length !== 0)
 		{
-			roomObjectArraysOfType.push(roomObjectsCache[Type.Source] as Source[]);
+			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
-		if ((roomObjectTypesToInclude & Type.Tombstone) &&
-			(roomObjectsToAdd = (roomObjectsCache[Type.Tombstone] ??= room.find(FIND_TOMBSTONES))).length)
+		if ((roomObjectTypesToInclude & Type.Source) !== 0)
+		{
+			roomObjectArraysOfType.push(roomObjectsCache[Type.Source] as (TRoomObjects & Source)[]);
+		}
+
+		if ((roomObjectTypesToInclude & Type.Tombstone) !== 0 &&
+			(roomObjectsToAdd = (roomObjectsCache[Type.Tombstone] ??= room.find(FIND_TOMBSTONES)) as (TRoomObjects & Tombstone)[]).length !== 0)
 		{
 			roomObjectArraysOfType.push(roomObjectsToAdd);
 		}
 
 		if (roomObjectArraysOfType.length > 1)
 		{
-			return Array.prototype.concat.apply([], roomObjectArraysOfType) as RoomObject[];
+			return Array.prototype.concat.apply([], roomObjectArraysOfType) as TRoomObjects[];
 		}
 
-		return roomObjectArraysOfType.length
+		return roomObjectArraysOfType.length !== 0
 			? roomObjectArraysOfType[0]
-			: roomObjectArraysOfType as unknown as RoomObject[]; // All empty arrays are the same type in JavaScript
+			: roomObjectArraysOfType as unknown[] as TRoomObjects[]; // All empty arrays are the same type in JavaScript
 	}
 
 	private static CacheEachStructureType(
 		roomObjectsCache: RoomObjectCache,
 		allStructures: AnyStructure[]): AnyStructure[]
 	{
-		for (let structureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
+		for (let structureType: AnyStructureType = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 		{
-			roomObjectsCache[structureType] = [];
+			roomObjectsCache[structureType as AnyStructureType] = [];
 		}
 
 		for (const structure of allStructures)
 		{
-			(roomObjectsCache[structure.type] as RoomObject[]).push(structure);
+			(roomObjectsCache[structure.type] as AnyStructure[]).push(structure);
 		}
 
 		return allStructures;
 	}
 
-	private static GetRoomObjectsInRange<T extends RoomObject>(
-		roomObjects: T[],
+	private static GetRoomObjectsInRange<TRoomObject extends AnyRoomObject>(
+		roomObjects: TRoomObject[],
 		pos: RoomPosition,
-		range: number): T[]
+		range: number): TRoomObject[]
 	{
 		if (roomObjects.length <= 0)
 		{
@@ -366,7 +413,7 @@ export abstract /* static */ class Find
 		const minY: number = y - range;
 		const maxY: number = y + range;
 
-		const roomObjectsInRange: T[] = [];
+		const roomObjectsInRange: TRoomObject[] = [];
 
 		for (const roomObjectToTest of roomObjects)
 		{
@@ -382,13 +429,15 @@ export abstract /* static */ class Find
 		return roomObjectsInRange;
 	}
 
-	private static GenerateCreepsOfTypeArray(allCreeps: Creep[], creepTypes: CreepType): Creep[]
+	private static GenerateCreepsOfTypeArray<TCreepType extends AnyCreepType>(
+		allCreeps: Creep[],
+		creepTypes: TCreepType): ToCreepInterface<TCreepType>[]
 	{
-		const creepsOfType: Creep[] = [];
+		const creepsOfType: ToCreepInterface<TCreepType>[] = [];
 
 		for (const creep of allCreeps)
 		{
-			if (creep.creepType & creepTypes)
+			if (creep.IsAny(creepTypes))
 			{
 				creepsOfType.push(creep);
 			}

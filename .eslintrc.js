@@ -43,6 +43,7 @@ module.exports = {
 		],
 		"@typescript-eslint/no-explicit-any": "error",
 		"@typescript-eslint/no-inferrable-types": "off",
+		"@typescript-eslint/no-non-null-assertion": "off",
 		"@typescript-eslint/no-parameter-properties": "error",
 		"@typescript-eslint/no-shadow": [
 			"error",

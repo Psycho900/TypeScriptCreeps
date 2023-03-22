@@ -43,16 +43,16 @@ export abstract /* static */ class Log
 	}
 
 	private static GenerateMessage(
-		message: string | null | undefined,
-		hr?: ScreepsReturnCode | null,
+		message: string,
+		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): string
 	{
 		message ??= "";
 
-		if (hr)
+		if (hr !== 0)
 		{
-			message = `${c_hrToString[hr] || hr}! ${message}`;
+			message = `${c_hrToString[hr] ?? hr}! ${message}`;
 		}
 
 		return message
@@ -61,26 +61,24 @@ export abstract /* static */ class Log
 	}
 
 	public static Info(
-		message: string | null | undefined,
-		hr?: ScreepsReturnCode | null,
+		message: string,
+		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): void
 	{
-		message = Log.GenerateMessage(message, hr, creepToLog, targetToLog);
-
 		// eslint-disable-next-line no-console
-		console.log(Log.GetMessagePrefix() + message);
+		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr, creepToLog, targetToLog));
 	}
 
 	public static Error(
-		message: string | null | undefined,
+		message: string,
 		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): void
 	{
 		if (s_currentError)
 		{
-			Log.Info(s_currentError.stack);
+			Log.Info(s_currentError.stack ?? "<unknown callstack>", OK);
 		}
 
 		message = Log.GenerateMessage(message, hr, creepToLog, targetToLog);
@@ -88,7 +86,7 @@ export abstract /* static */ class Log
 	}
 
 	public static Warning(
-		message: string | null | undefined,
+		message: string,
 		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): void
@@ -96,7 +94,7 @@ export abstract /* static */ class Log
 		// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
 		message = "Warning: " + message;
 
-		if (Game.time % 1000)
+		if ((Game.time % 1000) !== 0)
 		{
 			Log.Info(message, hr, creepToLog, targetToLog);
 		}
@@ -106,9 +104,9 @@ export abstract /* static */ class Log
 		}
 	}
 
-	public static TakeCurrentErrorfunction(): Error | null
+	public static TakeCurrentError(): Error | null
 	{
-		if (!s_currentError)
+		if (s_currentError === null)
 		{
 			return null;
 		}
@@ -126,13 +124,13 @@ export abstract /* static */ class Log
 		targetToLog?: RoomObject): boolean
 	{
 		// //if (Game.cpu.getUsed() > 1.4 * Game.cpu.limit)
-		if (s_shouldReportError && Game.cpu.bucket < 9900)
+		if (s_shouldReportError !== false && Game.cpu.bucket < 9900)
 		{
 			Log.Error("Approaching CPU limit!", hr, creepToLog, targetToLog);
 			s_shouldReportError = false;
 		}
 
-		if (hr === OK)
+		if (hr === 0)
 		{
 			return true;
 		}
@@ -149,10 +147,7 @@ export abstract /* static */ class Log
 		{
 			Log.Error("No body part. Self destructing now", hr, creepToLog, targetToLog);
 
-			if (creepToLog)
-			{
-				creepToLog.suicide();
-			}
+			creepToLog?.suicide();
 		}
 		else
 		{
@@ -168,7 +163,7 @@ export abstract /* static */ class Log
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): boolean
 	{
-		if (!condition)
+		if (condition !== false)
 		{
 			Log.Error(message, OK /* hr */, creepToLog, targetToLog);
 		}
