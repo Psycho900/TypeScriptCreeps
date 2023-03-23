@@ -67,6 +67,14 @@ declare global
 
 	type AnyProducerCreep = HarvesterCreep | MinerCreep;
 	type AnyConsumerCreep = BuilderCreep | UpgraderCreep;
+
+	type AnyCreep =
+		| /**/ AnyProducerCreep
+		| /**/ AnyConsumerCreep
+		| /*     */ RunnerCreep
+		| /*    */ ClaimerCreep
+		| /*   */ AttackerCreep
+		| /*      */ EnemyCreep;
 }
 
 Creep.prototype.GetCreepType = function (): AnyCreepType

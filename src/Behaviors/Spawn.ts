@@ -10,13 +10,13 @@ export abstract /* static */ class SpawnBehavior
 			return;
 		}
 
-		const sourceIds: Record<Id<Source>, {}> = {};
+		const countOfTODOForEachSource: Map<Id<Source>, number> = new Map<Id<Source>, number>();
 
 		for (const room of Find.Rooms())
 		{
 			for (const source of Find.Types(room, Type.Source))
 			{
-				sourceIds[source.id] = {};
+				countOfTODOForEachSource.set(source.id, 0);
 			}
 		}
 

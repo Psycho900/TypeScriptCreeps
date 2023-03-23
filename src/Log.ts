@@ -1,23 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
-const c_hrToString: Record<ScreepsReturnCode, string> =
-{
-	[0]: "OK",
-	[-1]: "ERR_NOT_OWNER",
-	[-2]: "ERR_NO_PATH",
-	[-3]: "ERR_NAME_EXISTS",
-	[-4]: "ERR_BUSY",
-	[-5]: "ERR_NOT_FOUND",
-	[-6]: "ERR_NOT_ENOUGH_RESOURCES/ENERGY",
-	[-7]: "ERR_INVALID_TARGET",
-	[-8]: "ERR_FULL",
-	[-9]: "ERR_NOT_IN_RANGE",
-	[-10]: "ERR_INVALID_ARGS",
-	[-11]: "ERR_TIRED",
-	[-12]: "ERR_NO_BODYPART",
-	[-14]: "ERR_RCL_NOT_ENOUGH",
-	[-15]: "ERR_GCL_NOT_ENOUGH",
-};
+const c_hrToString: Map<ScreepsReturnCode, string> = new Map<ScreepsReturnCode, string>()
+	.set(OK, "OK")
+	.set(ERR_NOT_OWNER, "ERR_NOT_OWNER")
+	.set(ERR_NO_PATH, "ERR_NO_PATH")
+	.set(ERR_NAME_EXISTS, "ERR_NAME_EXISTS")
+	.set(ERR_BUSY, "ERR_BUSY")
+	.set(ERR_NOT_FOUND, "ERR_NOT_FOUND")
+	.set(ERR_NOT_ENOUGH_RESOURCES, "ERR_NOT_ENOUGH_RESOURCES")
+	.set(ERR_INVALID_TARGET, "ERR_INVALID_TARGET")
+	.set(ERR_FULL, "ERR_FULL")
+	.set(ERR_NOT_IN_RANGE, "ERR_NOT_IN_RANGE")
+	.set(ERR_INVALID_ARGS, "ERR_INVALID_ARGS")
+	.set(ERR_TIRED, "ERR_TIRED")
+	.set(ERR_NO_BODYPART, "ERR_NO_BODYPART")
+	.set(ERR_RCL_NOT_ENOUGH, "ERR_RCL_NOT_ENOUGH")
+	.set(ERR_GCL_NOT_ENOUGH, "ERR_GCL_NOT_ENOUGH");
 
 let s_currentError: Error | null = null;
 let s_shouldReportError: boolean = true; // Gets reset every ~150 ticks or so
@@ -52,7 +50,7 @@ export abstract /* static */ class Log
 
 		if (hr !== 0)
 		{
-			message = `${c_hrToString[hr] ?? hr}! ${message}`;
+			message = `${c_hrToString.get(hr) ?? hr}! ${message}`;
 		}
 
 		return message
@@ -78,7 +76,7 @@ export abstract /* static */ class Log
 	{
 		if (s_currentError)
 		{
-			Log.Info(s_currentError.stack ?? "<unknown callstack>", OK);
+			Log.Info(s_currentError.stack ?? s_currentError.message, hr);
 		}
 
 		message = Log.GenerateMessage(message, hr, creepToLog, targetToLog);
@@ -92,7 +90,7 @@ export abstract /* static */ class Log
 		targetToLog?: RoomObject): void
 	{
 		// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-		message = "Warning: " + message;
+		message = "!WARNING!: " + message;
 
 		if ((Game.time % 1000) !== 0)
 		{
@@ -165,7 +163,7 @@ export abstract /* static */ class Log
 	{
 		if (condition !== false)
 		{
-			Log.Error(message, OK /* hr */, creepToLog, targetToLog);
+			Log.Error(message, OK, creepToLog, targetToLog);
 		}
 
 		return condition;
