@@ -1,111 +1,114 @@
-import { AnyCreepType, CreepType } from "./CreepType";
+import { CreepType } from "./CreepType";
 
-/*                    */ type RoomType = 0b0000000000000000000000000000001;
-/*            */ type RoomPositionType = 0b0000000000000000000000000000010;
-/*                  */ type CreepsType = 0b0000000000000000000000000000100;
-/*        */ type ConstructionSiteType = 0b0000000000000000000000000001000;
-/*                    */ type FlagType = 0b0000000000000000000000000010000;
-/*                 */ type MineralType = 0b0000000000000000000000000100000;
-/*                */ type ResourceType = 0b0000000000000000000000001000000;
-/*                    */ type RuinType = 0b0000000000000000000000010000000;
-/*                  */ type SourceType = 0b0000000000000000000000100000000;
-/*               */ type TombstoneType = 0b0000000000000000000001000000000;
-/*               */ type ContainerType = 0b0000000000000000000010000000000;
-/*                  */ type PortalType = 0b0000000000000000000100000000000;
-/*                    */ type RoadType = 0b0000000000000000001000000000000;
-/*                    */ type WallType = 0b0000000000000000010000000000000;
-/*              */ type ControllerType = 0b0000000000000000100000000000000;
-/*               */ type ExtensionType = 0b0000000000000001000000000000000;
-/*               */ type ExtractorType = 0b0000000000000010000000000000000;
-/*                 */ type FactoryType = 0b0000000000000100000000000000000;
-/*             */ type InvaderCoreType = 0b0000000000001000000000000000000;
-/*              */ type KeeperLairType = 0b0000000000010000000000000000000;
-/*                     */ type LabType = 0b0000000000100000000000000000000;
-/*                    */ type LinkType = 0b0000000001000000000000000000000;
-/*                   */ type NukerType = 0b0000000010000000000000000000000;
-/*                */ type ObserverType = 0b0000000100000000000000000000000;
-/*               */ type PowerBankType = 0b0000001000000000000000000000000;
-/*              */ type PowerSpawnType = 0b0000010000000000000000000000000;
-/*                 */ type RampartType = 0b0000100000000000000000000000000;
-/*                   */ type SpawnType = 0b0001000000000000000000000000000;
-/*                 */ type StorageType = 0b0010000000000000000000000000000;
-/*                */ type TerminalType = 0b0100000000000000000000000000000;
-/*                   */ type TowerType = 0b1000000000000000000000000000000;
+declare global
+{
+	/*              */ type RoomType = 0b0000000000000000000000000000001;
+	/*      */ type RoomPositionType = 0b0000000000000000000000000000010;
+	/*            */ type CreepsType = 0b0000000000000000000000000000100;
+	/*  */ type ConstructionSiteType = 0b0000000000000000000000000001000;
+	/*              */ type FlagType = 0b0000000000000000000000000010000;
+	/*           */ type MineralType = 0b0000000000000000000000000100000;
+	/*          */ type ResourceType = 0b0000000000000000000000001000000;
+	/*              */ type RuinType = 0b0000000000000000000000010000000;
+	/*            */ type SourceType = 0b0000000000000000000000100000000;
+	/*         */ type TombstoneType = 0b0000000000000000000001000000000;
+	/*         */ type ContainerType = 0b0000000000000000000010000000000;
+	/*            */ type PortalType = 0b0000000000000000000100000000000;
+	/*              */ type RoadType = 0b0000000000000000001000000000000;
+	/*              */ type WallType = 0b0000000000000000010000000000000;
+	/*        */ type ControllerType = 0b0000000000000000100000000000000;
+	/*         */ type ExtensionType = 0b0000000000000001000000000000000;
+	/*         */ type ExtractorType = 0b0000000000000010000000000000000;
+	/*           */ type FactoryType = 0b0000000000000100000000000000000;
+	/*       */ type InvaderCoreType = 0b0000000000001000000000000000000;
+	/*        */ type KeeperLairType = 0b0000000000010000000000000000000;
+	/*               */ type LabType = 0b0000000000100000000000000000000;
+	/*              */ type LinkType = 0b0000000001000000000000000000000;
+	/*             */ type NukerType = 0b0000000010000000000000000000000;
+	/*          */ type ObserverType = 0b0000000100000000000000000000000;
+	/*         */ type PowerBankType = 0b0000001000000000000000000000000;
+	/*        */ type PowerSpawnType = 0b0000010000000000000000000000000;
+	/*           */ type RampartType = 0b0000100000000000000000000000000;
+	/*             */ type SpawnType = 0b0001000000000000000000000000000;
+	/*           */ type StorageType = 0b0010000000000000000000000000000;
+	/*          */ type TerminalType = 0b0100000000000000000000000000000;
+	/*             */ type TowerType = 0b1000000000000000000000000000000;
 
-export /*              */ type AnyType =
-	| /*                   */ RoomType
-	| /*           */ RoomPositionType
-	| /*          */ AnyRoomObjectType;
+	/*               */ type AnyType =
+		| /*             */ RoomType
+		| /*     */ RoomPositionType
+		| /*    */ AnyRoomObjectType;
 
-export /*    */ type AnyRoomObjectType =
-	| /*                 */ CreepsType
-	| /*       */ ConstructionSiteType
-	| /*                   */ FlagType
-	| /*                */ MineralType
-	| /*               */ ResourceType
-	| /*                   */ RuinType
-	| /*                 */ SourceType
-	| /*              */ TombstoneType
-	| /*           */ AnyStructureType;
+	/*     */ type AnyRoomObjectType =
+		| /*           */ CreepsType
+		| /* */ ConstructionSiteType
+		| /*             */ FlagType
+		| /*          */ MineralType
+		| /*         */ ResourceType
+		| /*             */ RuinType
+		| /*           */ SourceType
+		| /*        */ TombstoneType
+		| /*     */ AnyStructureType;
 
-export /*     */ type AnyStructureType =
-	| /*              */ ContainerType
-	| /*                 */ PortalType
-	| /*                   */ RoadType
-	| /*                   */ WallType
-	| /*      */ AnyOwnedStructureType;
+	/*      */ type AnyStructureType =
+		| /*        */ ContainerType
+		| /*           */ PortalType
+		| /*             */ RoadType
+		| /*             */ WallType
+		| /**/ AnyOwnedStructureType;
 
-export /**/ type AnyOwnedStructureType =
-	| /*             */ ControllerType
-	| /*              */ ExtensionType
-	| /*              */ ExtractorType
-	| /*                */ FactoryType
-	| /*            */ InvaderCoreType
-	| /*             */ KeeperLairType
-	| /*                    */ LabType
-	| /*                   */ LinkType
-	| /*                  */ NukerType
-	| /*               */ ObserverType
-	| /*              */ PowerBankType
-	| /*             */ PowerSpawnType
-	| /*                */ RampartType
-	| /*                  */ SpawnType
-	| /*                */ StorageType
-	| /*               */ TerminalType
-	| /*                  */ TowerType;
+	/* */ type AnyOwnedStructureType =
+		| /*       */ ControllerType
+		| /*        */ ExtensionType
+		| /*        */ ExtractorType
+		| /*          */ FactoryType
+		| /*      */ InvaderCoreType
+		| /*       */ KeeperLairType
+		| /*              */ LabType
+		| /*             */ LinkType
+		| /*            */ NukerType
+		| /*         */ ObserverType
+		| /*        */ PowerBankType
+		| /*       */ PowerSpawnType
+		| /*          */ RampartType
+		| /*            */ SpawnType
+		| /*          */ StorageType
+		| /*         */ TerminalType
+		| /*            */ TowerType;
 
-export type ToInterface<TRoomObjectType extends AnyRoomObjectType> =
-	// | (TRoomObjectType extends /*         */ RoomType ? Room /*                */ : never)
-	// | (TRoomObjectType extends /* */ RoomPositionType ? RoomPosition /*        */ : never)
-	| (TRoomObjectType extends /*          */ CreepsType ? Creep /*               */ : never)
-	| (TRoomObjectType extends /**/ ConstructionSiteType ? ConstructionSite /*    */ : never)
-	| (TRoomObjectType extends /*            */ FlagType ? Flag /*                */ : never)
-	| (TRoomObjectType extends /*         */ MineralType ? Mineral /*             */ : never)
-	| (TRoomObjectType extends /*        */ ResourceType ? Resource /*            */ : never)
-	| (TRoomObjectType extends /*            */ RuinType ? Ruin /*                */ : never)
-	| (TRoomObjectType extends /*          */ SourceType ? Source /*              */ : never)
-	| (TRoomObjectType extends /*       */ TombstoneType ? Tombstone /*           */ : never)
-	| (TRoomObjectType extends /*       */ ContainerType ? StructureContainer /*  */ : never)
-	| (TRoomObjectType extends /*          */ PortalType ? StructurePortal /*     */ : never)
-	| (TRoomObjectType extends /*            */ RoadType ? StructureRoad /*       */ : never)
-	| (TRoomObjectType extends /*            */ WallType ? StructureWall /*       */ : never)
-	| (TRoomObjectType extends /*      */ ControllerType ? StructureController /* */ : never)
-	| (TRoomObjectType extends /*       */ ExtensionType ? StructureExtension /*  */ : never)
-	| (TRoomObjectType extends /*       */ ExtractorType ? StructureExtractor /*  */ : never)
-	| (TRoomObjectType extends /*         */ FactoryType ? StructureFactory /*    */ : never)
-	| (TRoomObjectType extends /*     */ InvaderCoreType ? StructureInvaderCore /**/ : never)
-	| (TRoomObjectType extends /*      */ KeeperLairType ? StructureKeeperLair /* */ : never)
-	| (TRoomObjectType extends /*             */ LabType ? StructureLab /*        */ : never)
-	| (TRoomObjectType extends /*            */ LinkType ? StructureLink /*       */ : never)
-	| (TRoomObjectType extends /*           */ NukerType ? StructureNuker /*      */ : never)
-	| (TRoomObjectType extends /*        */ ObserverType ? StructureObserver /*   */ : never)
-	| (TRoomObjectType extends /*       */ PowerBankType ? StructurePowerBank /*  */ : never)
-	| (TRoomObjectType extends /*      */ PowerSpawnType ? StructurePowerSpawn /* */ : never)
-	| (TRoomObjectType extends /*         */ RampartType ? StructureRampart /*    */ : never)
-	| (TRoomObjectType extends /*           */ SpawnType ? StructureSpawn /*      */ : never)
-	| (TRoomObjectType extends /*         */ StorageType ? StructureStorage /*    */ : never)
-	| (TRoomObjectType extends /*        */ TerminalType ? StructureTerminal /*   */ : never)
-	| (TRoomObjectType extends /*           */ TowerType ? StructureTower /*      */ : never);
+	type ToInterface<TRoomObjectType extends AnyRoomObjectType> =
+		// | (TRoomObjectType extends /*         */ RoomType ? Room /*                */ : never)
+		// | (TRoomObjectType extends /* */ RoomPositionType ? RoomPosition /*        */ : never)
+		| (TRoomObjectType extends /*          */ CreepsType ? Creep /*               */ : never)
+		| (TRoomObjectType extends /**/ ConstructionSiteType ? ConstructionSite /*    */ : never)
+		| (TRoomObjectType extends /*            */ FlagType ? Flag /*                */ : never)
+		| (TRoomObjectType extends /*         */ MineralType ? Mineral /*             */ : never)
+		| (TRoomObjectType extends /*        */ ResourceType ? Resource /*            */ : never)
+		| (TRoomObjectType extends /*            */ RuinType ? Ruin /*                */ : never)
+		| (TRoomObjectType extends /*          */ SourceType ? Source /*              */ : never)
+		| (TRoomObjectType extends /*       */ TombstoneType ? Tombstone /*           */ : never)
+		| (TRoomObjectType extends /*       */ ContainerType ? StructureContainer /*  */ : never)
+		| (TRoomObjectType extends /*          */ PortalType ? StructurePortal /*     */ : never)
+		| (TRoomObjectType extends /*            */ RoadType ? StructureRoad /*       */ : never)
+		| (TRoomObjectType extends /*            */ WallType ? StructureWall /*       */ : never)
+		| (TRoomObjectType extends /*      */ ControllerType ? StructureController /* */ : never)
+		| (TRoomObjectType extends /*       */ ExtensionType ? StructureExtension /*  */ : never)
+		| (TRoomObjectType extends /*       */ ExtractorType ? StructureExtractor /*  */ : never)
+		| (TRoomObjectType extends /*         */ FactoryType ? StructureFactory /*    */ : never)
+		| (TRoomObjectType extends /*     */ InvaderCoreType ? StructureInvaderCore /**/ : never)
+		| (TRoomObjectType extends /*      */ KeeperLairType ? StructureKeeperLair /* */ : never)
+		| (TRoomObjectType extends /*             */ LabType ? StructureLab /*        */ : never)
+		| (TRoomObjectType extends /*            */ LinkType ? StructureLink /*       */ : never)
+		| (TRoomObjectType extends /*           */ NukerType ? StructureNuker /*      */ : never)
+		| (TRoomObjectType extends /*        */ ObserverType ? StructureObserver /*   */ : never)
+		| (TRoomObjectType extends /*       */ PowerBankType ? StructurePowerBank /*  */ : never)
+		| (TRoomObjectType extends /*      */ PowerSpawnType ? StructurePowerSpawn /* */ : never)
+		| (TRoomObjectType extends /*         */ RampartType ? StructureRampart /*    */ : never)
+		| (TRoomObjectType extends /*           */ SpawnType ? StructureSpawn /*      */ : never)
+		| (TRoomObjectType extends /*         */ StorageType ? StructureStorage /*    */ : never)
+		| (TRoomObjectType extends /*        */ TerminalType ? StructureTerminal /*   */ : never)
+		| (TRoomObjectType extends /*           */ TowerType ? StructureTower /*      */ : never);
+}
 
 export abstract /* static */ class Type
 {
@@ -162,14 +165,14 @@ export abstract /* static */ class Type
 	public static readonly FirstStructure: /*            */ ContainerType = 0b0000000000000000000010000000000;
 	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000;
 
-	public static Or<
-		T1 extends AnyType,
-		T2 extends AnyType>(
-			value1: T1,
-			value2: T2): T1 | T2
-	{
-		return (value1 | value2) as T1 | T2;
-	}
+	// public static Or<
+	// 	T1 extends AnyType,
+	// 	T2 extends AnyType>(
+	// 		value1: T1,
+	// 		value2: T2): T1 | T2
+	// {
+	// 	return (value1 | value2) as T1 | T2;
+	// }
 
 	public static Contains<
 		T1 extends AnyType,
@@ -248,45 +251,45 @@ const c_creepTypeToString: Record<AnyCreepType, string> =
 
 declare global
 {
-	interface Room /*                   */ { type: /*                 */ RoomType; }
-	interface RoomPosition /*           */ { type: /*         */ RoomPositionType; }
+	interface Room /*                */ { type: /*                 */ RoomType; }
+	interface RoomPosition /*        */ { type: /*         */ RoomPositionType; }
 
-	interface RoomObject /*             */ { type: /*        */ AnyRoomObjectType; }
+	interface RoomObject /*          */ { type: /*        */ AnyRoomObjectType; }
 	// {
-	interface Creep /*                  */ { type: /*               */ CreepsType; }
-	interface ConstructionSite /*       */ { type: /*     */ ConstructionSiteType; }
-	interface Mineral /*                */ { type: /*              */ MineralType; }
-	interface Resource /*               */ { type: /*             */ ResourceType; }
-	interface Ruin /*                   */ { type: /*                 */ RuinType; }
-	interface Source /*                 */ { type: /*               */ SourceType; }
-	interface Tombstone /*              */ { type: /*            */ TombstoneType; }
+	interface Creep /*               */ { type: /*               */ CreepsType; }
+	interface ConstructionSite /*    */ { type: /*     */ ConstructionSiteType; }
+	interface Mineral /*             */ { type: /*              */ MineralType; }
+	interface Resource /*            */ { type: /*             */ ResourceType; }
+	interface Ruin /*                */ { type: /*                 */ RuinType; }
+	interface Source /*              */ { type: /*               */ SourceType; }
+	interface Tombstone /*           */ { type: /*            */ TombstoneType; }
 
-	interface Structure /*              */ { type: /*         */ AnyStructureType; }
+	interface Structure /*           */ { type: /*         */ AnyStructureType; }
 	//     {
-	interface StructureContainer /*     */ { type: /*            */ ContainerType; }
-	interface StructurePortal /*        */ { type: /*               */ PortalType; }
-	interface StructureRoad /*          */ { type: /*                 */ RoadType; }
-	interface StructureWall /*          */ { type: /*                 */ WallType; }
+	interface StructureContainer /*  */ { type: /*            */ ContainerType; }
+	interface StructurePortal /*     */ { type: /*               */ PortalType; }
+	interface StructureRoad /*       */ { type: /*                 */ RoadType; }
+	interface StructureWall /*       */ { type: /*                 */ WallType; }
 
-	interface OwnedStructure /*         */ { type: /*    */ AnyOwnedStructureType; }
+	interface OwnedStructure /*      */ { type: /*    */ AnyOwnedStructureType; }
 	//         {
-	interface StructureController /*    */ { type: /*           */ ControllerType; }
-	interface StructureExtension /*     */ { type: /*            */ ExtensionType; }
-	interface StructureExtractor /*     */ { type: /*            */ ExtractorType; }
-	interface StructureFactory /*       */ { type: /*              */ FactoryType; }
-	interface StructureInvaderCore /*   */ { type: /*          */ InvaderCoreType; }
-	interface StructureKeeperLair /*    */ { type: /*           */ KeeperLairType; }
-	interface StructureLab /*           */ { type: /*                  */ LabType; }
-	interface StructureLink /*          */ { type: /*                 */ LinkType; }
-	interface StructureNuker /*         */ { type: /*                */ NukerType; }
-	interface StructureObserver /*      */ { type: /*             */ ObserverType; }
-	interface StructurePowerBank /*     */ { type: /*            */ PowerBankType; }
-	interface StructurePowerSpawn /*    */ { type: /*           */ PowerSpawnType; }
-	interface StructureRampart /*       */ { type: /*              */ RampartType; }
-	interface StructureSpawn /*         */ { type: /*                */ SpawnType; }
-	interface StructureStorage /*       */ { type: /*              */ StorageType; }
-	interface StructureTerminal /*      */ { type: /*             */ TerminalType; }
-	interface StructureTower /*         */ { type: /*                */ TowerType; }
+	interface StructureController /* */ { type: /*           */ ControllerType; }
+	interface StructureExtension /*  */ { type: /*            */ ExtensionType; }
+	interface StructureExtractor /*  */ { type: /*            */ ExtractorType; }
+	interface StructureFactory /*    */ { type: /*              */ FactoryType; }
+	interface StructureInvaderCore /**/ { type: /*          */ InvaderCoreType; }
+	interface StructureKeeperLair /* */ { type: /*           */ KeeperLairType; }
+	interface StructureLab /*        */ { type: /*                  */ LabType; }
+	interface StructureLink /*       */ { type: /*                 */ LinkType; }
+	interface StructureNuker /*      */ { type: /*                */ NukerType; }
+	interface StructureObserver /*   */ { type: /*             */ ObserverType; }
+	interface StructurePowerBank /*  */ { type: /*            */ PowerBankType; }
+	interface StructurePowerSpawn /* */ { type: /*           */ PowerSpawnType; }
+	interface StructureRampart /*    */ { type: /*              */ RampartType; }
+	interface StructureSpawn /*      */ { type: /*                */ SpawnType; }
+	interface StructureStorage /*    */ { type: /*              */ StorageType; }
+	interface StructureTerminal /*   */ { type: /*             */ TerminalType; }
+	interface StructureTower /*      */ { type: /*                */ TowerType; }
 	//         }
 	//     }
 	// }
@@ -337,43 +340,48 @@ declare global
 //     }
 // }
 
+// declare global
+// {
+// 	interface Room /*        */ { room: Room; }
+// 	interface RoomPosition /**/ { room: Room | undefined; r?: Room; }
+// 	// interface RoomObject     { room: Room | undefined; }
+//
+// 	interface Room /*        */ { roomName: string; }
+// 	// interface RoomPosition   { roomName: string; }
+// 	interface RoomObject /*  */ { roomName: string; }
+//
+// 	// interface Room /*     */ { pos: RoomPosition; }
+// 	interface RoomPosition /**/ { pos: RoomPosition; }
+// 	// interface RoomObject     { pos: RoomPosition; }
+// }
+
+// Object.defineProperty(/*        */ Room.prototype, "room", { get(this: Room /*   */): Room /*       */ { return this; } });
+// Object.defineProperty(/**/ RoomPosition.prototype, "room", { get(this: RoomPosition): Room | undefined { return this.r ??= Game.rooms[this.roomName]; } });
+// // Object.defineProperty(    RoomObject.prototype, "room", { get(this: RoomObject  ): Room | undefined { return this.room; } });
+
+// Object.defineProperty(/*        */ Room.prototype, "roomName", { get(this: Room /*      */): string { return this.name; } });
+// // Object.defineProperty(  RoomPosition.prototype, "roomName", { get(this: RoomPosition   ): string { return this.roomName; } });
+// Object.defineProperty(/*  */ RoomObject.prototype, "roomName", { get(this: RoomObject /**/): string { return this.pos.roomName; } });
+
+// // Object.defineProperty(/*     */ Room.prototype, "pos", { get(this: Room /*   */): RoomPosition /*       */ { return this; } });
+// Object.defineProperty(/**/ RoomPosition.prototype, "pos", { get(this: RoomPosition): RoomPosition | undefined { return this; } });
+// // Object.defineProperty(    RoomObject.prototype, "pos", { get(this: RoomObject  ): RoomPosition | undefined { return this.pos; } });
+
 declare global
 {
-	interface Room /*        */ { room: Room; }
-	interface RoomPosition /**/ { room: Room | undefined; }
-	// interface RoomObject     { room: Room | undefined; }
-
-	interface Room /*        */ { roomName: string; }
-	// interface RoomPosition   { roomName: string; }
-	interface RoomObject /*  */ { roomName: string; }
-
-	// interface Room /*     */ { pos: RoomPosition; }
-	interface RoomPosition /**/ { pos: RoomPosition; }
-	// interface RoomObject     { pos: RoomPosition; }
-}
-
-Object.defineProperty(/*        */ Room.prototype, "room", { get(this: Room /*   */): Room /*       */ { return this; } });
-Object.defineProperty(/**/ RoomPosition.prototype, "room", { get(this: RoomPosition): Room | undefined { return Game.rooms[this.roomName]; } });
-// Object.defineProperty(    RoomObject.prototype, "room", { get(this: RoomObject  ): Room | undefined { return this.room; } });
-
-Object.defineProperty(/*        */ Room.prototype, "roomName", { get(this: Room /*      */): string { return this.name; } });
-// Object.defineProperty(  RoomPosition.prototype, "roomName", { get(this: RoomPosition   ): string { return this.roomName; } });
-Object.defineProperty(/*  */ RoomObject.prototype, "roomName", { get(this: RoomObject /**/): string { return this.pos.roomName; } });
-
-// Object.defineProperty(/*     */ Room.prototype, "pos", { get(this: Room /*   */): RoomPosition /*       */ { return this; } });
-Object.defineProperty(/**/ RoomPosition.prototype, "pos", { get(this: RoomPosition): RoomPosition | undefined { return this; } });
-// Object.defineProperty(    RoomObject.prototype, "pos", { get(this: RoomObject  ): RoomPosition | undefined { return this.pos; } });
-
-declare global
-{
-	interface Room /*        */ { ToString(): string; }
-	interface RoomPosition /**/ { ToString(): string; }
+	interface Room /*        */ { ToString(): string; ts?: string; }
+	interface RoomPosition /**/ { ToString(): string; ts?: string; }
 	interface RoomObject /*  */ { ToString(): string; }
 }
 
 Room.prototype.ToString = function (): string
 {
-	return `<a href="https://screeps.com/a/#!/room/shard2/${this.name}">${this.name}</a>`;
+	return this.ts ??= `<a href="https://screeps.com/a/#!/room/shard3/${this.name}">${this.name}</a>`;
+};
+
+RoomPosition.prototype.ToString = function (): string
+{
+	return this.ts ??= `(${this.x}, ${this.y}, <a href="https://screeps.com/a/#!/room/shard3/${this.roomName}">${this.roomName}</a>)`;
 };
 
 Store.prototype.ToString = function (this: StoreDefinition): string
@@ -386,11 +394,6 @@ Store.prototype.ToString = function (this: StoreDefinition): string
 	}
 
 	return `[ ${JSON.stringify(this)} / ${this.getCapacity(RESOURCE_ENERGY)} ]`;
-};
-
-RoomPosition.prototype.ToString = function (): string
-{
-	return `(${this.x}, ${this.y}, <a href="https://screeps.com/a/#!/room/shard3/${this.roomName}">${this.roomName}</a>)`;
 };
 
 function AppendPropertyString<T>(
@@ -417,12 +420,12 @@ RoomObject.prototype.ToString = function (): string
 	// AppendPropertyString(resultArray, this, "e", (cachedEnergy) => this.et === Game.time ? cachedEnergy : "outdated"); // My custom cached ".store.energy" that I update within ticks
 	AppendPropertyString(resultArray, this, "store");
 	// @ts-ignore: Anything with a `.energy` property should also have `.energyCapacity` (and if not, then undefined is handled just fine here)
-	AppendPropertyString(resultArray, this, "energy", (energy): string => `[${energy}/${this.energyCapacity}]`);
+	AppendPropertyString(resultArray, this, "energy", (energy: number): string => `[${energy}/${this.energyCapacity}]`);
 	// @ts-ignore: Anything with a `.progress` property should also have `.progressTotal` (and if not, then undefined is handled just fine here)
-	AppendPropertyString(resultArray, this, "progress", (progress): string => `[${progress}/${this.progressTotal}]`);
+	AppendPropertyString(resultArray, this, "progress", (progress: number): string => `[${progress}/${this.progressTotal}]`);
 	AppendPropertyString(resultArray, this, "pos");
 	// @ts-ignore: Anything with a `.hits` property should also have `.hitsMax` (and if not, then undefined is handled just fine here)
-	AppendPropertyString(resultArray, this, "hits", (hits): string => `[${hits}/${this.hitsMax}]`);
+	AppendPropertyString(resultArray, this, "hits", (hits: number): string => `[${hits}/${this.hitsMax}]`);
 	AppendPropertyString(resultArray, this, "fatigue");
 	AppendPropertyString(resultArray, this, "ticksToRegeneration");
 	AppendPropertyString(resultArray, this, "ticksToLive");
@@ -430,5 +433,5 @@ RoomObject.prototype.ToString = function (): string
 	AppendPropertyString(resultArray, this, "id");
 	AppendPropertyString(resultArray, this, "memory", JSON.stringify);
 
-	return `${Type.IsCreep(this) ? c_creepTypeToString[this.GetCreepType()] :  c_typeToString[this.type]}: { ${resultArray.join(", ")} }`;
+	return `${Type.IsCreep(this) ? c_creepTypeToString[this.GetCreepType()] : c_typeToString[this.type]}: { ${resultArray.join(", ")} }`;
 };
