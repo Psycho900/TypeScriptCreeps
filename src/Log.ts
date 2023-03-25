@@ -161,7 +161,7 @@ export abstract /* static */ class Log
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): boolean
 	{
-		if (condition !== false)
+		if (condition !== true)
 		{
 			Log.Error(message, OK, creepToLog, targetToLog);
 		}

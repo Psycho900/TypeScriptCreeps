@@ -2,45 +2,24 @@ import { CreepType } from "./CreepType";
 
 declare global
 {
-	interface ICreep<TCreepType /* , TTarget */>
-	{
-		GetCreepType(): TCreepType;
-		ct?: TCreepType;
+	type ToCreepInterface<TCreepType extends AnyCreepType> =
+		| (TCreepType extends /**/ HarvesterCreepType ? /**/ HarvesterCreep : never)
+		| (TCreepType extends /*   */ RunnerCreepType ? /*   */ RunnerCreep : never)
+		| (TCreepType extends /*  */ BuilderCreepType ? /*  */ BuilderCreep : never)
+		| (TCreepType extends /* */ UpgraderCreepType ? /* */ UpgraderCreep : never)
+		| (TCreepType extends /*    */ MinerCreepType ? /*    */ MinerCreep : never)
+		| (TCreepType extends /*  */ ClaimerCreepType ? /*  */ ClaimerCreep : never)
+		| (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
+		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : never);
 
-		// GetTarget(): TTarget;
-		// t?: TTarget;
-		//
-		// GetTargetId(): Id<TTarget>;
-		// tid?: Id<TTarget>;
-	}
-
-	interface Creep // extends ICreep<AnyCreepType, AnyRoomObject>
-	{
-		// GetCreepType(): TCreepType;
-		// ct?: TCreepType;
-
-		Is</*   */ TCreepType extends AnyCreepType>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
-		IsAny</**/ TCreepTypes extends AnyCreepType>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
-	}
-
-	// /**/ type HarvesterCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</**/ HarvesterCreepType /*, Source */>;
-	// /*   */ type RunnerCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</*   */ RunnerCreepType /*, never */>;
-	// /*  */ type BuilderCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</*  */ BuilderCreepType /*, ConstructionSite */>;
-	// /* */ type UpgraderCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</* */ UpgraderCreepType /*, StructureController */>;
-	// /*    */ type MinerCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</*    */ MinerCreepType /*, Mineral */>;
-	// /*  */ type ClaimerCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</*  */ ClaimerCreepType /*, StructureController */>;
-	// /* */ type AttackerCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</* */ AttackerCreepType /*, never */>;
-	// /*    */ type EnemyCreep = Exclude<Creep, ICreep<AnyCreepType, AnyRoomObject>> | ICreep</*    */ EnemyCreepType /*, never */>;
-
-	interface /*                       */ Creep { GetCreepType(): /*      */ AnyCreepType; ct?: /*      */ AnyCreepType; }
-	interface /**/ HarvesterCreep extends Creep { GetCreepType(): /**/ HarvesterCreepType; ct?: /**/ HarvesterCreepType; }
-	interface /*   */ RunnerCreep extends Creep { GetCreepType(): /*   */ RunnerCreepType; ct?: /*   */ RunnerCreepType; }
-	interface /*  */ BuilderCreep extends Creep { GetCreepType(): /*  */ BuilderCreepType; ct?: /*  */ BuilderCreepType; }
-	interface /* */ UpgraderCreep extends Creep { GetCreepType(): /* */ UpgraderCreepType; ct?: /* */ UpgraderCreepType; }
-	interface /*    */ MinerCreep extends Creep { GetCreepType(): /*    */ MinerCreepType; ct?: /*    */ MinerCreepType; }
-	interface /*  */ ClaimerCreep extends Creep { GetCreepType(): /*  */ ClaimerCreepType; ct?: /*  */ ClaimerCreepType; }
-	interface /* */ AttackerCreep extends Creep { GetCreepType(): /* */ AttackerCreepType; ct?: /* */ AttackerCreepType; }
-	interface /*    */ EnemyCreep extends Creep { GetCreepType(): /*    */ EnemyCreepType; ct?: /*    */ EnemyCreepType; }
+	/**/ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */>;
+	/*   */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController>;
+	/*  */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController>;
+	/* */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController>;
+	/*    */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */>;
+	/*  */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController>;
+	/* */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */>;
+	/*    */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never>;
 
 	type AnyProducerCreep = HarvesterCreep | MinerCreep;
 	type AnyConsumerCreep = BuilderCreep | UpgraderCreep;
@@ -53,17 +32,32 @@ declare global
 		| /*   */ AttackerCreep
 		| /*      */ EnemyCreep;
 
+	interface Creep
+	{
+		Is</*   */ TCreepType extends AnyCreepType>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
+		IsAny</**/ TCreepTypes extends AnyCreepType>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
+
+		// "virtual" methods:
+		GetCreepType(): AnyCreepType; /**/ ct?: AnyCreepType;
+		GetTarget(): AnyRoomObject; /* */ tar?: AnyRoomObject;
+		GetTargetId(): Id<AnyRoomObject>; tid?: Id<AnyRoomObject>;
+	}
+
+	interface CreepOfType<
+		TCreepType extends AnyCreepType,
+		TTarget extends AnyRoomObject> extends Creep
+	{
+		GetCreepType(): TCreepType;
+		GetTarget(): TTarget;
+		GetTargetId(): Id<TTarget>;
+	}
+
 	interface CreepMemory
 	{
 		ct: AnyCreepType; // CreepType
-		tid: Id<RoomObject>; // Target.id
+		tid: Id<AnyRoomObject>; // Target.id
 	}
 }
-
-Creep.prototype.GetCreepType = function (): AnyCreepType
-{
-	return this.ct ??= (Memory.creeps[this.name]?.ct ?? CreepType.Enemy);
-};
 
 Creep.prototype.Is = function <TCreepType extends AnyCreepType>(creepType: TCreepType): boolean
 {
@@ -75,3 +69,19 @@ Creep.prototype.IsAny = function <TCreepType extends AnyCreepType>(creepType: TC
 	return (this.GetCreepType() & creepType) !== 0;
 };
 
+// "virtual" methods:
+
+Creep.prototype.GetCreepType = function (): AnyCreepType
+{
+	return this.ct ??= (Memory.creeps[this.name]?.ct ?? CreepType.Enemy);
+};
+
+Creep.prototype.GetTarget = function (): AnyRoomObject
+{
+	return this.tar ??= Game.getObjectById(this.GetTargetId())!; // Just call this on creeps with a target
+};
+
+Creep.prototype.GetTargetId = function (): Id<AnyRoomObject>
+{
+	return this.tid ??= Memory.creeps[this.name]!.tid; // Just call this on creeps with a target
+};

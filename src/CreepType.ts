@@ -10,12 +10,15 @@ declare global
 	/*        */ type EnemyCreepType = 0b0000000000000000000000010000000;
 
 	/*          */ type AnyCreepType =
+		| /*          */ MyCreepType
+		| /*       */ EnemyCreepType;
+
+	/*           */ type MyCreepType =
 		| /* */ AnyProducerCreepType
 		| /* */ AnyConsumerCreepType
 		| /*      */ RunnerCreepType
 		| /*     */ ClaimerCreepType
-		| /*    */ AttackerCreepType
-		| /*       */ EnemyCreepType;
+		| /*    */ AttackerCreepType;
 
 	/*  */ type AnyProducerCreepType =
 		| /*   */ HarvesterCreepType
@@ -24,16 +27,6 @@ declare global
 	/*  */ type AnyConsumerCreepType =
 		| /*     */ BuilderCreepType
 		| /*    */ UpgraderCreepType;
-
-	type ToCreepInterface<TCreepType extends AnyCreepType> =
-		| (TCreepType extends /**/ HarvesterCreepType ? /**/ HarvesterCreep : never)
-		| (TCreepType extends /*   */ RunnerCreepType ? /*   */ RunnerCreep : never)
-		| (TCreepType extends /*  */ BuilderCreepType ? /*  */ BuilderCreep : never)
-		| (TCreepType extends /* */ UpgraderCreepType ? /* */ UpgraderCreep : never)
-		| (TCreepType extends /*    */ MinerCreepType ? /*    */ MinerCreep : never)
-		| (TCreepType extends /*  */ ClaimerCreepType ? /*  */ ClaimerCreep : never)
-		| (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
-		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : never);
 }
 
 export abstract /* static */ class CreepType
@@ -48,6 +41,7 @@ export abstract /* static */ class CreepType
 	public static readonly Enemy: /*        */ EnemyCreepType = 0b0000000000000000000000010000000;
 
 	public static readonly All: /*            */ AnyCreepType = 0b0000000000000000000000011111111 as AnyCreepType;
+	public static readonly AllMine: /*         */ MyCreepType = 0b0000000000000000000000001111111 as MyCreepType;
 	public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 }
