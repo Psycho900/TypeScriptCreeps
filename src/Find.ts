@@ -3,8 +3,9 @@ import { CreepType } from "./CreepType";
 import { Type } from "./Type";
 
 // Should be safe for these to live forever:
-const s_roomNameToSources /* */: Map<string, /* */ Source[]> = new Map<string, /* */ Source[]>();
-const s_roomNameToMinerals /**/: Map<string, /**/ Mineral[]> = new Map<string, /**/ Mineral[]>();
+const s_roomNameToSources /*    */: Map<string, /*    */ Source[]> = new Map<string, /*    */ Source[]>();
+const s_roomNameToMinerals /*   */: Map<string, /*   */ Mineral[]> = new Map<string, /*   */ Mineral[]>();
+const s_roomNameToRoomCenters /**/: Map<string, /**/ RoomPosition> = new Map<string, /**/ RoomPosition>();
 
 // Should reset on each tick:
 let s_spawns: StructureSpawn[] = Object.values(Game.spawns);
@@ -68,30 +69,37 @@ export abstract /* static */ class Find
 		}
 	}
 
-	public static Spawns(): StructureSpawn[]
+	public static MySpawns(): StructureSpawn[]
 	{
 		return s_spawns;
 	}
 
-	public static Rooms(): Room[]
+	public static MyRooms(): Room[]
 	{
 		return s_rooms;
 	}
 
-	public static Types<TRoomObjectTypes extends AnyRoomObjectType>(
+	public static Center(room: Room): RoomPosition
+	{
+		let result: RoomPosition;
+		return s_roomNameToRoomCenters.get(room.name)
+			?? (s_roomNameToRoomCenters.set(room.name, result = new RoomPosition(25, 25, room.name)), result);
+	}
+
+	public static MyTypes<TRoomObjectTypes extends AnyRoomObjectType>(
 		room: Room,
 		types: TRoomObjectTypes): ToInterface<TRoomObjectTypes>[]
 	{
-		return Find.GetOrAdd(room.cache, types, () => Find.GenerateRoomObjectsOfTypeArray(room, types));
+		return Find.GetOrAdd(room.cache, types, () => Find.GenerateMyRoomObjectsOfTypeArray(room, types));
 	}
 
-	public static TypesInRange<TRoomObjectTypes extends AnyRoomObjectType>(
+	public static MyTypesInRange<TRoomObjectTypes extends AnyRoomObjectType>(
 		roomObject: RoomObject,
 		types: TRoomObjectTypes,
 		range: number): ToInterface<TRoomObjectTypes>[]
 	{
 		return Find.GetRoomObjectsInRange(
-			Find.Types(roomObject.room!, types),
+			Find.MyTypes(roomObject.room!, types),
 			roomObject.pos,
 			range);
 	}
@@ -209,7 +217,7 @@ export abstract /* static */ class Find
 		return bestElement;
 	}
 
-	public static HighestScoringRoomObject<TRoomObject extends AnyRoomObject>(
+	public static HighestScoring<TRoomObject extends AnyRoomObject>(
 		roomPosition: RoomPosition,
 		elements: TRoomObject[],
 		scoreFunction: (element: TRoomObject) => number): TRoomObject | undefined
@@ -218,6 +226,88 @@ export abstract /* static */ class Find
 			elements,
 			scoreFunction,
 			(test: TRoomObject): number => -Find.Distance(roomPosition, test.pos));
+	}
+
+	public static Closest<TRoomObject extends AnyRoomObject>(
+		roomPosition: RoomPosition,
+		elements: TRoomObject[]): TRoomObject | undefined
+	{
+		return Find.HighestScoringElement(
+			elements,
+			(test: TRoomObject): number => -Find.Distance(roomPosition, test.pos));
+	}
+
+	public static ClosestPair<T1 extends AnyRoomObject, T2 extends AnyRoomObject>(elements1: T1[], elements2: T2[]): [T1, T2] | null
+	{
+		const elements1Length: number = elements1.length;
+		const elements2Length: number = elements2.length;
+
+		if (elements1Length <= 0 || elements2Length <= 0)
+		{
+			return null;
+		}
+
+		let bestElement1: T1 | undefined;
+		let bestElement2: T2 | undefined;
+		let smallestDistance: number | undefined;
+
+		for (const element1 of elements1)
+		{
+			const element1Pos = element1.pos;
+
+			for (const element2 of elements2)
+			{
+				const currentDistance: number = Find.Distance(element1Pos, element2.pos);
+
+				if (currentDistance >= smallestDistance!) // All comparisons with undefined return `false`
+				{
+					continue; // Take the 1st one with the smallest distance
+				}
+
+				bestElement1 = element1;
+				bestElement2 = element2;
+				smallestDistance = currentDistance;
+			}
+		}
+
+		return [bestElement1!, bestElement2!];
+	}
+
+	public static HighestScoringPair<T1, T2>(
+		elements1: T1[],
+		elements2: T2[],
+		scoreFunction: (element1: T1, element2: T2) => number): [T1, T2] | null
+	{
+		const elements1Length: number = elements1.length;
+		const elements2Length: number = elements2.length;
+
+		if (elements1Length <= 0 || elements2Length <= 0)
+		{
+			return null;
+		}
+
+		let bestElement1: T1;
+		let bestElement2: T2;
+		let bestScore: number | undefined;
+
+		for (const element1 of elements1)
+		{
+			for (const element2 of elements2)
+			{
+				const currentScore: number = scoreFunction(element1, element2);
+
+				if (currentScore <= bestScore!) // All comparison with undefined results in `false`
+				{
+					continue; // Take the 1st one with the highest score
+				}
+
+				bestElement1 = element1;
+				bestElement2 = element2;
+				bestScore = currentScore;
+			}
+		}
+
+		return [bestElement1!, bestElement2!];
 	}
 
 	public static Distance(
@@ -293,7 +383,7 @@ export abstract /* static */ class Find
 			: 0; // ^ Builders can build from 3 away, pretty much everything else needs to be right next to their destination
 	}
 
-	private static GenerateRoomObjectsOfTypeArray<
+	private static GenerateMyRoomObjectsOfTypeArray<
 		TRoomObjectTypes extends AnyRoomObjectType,
 		TRoomObjects extends ToInterface<TRoomObjectTypes>>(
 			room: Room,

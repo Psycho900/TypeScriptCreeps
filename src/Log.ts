@@ -72,7 +72,7 @@ export abstract /* static */ class Log
 		message: string,
 		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
-		targetToLog?: RoomObject): void
+		targetToLog?: RoomObject): false
 	{
 		if (s_currentError)
 		{
@@ -81,6 +81,7 @@ export abstract /* static */ class Log
 
 		message = Log.GenerateMessage(message, hr, creepToLog, targetToLog);
 		s_currentError = new Error(message); // thrown at the end of main
+		return false;
 	}
 
 	public static Warning(
@@ -155,17 +156,17 @@ export abstract /* static */ class Log
 		return false;
 	}
 
-	public static Assert(
-		condition: boolean,
-		message: string,
-		creepToLog?: Creep,
-		targetToLog?: RoomObject): boolean
-	{
-		if (condition !== true)
-		{
-			Log.Error(message, OK, creepToLog, targetToLog);
-		}
-
-		return condition;
-	}
+	// public static Assert(
+	// 	condition: boolean,
+	// 	message: string,
+	// 	creepToLog?: Creep,
+	// 	targetToLog?: RoomObject): condition is true
+	// {
+	// 	if (condition !== true)
+	// 	{
+	// 		Log.Error(message, OK, creepToLog, targetToLog);
+	// 	}
+	//
+	// 	return condition;
+	// }
 }

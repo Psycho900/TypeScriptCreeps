@@ -13,13 +13,16 @@ declare global
 		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : never);
 
 	/**/ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */>;
-	/*   */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController>;
-	/*  */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController>;
-	/* */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController>;
+	/*   */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController>; // Proxy for "room"
+	/*  */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController | ConstructionSite>;
+	/* */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController | ConstructionSite>;
 	/*    */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */>;
 	/*  */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController>;
 	/* */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */>;
-	/*    */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never>;
+	/*    */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */>;
+
+	// If you change this, change "CreepType.AnyRoomTargettingCreepType" too
+	type AnyRoomTargettingCreep = RunnerCreep;
 
 	type AnyProducerCreep = HarvesterCreep | MinerCreep;
 	type AnyConsumerCreep = BuilderCreep | UpgraderCreep;
@@ -34,8 +37,8 @@ declare global
 
 	interface Creep
 	{
-		Is</*   */ TCreepType extends AnyCreepType>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
-		IsAny</**/ TCreepTypes extends AnyCreepType>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
+		Is<TCreepType extends AnyCreepType>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
+		IsAny<TCreepTypes extends AnyCreepType>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
 
 		// "virtual" methods:
 		GetCreepType(): AnyCreepType; /**/ ct?: AnyCreepType;

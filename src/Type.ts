@@ -165,22 +165,24 @@ export abstract /* static */ class Type
 	public static readonly FirstStructure: /*            */ ContainerType = 0b0000000000000000000010000000000;
 	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000;
 
-	// public static Or<
-	// 	T1 extends AnyType,
-	// 	T2 extends AnyType>(
-	// 		value1: T1,
-	// 		value2: T2): T1 | T2
-	// {
-	// 	return (value1 | value2) as T1 | T2;
-	// }
+	public static readonly SpawnsAndExtensions: SpawnType | ExtensionType = Type.Or(Type.Spawn, Type.Extension);
 
-	public static Contains<
+	public static Or<
 		T1 extends AnyType,
 		T2 extends AnyType>(
 			value1: T1,
-			value2: T2): value1 is (T1 & T2)
+			value2: T2): T1 | T2
 	{
-		return (value1 & value2) !== 0;
+		return (value1 | value2) as T1 | T2;
+	}
+
+	public static Contains<
+		TTypes1 extends AnyType,
+		TTypes2 extends AnyType>(
+			types1: TTypes1,
+			types2: TTypes2): types1 is (TTypes1 & TTypes2)
+	{
+		return (types1 & types2) !== 0;
 	}
 
 	public static IsCreep(roomObject: RoomObject): roomObject is Creep
