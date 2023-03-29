@@ -27,37 +27,6 @@ export abstract /* static */ class Log
 		return Game.time % 10000;
 	}
 
-	private static GetMessagePrefix(): string
-	{
-		return `[${Game.time} @ ${(100 * Game.cpu.getUsed() / Game.cpu.limit) | 0}% CPU]: `;
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private static ToLogString(objectToLog: any | null | undefined): string
-	{
-		return objectToLog == null // null || undefined
-			? "" // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-			: `\n${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`;
-	}
-
-	private static GenerateMessage(
-		message: string,
-		hr: ScreepsReturnCode,
-		creepToLog?: Creep,
-		targetToLog?: RoomObject): string
-	{
-		message ??= "";
-
-		if (hr !== 0)
-		{
-			message = `${c_hrToString.get(hr) ?? hr}! ${message}`;
-		}
-
-		return message
-			+ Log.ToLogString(creepToLog)
-			+ Log.ToLogString(targetToLog);
-	}
-
 	public static Info(
 		message: string,
 		hr: ScreepsReturnCode,
@@ -74,7 +43,7 @@ export abstract /* static */ class Log
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): false
 	{
-		if (s_currentError)
+		if (s_currentError !== null)
 		{
 			Log.Info(s_currentError.stack ?? s_currentError.message, hr);
 		}
@@ -110,7 +79,7 @@ export abstract /* static */ class Log
 			return null;
 		}
 
-		const error = s_currentError;
+		const error: Error = s_currentError;
 		s_currentError = null;
 
 		error.message = Log.GetMessagePrefix() + error.message;
@@ -146,7 +115,7 @@ export abstract /* static */ class Log
 		{
 			Log.Error("No body part. Self destructing now", hr, creepToLog, targetToLog);
 
-			creepToLog?.suicide();
+			// creepToLog?.suicide(); // TODO_KevSchil: Are we ready for this yet?
 		}
 		else
 		{
@@ -169,4 +138,34 @@ export abstract /* static */ class Log
 	//
 	// 	return condition;
 	// }
+
+
+	private static GetMessagePrefix(): string
+	{
+		return `[${Game.time} @ ${(100 * Game.cpu.getUsed() / Game.cpu.limit) | 0}% CPU]: `;
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static ToLogString(objectToLog: any | null | undefined): string
+	{
+		return objectToLog == null // null || undefined
+			? "" // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+			: `\n${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`;
+	}
+
+	private static GenerateMessage(
+		message: string,
+		hr: ScreepsReturnCode,
+		creepToLog: Creep | undefined,
+		targetToLog: RoomObject | undefined): string
+	{
+		if (hr !== 0)
+		{
+			message = `${c_hrToString.get(hr) ?? hr}! ${message}`;
+		}
+
+		return message
+			+ Log.ToLogString(creepToLog)
+			+ Log.ToLogString(targetToLog);
+	}
 }

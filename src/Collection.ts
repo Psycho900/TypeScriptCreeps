@@ -7,6 +7,13 @@ export abstract /* static */ class Collection
 		return elements[elements.length - 1];
 	}
 
+	public static LasIndexOf<T>(elements: readonly T[], predicate: (element: T) => boolean): number | -1
+	{
+		let index: number = elements.length;
+		while (--index >= 0 && !predicate(elements[index]));
+		return index;
+	}
+
 	public static HighestScoringElement<T>(
 		elements: readonly T[],
 		scoreFunction: (element: T) => number): T | undefined
@@ -112,8 +119,8 @@ export abstract /* static */ class Collection
 		elements2: readonly T2[],
 		scoreFunction: (element1: T1, element2: T2) => number): readonly [T1, T2] | null
 	{
-		const elements1Length: number = elements1.length as const;
-		const elements2Length: number = elements2.length as const;
+		const elements1Length: number = elements1.length;
+		const elements2Length: number = elements2.length;
 
 		if (elements1Length <= 0 || elements2Length <= 0)
 		{
@@ -141,7 +148,7 @@ export abstract /* static */ class Collection
 			}
 		}
 
-		return [bestElement1, bestElement2];
+		return [bestElement1!, bestElement2!];
 	}
 
 	public static Count<T>(
@@ -162,7 +169,7 @@ export abstract /* static */ class Collection
 	}
 
 	public static CountKeysWithValue<TKey, TValue>(
-		map: readonly Map<TKey, TValue>,
+		map: Map<TKey, TValue>,
 		valueToMatch: TValue,
 		predicate: (key: TKey) => boolean): number
 	{

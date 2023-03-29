@@ -192,152 +192,140 @@ export abstract /* static */ class Type
 }
 
 const c_typeToString =
-{
-	// Built-in types :
-	[Type.Room /*            */]: "Room",
-	[Type.RoomPosition /*    */]: "RoomPosition",
+	{
+		// Built-in types :
+		[Type.Room /*            */]: "Room",
+		[Type.RoomPosition /*    */]: "RoomPosition",
 
-	// RoomObject's (room, pos) :
-	// {
-	[Type.Creep /*           */]: "Creep",
-	[Type.ConstructionSite /**/]: "ConstructionSite",
-	[Type.Flag /*            */]: "Flag",
-	[Type.Mineral /*         */]: "Mineral",
-	[Type.Resource /*        */]: "Resource",
-	[Type.Ruin /*            */]: "Ruin",
-	[Type.Source /*          */]: "Source",
-	[Type.Tombstone /*       */]: "Tombstone",
+		// RoomObject's (room, pos) :
+		// {
+		[Type.Creep /*           */]: "Creep",
+		[Type.ConstructionSite /**/]: "ConstructionSite",
+		[Type.Flag /*            */]: "Flag",
+		[Type.Mineral /*         */]: "Mineral",
+		[Type.Resource /*        */]: "Resource",
+		[Type.Ruin /*            */]: "Ruin",
+		[Type.Source /*          */]: "Source",
+		[Type.Tombstone /*       */]: "Tombstone",
 
-	//     Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
-	//     {
-	[Type.Container /*       */]: "Container",
-	[Type.Portal /*          */]: "Portal",
-	[Type.Road /*            */]: "Road",
-	[Type.Wall /*            */]: "Wall",
+		//     Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
+		//     {
+		[Type.Container /*       */]: "Container",
+		[Type.Portal /*          */]: "Portal",
+		[Type.Road /*            */]: "Road",
+		[Type.Wall /*            */]: "Wall",
 
-	//         OwnedStructure (my, owner)
-	//         {
-	[Type.Controller /*      */]: "Controller",
-	[Type.Extension /*       */]: "Extension",
-	[Type.Extractor /*       */]: "Extractor",
-	[Type.Factory /*         */]: "Factory",
-	[Type.InvaderCore /*     */]: "InvaderCore",
-	[Type.KeeperLair /*      */]: "KeeperLair",
-	[Type.Lab /*             */]: "Lab",
-	[Type.Link /*            */]: "Link",
-	[Type.Nuker /*           */]: "Nuker",
-	[Type.Observer /*        */]: "Observer",
-	[Type.PowerBank /*       */]: "PowerBank",
-	[Type.PowerSpawn /*      */]: "PowerSpawn",
-	[Type.Rampart /*         */]: "Rampart",
-	[Type.Spawn /*           */]: "Spawn",
-	[Type.Storage /*         */]: "Storage",
-	[Type.Terminal /*        */]: "Terminal",
-	[Type.Tower /*           */]: "Tower",
-	//         }
-	//     }
-	// }
-} as const;
-
-const c_creepTypeToString =
-{
-	[CreepType.Harvester /**/]: "Harvester",
-	[CreepType.Runner /*   */]: "Runner",
-	[CreepType.Builder /*  */]: "Builder",
-	[CreepType.Upgrader /* */]: "Upgrader",
-	[CreepType.Miner /*    */]: "Miner",
-	[CreepType.Claimer /*  */]: "Claimer",
-	[CreepType.Attacker /* */]: "Attacker",
-	[CreepType.Enemy /*    */]: "Enemy",
-} as const;
+		//         OwnedStructure (my, owner)
+		//         {
+		[Type.Controller /*      */]: "Controller",
+		[Type.Extension /*       */]: "Extension",
+		[Type.Extractor /*       */]: "Extractor",
+		[Type.Factory /*         */]: "Factory",
+		[Type.InvaderCore /*     */]: "InvaderCore",
+		[Type.KeeperLair /*      */]: "KeeperLair",
+		[Type.Lab /*             */]: "Lab",
+		[Type.Link /*            */]: "Link",
+		[Type.Nuker /*           */]: "Nuker",
+		[Type.Observer /*        */]: "Observer",
+		[Type.PowerBank /*       */]: "PowerBank",
+		[Type.PowerSpawn /*      */]: "PowerSpawn",
+		[Type.Rampart /*         */]: "Rampart",
+		[Type.Spawn /*           */]: "Spawn",
+		[Type.Storage /*         */]: "Storage",
+		[Type.Terminal /*        */]: "Terminal",
+		[Type.Tower /*           */]: "Tower",
+		//         }
+		//     }
+		// }
+	} as const;
 
 declare global
 {
-	interface Room /*                */ { readonly type: /*                 */ RoomType; }
-	interface RoomPosition /*        */ { readonly type: /*         */ RoomPositionType; }
+	interface Room /*                */ { type: /*                 */ RoomType; }
+	interface RoomPosition /*        */ { type: /*         */ RoomPositionType; }
 
-	interface RoomObject /*          */ { readonly type: /*        */ AnyRoomObjectType; }
+	interface RoomObject /*          */ { type: /*        */ AnyRoomObjectType; }
 	// {
-	interface Creep /*               */ { readonly type: /*               */ CreepsType; }
-	interface ConstructionSite /*    */ { readonly type: /*     */ ConstructionSiteType; }
-	interface Mineral /*             */ { readonly type: /*              */ MineralType; }
-	interface Resource /*            */ { readonly type: /*             */ ResourceType; }
-	interface Ruin /*                */ { readonly type: /*                 */ RuinType; }
-	interface Source /*              */ { readonly type: /*               */ SourceType; }
-	interface Tombstone /*           */ { readonly type: /*            */ TombstoneType; }
+	interface Creep /*               */ { type: /*               */ CreepsType; }
+	interface ConstructionSite /*    */ { type: /*     */ ConstructionSiteType; }
+	interface Mineral /*             */ { type: /*              */ MineralType; }
+	interface Resource /*            */ { type: /*             */ ResourceType; }
+	interface Ruin /*                */ { type: /*                 */ RuinType; }
+	interface Source /*              */ { type: /*               */ SourceType; }
+	interface Tombstone /*           */ { type: /*            */ TombstoneType; }
 
-	interface Structure /*           */ { readonly type: /*         */ AnyStructureType; }
+	interface Structure /*           */ { type: /*         */ AnyStructureType; }
 	//     {
-	interface StructureContainer /*  */ { readonly type: /*            */ ContainerType; }
-	interface StructurePortal /*     */ { readonly type: /*               */ PortalType; }
-	interface StructureRoad /*       */ { readonly type: /*                 */ RoadType; }
-	interface StructureWall /*       */ { readonly type: /*                 */ WallType; }
+	interface StructureContainer /*  */ { type: /*            */ ContainerType; }
+	interface StructurePortal /*     */ { type: /*               */ PortalType; }
+	interface StructureRoad /*       */ { type: /*                 */ RoadType; }
+	interface StructureWall /*       */ { type: /*                 */ WallType; }
 
-	interface OwnedStructure /*      */ { readonly type: /*    */ AnyOwnedStructureType; }
+	interface OwnedStructure /*      */ { type: /*    */ AnyOwnedStructureType; }
 	//         {
-	interface StructureController /* */ { readonly type: /*           */ ControllerType; }
-	interface StructureExtension /*  */ { readonly type: /*            */ ExtensionType; }
-	interface StructureExtractor /*  */ { readonly type: /*            */ ExtractorType; }
-	interface StructureFactory /*    */ { readonly type: /*              */ FactoryType; }
-	interface StructureInvaderCore /**/ { readonly type: /*          */ InvaderCoreType; }
-	interface StructureKeeperLair /* */ { readonly type: /*           */ KeeperLairType; }
-	interface StructureLab /*        */ { readonly type: /*                  */ LabType; }
-	interface StructureLink /*       */ { readonly type: /*                 */ LinkType; }
-	interface StructureNuker /*      */ { readonly type: /*                */ NukerType; }
-	interface StructureObserver /*   */ { readonly type: /*             */ ObserverType; }
-	interface StructurePowerBank /*  */ { readonly type: /*            */ PowerBankType; }
-	interface StructurePowerSpawn /* */ { readonly type: /*           */ PowerSpawnType; }
-	interface StructureRampart /*    */ { readonly type: /*              */ RampartType; }
-	interface StructureSpawn /*      */ { readonly type: /*                */ SpawnType; }
-	interface StructureStorage /*    */ { readonly type: /*              */ StorageType; }
-	interface StructureTerminal /*   */ { readonly type: /*             */ TerminalType; }
-	interface StructureTower /*      */ { readonly type: /*                */ TowerType; }
+	interface StructureController /* */ { type: /*           */ ControllerType; }
+	interface StructureExtension /*  */ { type: /*            */ ExtensionType; }
+	interface StructureExtractor /*  */ { type: /*            */ ExtractorType; }
+	interface StructureFactory /*    */ { type: /*              */ FactoryType; }
+	interface StructureInvaderCore /**/ { type: /*          */ InvaderCoreType; }
+	interface StructureKeeperLair /* */ { type: /*           */ KeeperLairType; }
+	interface StructureLab /*        */ { type: /*                  */ LabType; }
+	interface StructureLink /*       */ { type: /*                 */ LinkType; }
+	interface StructureNuker /*      */ { type: /*                */ NukerType; }
+	interface StructureObserver /*   */ { type: /*             */ ObserverType; }
+	interface StructurePowerBank /*  */ { type: /*            */ PowerBankType; }
+	interface StructurePowerSpawn /* */ { type: /*           */ PowerSpawnType; }
+	interface StructureRampart /*    */ { type: /*              */ RampartType; }
+	interface StructureSpawn /*      */ { type: /*                */ SpawnType; }
+	interface StructureStorage /*    */ { type: /*              */ StorageType; }
+	interface StructureTerminal /*   */ { type: /*             */ TerminalType; }
+	interface StructureTower /*      */ { type: /*                */ TowerType; }
 	//         }
 	//     }
 	// }
 }
 
 // Built-in types :
-/*                */ Room.prototype.type = Type.Room as const;
-/*        */ RoomPosition.prototype.type = Type.RoomPosition as const;
+/*                */ Room.prototype.type = Type.Room;
+/*        */ RoomPosition.prototype.type = Type.RoomPosition;
 
 // RoomObject's (room, pos) :
 // {
-/*               */ Creep.prototype.type = Type.Creep as const;
-/*    */ ConstructionSite.prototype.type = Type.ConstructionSite as const;
-/*                */ Flag.prototype.type = Type.Flag as const;
-/*             */ Mineral.prototype.type = Type.Mineral as const;
-/*            */ Resource.prototype.type = Type.Resource as const;
-/*                */ Ruin.prototype.type = Type.Ruin as const;
-/*              */ Source.prototype.type = Type.Source as const;
-/*           */ Tombstone.prototype.type = Type.Tombstone as const;
+/*               */ Creep.prototype.type = Type.Creep;
+/*    */ ConstructionSite.prototype.type = Type.ConstructionSite;
+/*                */ Flag.prototype.type = Type.Flag;
+/*             */ Mineral.prototype.type = Type.Mineral;
+/*            */ Resource.prototype.type = Type.Resource;
+/*                */ Ruin.prototype.type = Type.Ruin;
+/*              */ Source.prototype.type = Type.Source;
+/*           */ Tombstone.prototype.type = Type.Tombstone;
 
 //     Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
 //     {
-/*  */ StructureContainer.prototype.type = Type.Container as const;
-/*     */ StructurePortal.prototype.type = Type.Portal as const;
-/*       */ StructureRoad.prototype.type = Type.Road as const;
-/*       */ StructureWall.prototype.type = Type.Wall as const;
+/*  */ StructureContainer.prototype.type = Type.Container;
+/*     */ StructurePortal.prototype.type = Type.Portal;
+/*       */ StructureRoad.prototype.type = Type.Road;
+/*       */ StructureWall.prototype.type = Type.Wall;
 
 //         OwnedStructure (my, owner)
 //         {
-/* */ StructureController.prototype.type = Type.Controller as const;
-/*  */ StructureExtension.prototype.type = Type.Extension as const;
-/*  */ StructureExtractor.prototype.type = Type.Extractor as const;
-/*    */ StructureFactory.prototype.type = Type.Factory as const;
-/**/ StructureInvaderCore.prototype.type = Type.InvaderCore as const;
-/* */ StructureKeeperLair.prototype.type = Type.KeeperLair as const;
-/*        */ StructureLab.prototype.type = Type.Lab as const;
-/*       */ StructureLink.prototype.type = Type.Link as const;
-/*      */ StructureNuker.prototype.type = Type.Nuker as const;
-/*   */ StructureObserver.prototype.type = Type.Observer as const;
-/*  */ StructurePowerBank.prototype.type = Type.PowerBank as const;
-/* */ StructurePowerSpawn.prototype.type = Type.PowerSpawn as const;
-/*    */ StructureRampart.prototype.type = Type.Rampart as const;
-/*      */ StructureSpawn.prototype.type = Type.Spawn as const;
-/*    */ StructureStorage.prototype.type = Type.Storage as const;
-/*   */ StructureTerminal.prototype.type = Type.Terminal as const;
-/*      */ StructureTower.prototype.type = Type.Tower as const;
+/* */ StructureController.prototype.type = Type.Controller;
+/*  */ StructureExtension.prototype.type = Type.Extension;
+/*  */ StructureExtractor.prototype.type = Type.Extractor;
+/*    */ StructureFactory.prototype.type = Type.Factory;
+/**/ StructureInvaderCore.prototype.type = Type.InvaderCore;
+/* */ StructureKeeperLair.prototype.type = Type.KeeperLair;
+/*        */ StructureLab.prototype.type = Type.Lab;
+/*       */ StructureLink.prototype.type = Type.Link;
+/*      */ StructureNuker.prototype.type = Type.Nuker;
+/*   */ StructureObserver.prototype.type = Type.Observer;
+/*  */ StructurePowerBank.prototype.type = Type.PowerBank;
+/* */ StructurePowerSpawn.prototype.type = Type.PowerSpawn;
+/*    */ StructureRampart.prototype.type = Type.Rampart;
+/*      */ StructureSpawn.prototype.type = Type.Spawn;
+/*    */ StructureStorage.prototype.type = Type.Storage;
+/*   */ StructureTerminal.prototype.type = Type.Terminal;
+/*      */ StructureTower.prototype.type = Type.Tower;
 //         }
 //     }
 // }
@@ -371,22 +359,30 @@ declare global
 
 declare global
 {
-	interface Room /*        */ { readonly ToString(): string; ts?: string; }
-	interface RoomPosition /**/ { readonly ToString(): string; ts?: string; }
-	interface RoomObject /*  */ { readonly ToString(): string; }
+	interface ControllableRoom extends Room
+	{
+		/**
+		 * The Controller structure of this room
+		 */
+		controller: StructureController;
+	}
+
+	interface Room /*        */ { ToString(): string; ts?: string; }
+	interface RoomPosition /**/ { ToString(): string; ts?: string; }
+	interface RoomObject /*  */ { ToString(): string; }
 }
 
-Room.prototype.ToString = function (): string
+Room.prototype.ToString = function(): string
 {
 	return this.ts ??= `<a href="https://screeps.com/a/#!/room/shard3/${this.name}">${this.name}</a>`;
 };
 
-RoomPosition.prototype.ToString = function (): string
+RoomPosition.prototype.ToString = function(): string
 {
 	return this.ts ??= `(${this.x}, ${this.y}, <a href="https://screeps.com/a/#!/room/shard3/${this.roomName}">${this.roomName}</a>)`;
 };
 
-Store.prototype.ToString = function (this: StoreDefinition): string
+Store.prototype.ToString = function(this: StoreDefinition): string
 {
 	const resourceTypes: readonly string[] = Object.keys(this);
 
@@ -415,7 +411,7 @@ function AppendPropertyString<T>(
 	}
 }
 
-RoomObject.prototype.ToString = function (): string
+RoomObject.prototype.ToString = function(): string
 {
 	const resultArray: readonly string[] = [];
 	AppendPropertyString(resultArray, this, "name");
@@ -435,5 +431,5 @@ RoomObject.prototype.ToString = function (): string
 	AppendPropertyString(resultArray, this, "id");
 	AppendPropertyString(resultArray, this, "memory", JSON.stringify);
 
-	return `${Type.IsCreep(this) ? c_creepTypeToString[this.GetCreepType()] : c_typeToString[this.type]}: { ${resultArray.join(", ")} }`;
+	return `${Type.IsCreep(this) ? CreepType.ToString(this.GetCreepType()) : c_typeToString[this.type]}: { ${resultArray.join(", ")} }`;
 };

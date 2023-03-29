@@ -1,7 +1,5 @@
 import { CreepType } from "./CreepType";
 
-type AnyTargetRoomObject = Source | Mineral | StructureController;
-
 declare global
 {
 	type ToCreepInterface<TCreepType extends AnyCreepType> =
@@ -39,6 +37,7 @@ declare global
 
 	// If you change this, change "CreepType.AnyRoomTargettingCreepType" too
 	type AnyRoomTargettingCreep = RunnerCreep;
+	type AnyTargetRoomObject = Source | Mineral | StructureController;
 
 	interface Creep
 	{
@@ -46,24 +45,25 @@ declare global
 		IsAny<TCreepTypes extends AnyCreepType>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
 
 		// "virtual" methods:
-		readonly GetCreepType(): AnyCreepType; /*      */ ct?: AnyCreepType;
-		readonly GetTarget(): AnyTargetRoomObject; /* */ tar?: AnyTargetRoomObject;
-		readonly GetTargetId(): Id<AnyTargetRoomObject>; tid?: Id<AnyTargetRoomObject>;
+		GetCreepType(): AnyCreepType; /*      */ ct?: AnyCreepType;
+		GetTarget(): AnyTargetRoomObject; /* */ tar?: AnyTargetRoomObject;
+		GetTargetId(): Id<AnyTargetRoomObject>; tid?: Id<AnyTargetRoomObject>;
 	}
 
 	interface CreepOfType<
 		TCreepType extends AnyCreepType,
 		TTarget extends AnyTargetRoomObject> extends Creep
 	{
-		readonly GetCreepType(): TCreepType;
-		readonly GetTarget(): TTarget;
-		readonly GetTargetId(): Id<TTarget>;
+		GetCreepType(): TCreepType;
+		GetTarget(): TTarget;
+		GetTargetId(): Id<TTarget>;
 	}
 
 	interface CreepMemory
 	{
 		readonly ct: AnyCreepType; // CreepType
 		readonly tid: Id<AnyTargetRoomObject>; // Target.id
+		readonly bd: number; // BirthDay
 	}
 }
 

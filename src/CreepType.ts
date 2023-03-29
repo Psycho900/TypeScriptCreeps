@@ -67,4 +67,19 @@ export abstract /* static */ class CreepType
 	{
 		return (creepTypes1 & creepTypes2) !== 0;
 	}
+
+	public static ToString(creepType: AnyCreepType): string
+	{
+		return CreepType.c_creepTypeToString.get(creepType) ?? creepType.toString(2);
+	}
+
+	private static readonly c_creepTypeToString: Map<AnyCreepType, string> = new Map<AnyCreepType, string>()
+		.set(CreepType.Harvester /**/, "Harvester")
+		.set(CreepType.Runner /*   */, "Runner")
+		.set(CreepType.Builder /*  */, "Builder")
+		.set(CreepType.Upgrader /* */, "Upgrader")
+		.set(CreepType.Miner /*    */, "Miner")
+		.set(CreepType.Claimer /*  */, "Claimer")
+		.set(CreepType.Attacker /* */, "Attacker")
+		.set(CreepType.Enemy /*    */, "Enemy");
 }

@@ -34,7 +34,15 @@ declare global
 {
 	interface CreepMemory
 	{
-		_move: { dest: { x: number; y: number; room: string; }; };
+		readonly _move?:
+		{
+			readonly dest?:
+			{
+				readonly x: number;
+				readonly y: number;
+				readonly room: string;
+			};
+		};
 	}
 
 	interface Room

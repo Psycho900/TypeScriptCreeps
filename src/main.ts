@@ -3,7 +3,7 @@ import { Find } from "./Find";
 import { SpawnBehavior } from "./Behaviors/Spawn";
 // import { Type } from "./Type";
 
-export const loop = function (): void
+export const loop = function(): void
 {
 	Find.ResetCacheForBeginningOfTick(); // THIS MUST BE THE VERY FIRST THING WE DO! Otherwise our cache will be outdated
 
