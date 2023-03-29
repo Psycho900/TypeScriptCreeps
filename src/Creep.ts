@@ -1,5 +1,7 @@
 import { CreepType } from "./CreepType";
 
+type AnyTargetRoomObject = Source | Mineral | StructureController;
+
 declare global
 {
 	type ToCreepInterface<TCreepType extends AnyCreepType> =
@@ -14,26 +16,29 @@ declare global
 
 	/**/ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */>;
 	/*   */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController>; // Proxy for "room"
-	/*  */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController | ConstructionSite>;
-	/* */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController | ConstructionSite>;
+	/*  */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController>;
+	/* */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController>;
 	/*    */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */>;
 	/*  */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController>;
 	/* */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */>;
 	/*    */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */>;
 
-	// If you change this, change "CreepType.AnyRoomTargettingCreepType" too
-	type AnyRoomTargettingCreep = RunnerCreep;
-
-	type AnyProducerCreep = HarvesterCreep | MinerCreep;
-	type AnyConsumerCreep = BuilderCreep | UpgraderCreep;
-
 	/*         */ type AnyCreep =
+		| /*      */ AnyMyCreep
+		| /*      */ EnemyCreep;
+
+	/*       */ type AnyMyCreep =
 		| /**/ AnyProducerCreep
 		| /**/ AnyConsumerCreep
 		| /*     */ RunnerCreep
 		| /*    */ ClaimerCreep
-		| /*   */ AttackerCreep
-		| /*      */ EnemyCreep;
+		| /*   */ AttackerCreep;
+
+	type AnyProducerCreep = HarvesterCreep | MinerCreep;
+	type AnyConsumerCreep = BuilderCreep | UpgraderCreep;
+
+	// If you change this, change "CreepType.AnyRoomTargettingCreepType" too
+	type AnyRoomTargettingCreep = RunnerCreep;
 
 	interface Creep
 	{
@@ -41,24 +46,24 @@ declare global
 		IsAny<TCreepTypes extends AnyCreepType>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
 
 		// "virtual" methods:
-		GetCreepType(): AnyCreepType; /**/ ct?: AnyCreepType;
-		GetTarget(): AnyRoomObject; /* */ tar?: AnyRoomObject;
-		GetTargetId(): Id<AnyRoomObject>; tid?: Id<AnyRoomObject>;
+		readonly GetCreepType(): AnyCreepType; /*      */ ct?: AnyCreepType;
+		readonly GetTarget(): AnyTargetRoomObject; /* */ tar?: AnyTargetRoomObject;
+		readonly GetTargetId(): Id<AnyTargetRoomObject>; tid?: Id<AnyTargetRoomObject>;
 	}
 
 	interface CreepOfType<
 		TCreepType extends AnyCreepType,
-		TTarget extends AnyRoomObject> extends Creep
+		TTarget extends AnyTargetRoomObject> extends Creep
 	{
-		GetCreepType(): TCreepType;
-		GetTarget(): TTarget;
-		GetTargetId(): Id<TTarget>;
+		readonly GetCreepType(): TCreepType;
+		readonly GetTarget(): TTarget;
+		readonly GetTargetId(): Id<TTarget>;
 	}
 
 	interface CreepMemory
 	{
-		ct: AnyCreepType; // CreepType
-		tid: Id<AnyRoomObject>; // Target.id
+		readonly ct: AnyCreepType; // CreepType
+		readonly tid: Id<AnyTargetRoomObject>; // Target.id
 	}
 }
 
@@ -74,17 +79,17 @@ Creep.prototype.IsAny = function <TCreepType extends AnyCreepType>(creepType: TC
 
 // "virtual" methods:
 
-Creep.prototype.GetCreepType = function (): AnyCreepType
+Creep.prototype.GetCreepType = function(): AnyCreepType
 {
-	return this.ct ??= (Memory.creeps[this.name]?.ct ?? CreepType.Enemy);
+	return this.ct ??= (Memory.creeps[this.name].ct ?? CreepType.Enemy);
 };
 
-Creep.prototype.GetTarget = function (): AnyRoomObject
+Creep.prototype.GetTarget = function(): AnyTargetRoomObject
 {
-	return this.tar ??= Game.getObjectById(this.GetTargetId())!; // Just call this on creeps with a target
+	return this.tar ??= Game.getObjectById(this.GetTargetId())!;
 };
 
-Creep.prototype.GetTargetId = function (): Id<AnyRoomObject>
+Creep.prototype.GetTargetId = function(): Id<AnyTargetRoomObject>
 {
-	return this.tid ??= Memory.creeps[this.name]!.tid; // Just call this on creeps with a target
+	return this.tid ??= Memory.creeps[this.name].tid;
 };

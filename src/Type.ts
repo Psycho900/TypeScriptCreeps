@@ -113,46 +113,46 @@ declare global
 export abstract /* static */ class Type
 {
 	// Built-in types :
-	public static readonly Room: /*                           */ RoomType = 0b0000000000000000000000000000001;
-	public static readonly RoomPosition: /*           */ RoomPositionType = 0b0000000000000000000000000000010;
+	public static readonly Room: /*                           */ RoomType = 0b0000000000000000000000000000001 as const;
+	public static readonly RoomPosition: /*           */ RoomPositionType = 0b0000000000000000000000000000010 as const;
 
 	// RoomObject's (room, pos) :
 	// {
-	public static readonly Creep: /*                        */ CreepsType = 0b0000000000000000000000000000100;
-	public static readonly ConstructionSite: /*   */ ConstructionSiteType = 0b0000000000000000000000000001000;
-	public static readonly Flag: /*                           */ FlagType = 0b0000000000000000000000000010000;
-	public static readonly Mineral: /*                     */ MineralType = 0b0000000000000000000000000100000;
-	public static readonly Resource: /*                   */ ResourceType = 0b0000000000000000000000001000000;
-	public static readonly Ruin: /*                           */ RuinType = 0b0000000000000000000000010000000;
-	public static readonly Source: /*                       */ SourceType = 0b0000000000000000000000100000000;
-	public static readonly Tombstone: /*                 */ TombstoneType = 0b0000000000000000000001000000000;
+	public static readonly Creep: /*                        */ CreepsType = 0b0000000000000000000000000000100 as const;
+	public static readonly ConstructionSite: /*   */ ConstructionSiteType = 0b0000000000000000000000000001000 as const;
+	public static readonly Flag: /*                           */ FlagType = 0b0000000000000000000000000010000 as const;
+	public static readonly Mineral: /*                     */ MineralType = 0b0000000000000000000000000100000 as const;
+	public static readonly Resource: /*                   */ ResourceType = 0b0000000000000000000000001000000 as const;
+	public static readonly Ruin: /*                           */ RuinType = 0b0000000000000000000000010000000 as const;
+	public static readonly Source: /*                       */ SourceType = 0b0000000000000000000000100000000 as const;
+	public static readonly Tombstone: /*                 */ TombstoneType = 0b0000000000000000000001000000000 as const;
 
 	//     Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
 	//     {
-	public static readonly Container: /*                 */ ContainerType = 0b0000000000000000000010000000000;
-	public static readonly Portal: /*                       */ PortalType = 0b0000000000000000000100000000000;
-	public static readonly Road: /*                           */ RoadType = 0b0000000000000000001000000000000;
-	public static readonly Wall: /*                           */ WallType = 0b0000000000000000010000000000000;
+	public static readonly Container: /*                 */ ContainerType = 0b0000000000000000000010000000000 as const;
+	public static readonly Portal: /*                       */ PortalType = 0b0000000000000000000100000000000 as const;
+	public static readonly Road: /*                           */ RoadType = 0b0000000000000000001000000000000 as const;
+	public static readonly Wall: /*                           */ WallType = 0b0000000000000000010000000000000 as const;
 
 	//         OwnedStructure (my, owner)
 	//         {
-	public static readonly Controller: /*               */ ControllerType = 0b0000000000000000100000000000000;
-	public static readonly Extension: /*                 */ ExtensionType = 0b0000000000000001000000000000000;
-	public static readonly Extractor: /*                 */ ExtractorType = 0b0000000000000010000000000000000;
-	public static readonly Factory: /*                     */ FactoryType = 0b0000000000000100000000000000000;
-	public static readonly InvaderCore: /*             */ InvaderCoreType = 0b0000000000001000000000000000000;
-	public static readonly KeeperLair: /*               */ KeeperLairType = 0b0000000000010000000000000000000;
-	public static readonly Lab: /*                             */ LabType = 0b0000000000100000000000000000000;
-	public static readonly Link: /*                           */ LinkType = 0b0000000001000000000000000000000;
-	public static readonly Nuker: /*                         */ NukerType = 0b0000000010000000000000000000000;
-	public static readonly Observer: /*                   */ ObserverType = 0b0000000100000000000000000000000;
-	public static readonly PowerBank: /*                 */ PowerBankType = 0b0000001000000000000000000000000;
-	public static readonly PowerSpawn: /*               */ PowerSpawnType = 0b0000010000000000000000000000000;
-	public static readonly Rampart: /*                     */ RampartType = 0b0000100000000000000000000000000;
-	public static readonly Spawn: /*                         */ SpawnType = 0b0001000000000000000000000000000;
-	public static readonly Storage: /*                     */ StorageType = 0b0010000000000000000000000000000;
-	public static readonly Terminal: /*                   */ TerminalType = 0b0100000000000000000000000000000;
-	public static readonly Tower: /*                         */ TowerType = 0b1000000000000000000000000000000;
+	public static readonly Controller: /*               */ ControllerType = 0b0000000000000000100000000000000 as const;
+	public static readonly Extension: /*                 */ ExtensionType = 0b0000000000000001000000000000000 as const;
+	public static readonly Extractor: /*                 */ ExtractorType = 0b0000000000000010000000000000000 as const;
+	public static readonly Factory: /*                     */ FactoryType = 0b0000000000000100000000000000000 as const;
+	public static readonly InvaderCore: /*             */ InvaderCoreType = 0b0000000000001000000000000000000 as const;
+	public static readonly KeeperLair: /*               */ KeeperLairType = 0b0000000000010000000000000000000 as const;
+	public static readonly Lab: /*                             */ LabType = 0b0000000000100000000000000000000 as const;
+	public static readonly Link: /*                           */ LinkType = 0b0000000001000000000000000000000 as const;
+	public static readonly Nuker: /*                         */ NukerType = 0b0000000010000000000000000000000 as const;
+	public static readonly Observer: /*                   */ ObserverType = 0b0000000100000000000000000000000 as const;
+	public static readonly PowerBank: /*                 */ PowerBankType = 0b0000001000000000000000000000000 as const;
+	public static readonly PowerSpawn: /*               */ PowerSpawnType = 0b0000010000000000000000000000000 as const;
+	public static readonly Rampart: /*                     */ RampartType = 0b0000100000000000000000000000000 as const;
+	public static readonly Spawn: /*                         */ SpawnType = 0b0001000000000000000000000000000 as const;
+	public static readonly Storage: /*                     */ StorageType = 0b0010000000000000000000000000000 as const;
+	public static readonly Terminal: /*                   */ TerminalType = 0b0100000000000000000000000000000 as const;
+	public static readonly Tower: /*                         */ TowerType = 0b1000000000000000000000000000000 as const;
 	//         }
 	//     }
 	// }
@@ -162,8 +162,8 @@ export abstract /* static */ class Type
 	public static readonly AllStructures: /*          */ AnyStructureType = 0b1111111111111111111110000000000 as AnyStructureType;
 	public static readonly AllOwnedStructures: /**/ AnyOwnedStructureType = 0b1111111111111111100000000000000 as AnyOwnedStructureType;
 
-	public static readonly FirstStructure: /*            */ ContainerType = 0b0000000000000000000010000000000;
-	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000;
+	public static readonly FirstStructure: /*            */ ContainerType = 0b0000000000000000000010000000000 as const;
+	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000 as const;
 
 	public static readonly SpawnsAndExtensions: SpawnType | ExtensionType = Type.Or(Type.Spawn, Type.Extension);
 
@@ -191,7 +191,7 @@ export abstract /* static */ class Type
 	}
 }
 
-const c_typeToString: Record<AnyType, string> =
+const c_typeToString =
 {
 	// Built-in types :
 	[Type.Room /*            */]: "Room",
@@ -237,9 +237,9 @@ const c_typeToString: Record<AnyType, string> =
 	//         }
 	//     }
 	// }
-};
+} as const;
 
-const c_creepTypeToString: Record<AnyCreepType, string> =
+const c_creepTypeToString =
 {
 	[CreepType.Harvester /**/]: "Harvester",
 	[CreepType.Runner /*   */]: "Runner",
@@ -249,95 +249,95 @@ const c_creepTypeToString: Record<AnyCreepType, string> =
 	[CreepType.Claimer /*  */]: "Claimer",
 	[CreepType.Attacker /* */]: "Attacker",
 	[CreepType.Enemy /*    */]: "Enemy",
-};
+} as const;
 
 declare global
 {
-	interface Room /*                */ { type: /*                 */ RoomType; }
-	interface RoomPosition /*        */ { type: /*         */ RoomPositionType; }
+	interface Room /*                */ { readonly type: /*                 */ RoomType; }
+	interface RoomPosition /*        */ { readonly type: /*         */ RoomPositionType; }
 
-	interface RoomObject /*          */ { type: /*        */ AnyRoomObjectType; }
+	interface RoomObject /*          */ { readonly type: /*        */ AnyRoomObjectType; }
 	// {
-	interface Creep /*               */ { type: /*               */ CreepsType; }
-	interface ConstructionSite /*    */ { type: /*     */ ConstructionSiteType; }
-	interface Mineral /*             */ { type: /*              */ MineralType; }
-	interface Resource /*            */ { type: /*             */ ResourceType; }
-	interface Ruin /*                */ { type: /*                 */ RuinType; }
-	interface Source /*              */ { type: /*               */ SourceType; }
-	interface Tombstone /*           */ { type: /*            */ TombstoneType; }
+	interface Creep /*               */ { readonly type: /*               */ CreepsType; }
+	interface ConstructionSite /*    */ { readonly type: /*     */ ConstructionSiteType; }
+	interface Mineral /*             */ { readonly type: /*              */ MineralType; }
+	interface Resource /*            */ { readonly type: /*             */ ResourceType; }
+	interface Ruin /*                */ { readonly type: /*                 */ RuinType; }
+	interface Source /*              */ { readonly type: /*               */ SourceType; }
+	interface Tombstone /*           */ { readonly type: /*            */ TombstoneType; }
 
-	interface Structure /*           */ { type: /*         */ AnyStructureType; }
+	interface Structure /*           */ { readonly type: /*         */ AnyStructureType; }
 	//     {
-	interface StructureContainer /*  */ { type: /*            */ ContainerType; }
-	interface StructurePortal /*     */ { type: /*               */ PortalType; }
-	interface StructureRoad /*       */ { type: /*                 */ RoadType; }
-	interface StructureWall /*       */ { type: /*                 */ WallType; }
+	interface StructureContainer /*  */ { readonly type: /*            */ ContainerType; }
+	interface StructurePortal /*     */ { readonly type: /*               */ PortalType; }
+	interface StructureRoad /*       */ { readonly type: /*                 */ RoadType; }
+	interface StructureWall /*       */ { readonly type: /*                 */ WallType; }
 
-	interface OwnedStructure /*      */ { type: /*    */ AnyOwnedStructureType; }
+	interface OwnedStructure /*      */ { readonly type: /*    */ AnyOwnedStructureType; }
 	//         {
-	interface StructureController /* */ { type: /*           */ ControllerType; }
-	interface StructureExtension /*  */ { type: /*            */ ExtensionType; }
-	interface StructureExtractor /*  */ { type: /*            */ ExtractorType; }
-	interface StructureFactory /*    */ { type: /*              */ FactoryType; }
-	interface StructureInvaderCore /**/ { type: /*          */ InvaderCoreType; }
-	interface StructureKeeperLair /* */ { type: /*           */ KeeperLairType; }
-	interface StructureLab /*        */ { type: /*                  */ LabType; }
-	interface StructureLink /*       */ { type: /*                 */ LinkType; }
-	interface StructureNuker /*      */ { type: /*                */ NukerType; }
-	interface StructureObserver /*   */ { type: /*             */ ObserverType; }
-	interface StructurePowerBank /*  */ { type: /*            */ PowerBankType; }
-	interface StructurePowerSpawn /* */ { type: /*           */ PowerSpawnType; }
-	interface StructureRampart /*    */ { type: /*              */ RampartType; }
-	interface StructureSpawn /*      */ { type: /*                */ SpawnType; }
-	interface StructureStorage /*    */ { type: /*              */ StorageType; }
-	interface StructureTerminal /*   */ { type: /*             */ TerminalType; }
-	interface StructureTower /*      */ { type: /*                */ TowerType; }
+	interface StructureController /* */ { readonly type: /*           */ ControllerType; }
+	interface StructureExtension /*  */ { readonly type: /*            */ ExtensionType; }
+	interface StructureExtractor /*  */ { readonly type: /*            */ ExtractorType; }
+	interface StructureFactory /*    */ { readonly type: /*              */ FactoryType; }
+	interface StructureInvaderCore /**/ { readonly type: /*          */ InvaderCoreType; }
+	interface StructureKeeperLair /* */ { readonly type: /*           */ KeeperLairType; }
+	interface StructureLab /*        */ { readonly type: /*                  */ LabType; }
+	interface StructureLink /*       */ { readonly type: /*                 */ LinkType; }
+	interface StructureNuker /*      */ { readonly type: /*                */ NukerType; }
+	interface StructureObserver /*   */ { readonly type: /*             */ ObserverType; }
+	interface StructurePowerBank /*  */ { readonly type: /*            */ PowerBankType; }
+	interface StructurePowerSpawn /* */ { readonly type: /*           */ PowerSpawnType; }
+	interface StructureRampart /*    */ { readonly type: /*              */ RampartType; }
+	interface StructureSpawn /*      */ { readonly type: /*                */ SpawnType; }
+	interface StructureStorage /*    */ { readonly type: /*              */ StorageType; }
+	interface StructureTerminal /*   */ { readonly type: /*             */ TerminalType; }
+	interface StructureTower /*      */ { readonly type: /*                */ TowerType; }
 	//         }
 	//     }
 	// }
 }
 
 // Built-in types :
-/*                */ Room.prototype.type = Type.Room;
-/*        */ RoomPosition.prototype.type = Type.RoomPosition;
+/*                */ Room.prototype.type = Type.Room as const;
+/*        */ RoomPosition.prototype.type = Type.RoomPosition as const;
 
 // RoomObject's (room, pos) :
 // {
-/*               */ Creep.prototype.type = Type.Creep;
-/*    */ ConstructionSite.prototype.type = Type.ConstructionSite;
-/*                */ Flag.prototype.type = Type.Flag;
-/*             */ Mineral.prototype.type = Type.Mineral;
-/*            */ Resource.prototype.type = Type.Resource;
-/*                */ Ruin.prototype.type = Type.Ruin;
-/*              */ Source.prototype.type = Type.Source;
-/*           */ Tombstone.prototype.type = Type.Tombstone;
+/*               */ Creep.prototype.type = Type.Creep as const;
+/*    */ ConstructionSite.prototype.type = Type.ConstructionSite as const;
+/*                */ Flag.prototype.type = Type.Flag as const;
+/*             */ Mineral.prototype.type = Type.Mineral as const;
+/*            */ Resource.prototype.type = Type.Resource as const;
+/*                */ Ruin.prototype.type = Type.Ruin as const;
+/*              */ Source.prototype.type = Type.Source as const;
+/*           */ Tombstone.prototype.type = Type.Tombstone as const;
 
 //     Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
 //     {
-/*  */ StructureContainer.prototype.type = Type.Container;
-/*     */ StructurePortal.prototype.type = Type.Portal;
-/*       */ StructureRoad.prototype.type = Type.Road;
-/*       */ StructureWall.prototype.type = Type.Wall;
+/*  */ StructureContainer.prototype.type = Type.Container as const;
+/*     */ StructurePortal.prototype.type = Type.Portal as const;
+/*       */ StructureRoad.prototype.type = Type.Road as const;
+/*       */ StructureWall.prototype.type = Type.Wall as const;
 
 //         OwnedStructure (my, owner)
 //         {
-/* */ StructureController.prototype.type = Type.Controller;
-/*  */ StructureExtension.prototype.type = Type.Extension;
-/*  */ StructureExtractor.prototype.type = Type.Extractor;
-/*    */ StructureFactory.prototype.type = Type.Factory;
-/**/ StructureInvaderCore.prototype.type = Type.InvaderCore;
-/* */ StructureKeeperLair.prototype.type = Type.KeeperLair;
-/*        */ StructureLab.prototype.type = Type.Lab;
-/*       */ StructureLink.prototype.type = Type.Link;
-/*      */ StructureNuker.prototype.type = Type.Nuker;
-/*   */ StructureObserver.prototype.type = Type.Observer;
-/*  */ StructurePowerBank.prototype.type = Type.PowerBank;
-/* */ StructurePowerSpawn.prototype.type = Type.PowerSpawn;
-/*    */ StructureRampart.prototype.type = Type.Rampart;
-/*      */ StructureSpawn.prototype.type = Type.Spawn;
-/*    */ StructureStorage.prototype.type = Type.Storage;
-/*   */ StructureTerminal.prototype.type = Type.Terminal;
-/*      */ StructureTower.prototype.type = Type.Tower;
+/* */ StructureController.prototype.type = Type.Controller as const;
+/*  */ StructureExtension.prototype.type = Type.Extension as const;
+/*  */ StructureExtractor.prototype.type = Type.Extractor as const;
+/*    */ StructureFactory.prototype.type = Type.Factory as const;
+/**/ StructureInvaderCore.prototype.type = Type.InvaderCore as const;
+/* */ StructureKeeperLair.prototype.type = Type.KeeperLair as const;
+/*        */ StructureLab.prototype.type = Type.Lab as const;
+/*       */ StructureLink.prototype.type = Type.Link as const;
+/*      */ StructureNuker.prototype.type = Type.Nuker as const;
+/*   */ StructureObserver.prototype.type = Type.Observer as const;
+/*  */ StructurePowerBank.prototype.type = Type.PowerBank as const;
+/* */ StructurePowerSpawn.prototype.type = Type.PowerSpawn as const;
+/*    */ StructureRampart.prototype.type = Type.Rampart as const;
+/*      */ StructureSpawn.prototype.type = Type.Spawn as const;
+/*    */ StructureStorage.prototype.type = Type.Storage as const;
+/*   */ StructureTerminal.prototype.type = Type.Terminal as const;
+/*      */ StructureTower.prototype.type = Type.Tower as const;
 //         }
 //     }
 // }
@@ -371,9 +371,9 @@ declare global
 
 declare global
 {
-	interface Room /*        */ { ToString(): string; ts?: string; }
-	interface RoomPosition /**/ { ToString(): string; ts?: string; }
-	interface RoomObject /*  */ { ToString(): string; }
+	interface Room /*        */ { readonly ToString(): string; ts?: string; }
+	interface RoomPosition /**/ { readonly ToString(): string; ts?: string; }
+	interface RoomObject /*  */ { readonly ToString(): string; }
 }
 
 Room.prototype.ToString = function (): string
@@ -388,7 +388,7 @@ RoomPosition.prototype.ToString = function (): string
 
 Store.prototype.ToString = function (this: StoreDefinition): string
 {
-	const resourceTypes: string[] = Object.keys(this);
+	const resourceTypes: readonly string[] = Object.keys(this);
 
 	if (resourceTypes.length === 0 || (resourceTypes.length === 1 && resourceTypes[0] === RESOURCE_ENERGY))
 	{
@@ -399,7 +399,7 @@ Store.prototype.ToString = function (this: StoreDefinition): string
 };
 
 function AppendPropertyString<T>(
-	/* inout */ result: string[],
+	/* inout */ result: readonly string[],
 	roomObject: RoomObject,
 	propertyName: string,
 	valueToStringFunction?: (value: T) => string): void
@@ -417,7 +417,7 @@ function AppendPropertyString<T>(
 
 RoomObject.prototype.ToString = function (): string
 {
-	const resultArray: string[] = [];
+	const resultArray: readonly string[] = [];
 	AppendPropertyString(resultArray, this, "name");
 	// AppendPropertyString(resultArray, this, "e", (cachedEnergy) => this.et === Game.time ? cachedEnergy : "outdated"); // My custom cached ".store.energy" that I update within ticks
 	AppendPropertyString(resultArray, this, "store");
