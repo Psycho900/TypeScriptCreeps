@@ -1,4 +1,6 @@
-import { CreepType } from "./CreepType";
+import { CreepType } from "../CreepType";
+import { Find } from "../Find";
+import { Log } from "../Log";
 
 declare global
 {
@@ -64,6 +66,55 @@ declare global
 		readonly ct: AnyCreepType; // CreepType
 		readonly tid: Id<AnyTargetRoomObject>; // Target.id
 		readonly bd: number; // BirthDay
+	}
+}
+
+export abstract /* static */ class CreepBehavior
+{
+	public static Act(): void
+	{
+		for (const creep of Find.MyCreeps())
+		{
+			if (creep.spawning !== false)
+			{
+				continue;
+			}
+
+			switch (creep.GetCreepType())
+			{
+				case CreepType.Harvester:
+					CreepBehavior.HarvesterAct(creep as HarvesterCreep);
+					continue;
+
+				case CreepType.Runner:
+					CreepBehavior.RunnerAct(creep as RunnerCreep);
+					continue;
+
+				case CreepType.Builder:
+				case CreepType.Upgrader:
+					CreepBehavior.BuilderUpgraderAct(creep as BuilderCreep | UpgraderCreep);
+					continue;
+
+				default:
+					Log.Error("Unimplemented Creep Type!", OK, creep);
+					continue;
+			}
+		}
+	}
+
+	private static HarvesterAct(creep: HarvesterCreep): void
+	{
+		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
+	}
+
+	private static RunnerAct(creep: RunnerCreep): void
+	{
+		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
+	}
+
+	private static BuilderUpgraderAct(creep: BuilderCreep | UpgraderCreep): void
+	{
+		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
 	}
 }
 

@@ -1,7 +1,12 @@
-
+const c_emptyArray: readonly [] = [] as const;
 
 export abstract /* static */ class Collection
 {
+	public static Empty(): readonly []
+	{
+		return c_emptyArray;
+	}
+
 	public static Last<T>(elements: readonly T[]): T | undefined
 	{
 		return elements[elements.length - 1];

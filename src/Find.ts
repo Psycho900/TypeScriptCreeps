@@ -15,7 +15,7 @@ let s_rooms: /*           */ readonly Room[] = Object.values(Game.rooms);
 
 interface RoomObjectCache extends Map<AnyRoomObjectType, readonly AnyRoomObject[]>
 {
-	get(key: AnyCreepType): readonly AnyCreep[];
+	get(key: CreepsType): readonly AnyCreep[];
 	get(key: MineralType): readonly Mineral[];
 	get(key: SourceType): readonly Source[];
 	get(key: AnyStructureType): AnyStructure[];
@@ -295,7 +295,7 @@ export abstract /* static */ class Find
 
 		if ((roomObjectTypesToInclude & Type.Creep) !== 0)
 		{
-			Find.PushIfNotEmpty(roomObjectArraysOfType, cache.get(CreepType.All));
+			Find.PushIfNotEmpty(roomObjectArraysOfType, cache.get(Type.Creep));
 		}
 
 		if ((roomObjectTypesToInclude & Type.ConstructionSite) !== 0)
