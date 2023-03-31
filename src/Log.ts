@@ -29,12 +29,13 @@ export abstract /* static */ class Log
 
 	public static Info(
 		message: string,
-		hr: ScreepsReturnCode,
+		hr?: ScreepsReturnCode,
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): void
 	{
-		// eslint-disable-next-line no-console
-		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr, creepToLog, targetToLog));
+		// @ts-ignore: Compiler optimization to not compile "console"
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr ?? OK, creepToLog, targetToLog));
 	}
 
 	public static Error(

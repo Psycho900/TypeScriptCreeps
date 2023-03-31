@@ -73,7 +73,7 @@ module.exports = {
 		"no-bitwise": "off",
 		"no-caller": "error",
 		"no-cond-assign": "error",
-		"no-console": "error",
+		"no-console": "off",
 		"no-constant-condition": "off",
 		"no-eval": "error",
 		"no-invalid-this": "error",

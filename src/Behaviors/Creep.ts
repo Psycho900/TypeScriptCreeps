@@ -2,6 +2,8 @@ import { CreepType } from "../CreepType";
 import { Find } from "../Find";
 import { Log } from "../Log";
 
+// const c_foo = 5 as const;
+
 declare global
 {
 	type ToCreepInterface<TCreepType extends AnyCreepType> =
@@ -14,14 +16,14 @@ declare global
 		| (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
 		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : never);
 
-	/**/ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */>;
-	/*   */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController>; // Proxy for "room"
-	/*  */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController>;
-	/* */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController>;
-	/*    */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */>;
-	/*  */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController>;
-	/* */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */>;
-	/*    */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */>;
+	/*   */ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */>;
+	/*      */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController>; // Proxy for "room"
+	/*     */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController>;
+	/*    */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController>;
+	/*       */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */>;
+	/*     */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController>;
+	/*    */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */>;
+	/*       */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */>;
 
 	/*         */ type AnyCreep =
 		| /*      */ AnyMyCreep
@@ -66,6 +68,17 @@ declare global
 		readonly ct: AnyCreepType; // CreepType
 		readonly tid: Id<AnyTargetRoomObject>; // Target.id
 		readonly bd: number; // BirthDay
+
+		// Automatically set by the game sometimes:
+		readonly _move?:
+		{
+			readonly dest?:
+			{
+				readonly x: number;
+				readonly y: number;
+				readonly room: string;
+			};
+		};
 	}
 }
 
@@ -92,7 +105,7 @@ export abstract /* static */ class CreepBehavior
 
 				case CreepType.Builder:
 				case CreepType.Upgrader:
-					CreepBehavior.BuilderUpgraderAct(creep as BuilderCreep | UpgraderCreep);
+					CreepBehavior.BuilderOrUpgraderAct(creep as BuilderCreep | UpgraderCreep);
 					continue;
 
 				default:
@@ -104,6 +117,13 @@ export abstract /* static */ class CreepBehavior
 
 	private static HarvesterAct(creep: HarvesterCreep): void
 	{
+		const destination: RoomPosition | null = CreepBehavior.Destination(creep);
+
+		if (destination === null || Find.Distance(creep.pos, destination) <= 1)
+		{
+			CreepBehavior.TakeEnergyWithoutMoving(creep);
+		}
+
 		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
 	}
 
@@ -112,9 +132,30 @@ export abstract /* static */ class CreepBehavior
 		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
 	}
 
-	private static BuilderUpgraderAct(creep: BuilderCreep | UpgraderCreep): void
+	private static BuilderOrUpgraderAct(creep: BuilderCreep | UpgraderCreep): void
+	{
+		const destination: RoomPosition | null = CreepBehavior.Destination(creep);
+
+		if (destination === null || Find.Distance(creep.pos, destination) <= 3)
+		{
+			CreepBehavior.TakeEnergyWithoutMoving(creep);
+		}
+
+		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
+	}
+
+	private static TakeEnergyWithoutMoving(creep: AnyCreep): void
 	{
 		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
+	}
+
+	private static Destination(creep: HarvesterCreep | BuilderCreep | UpgraderCreep): RoomPosition | null
+	{
+		let destination: { readonly x: number; readonly y: number; readonly room: string; } | undefined;
+
+		return (destination = Memory.creeps[creep.name]?._move?.dest) != null
+			? new RoomPosition(destination.x, destination.y, destination.room)
+			: null;
 	}
 }
 

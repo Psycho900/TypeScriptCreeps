@@ -8,28 +8,35 @@
 		"baseUrl": "src/",
 		"sourceMap": false,
 		"strict": true,
-		"experimentalDecorators": true,
-		"noImplicitReturns": true,
+		"alwaysStrict": true,
+		"allowJs": false,
 		"allowSyntheticDefaultImports": true,
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
+		"experimentalDecorators": true,
 		"forceConsistentCasingInFileNames": true,
+		"importHelpers": true,
+		"incremental": true,
+		"inlineSourceMap": false,
 		"importsNotUsedAsValues": "error",
 		"newLine": "crlf",
+		"noEmitOnError": false,
 		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
 		"noImplicitOverride": true,
+		"noImplicitReturns": true,
+		"noResolve": false,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"pretty": true,
-		"removeComments": true
+		"removeComments": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
+		"strictNullChecks": true,
+		"strictPropertyInitialization": true,
+		"types": [ "screeps" ]
 	},
-	"include": [
-		"src/*.ts",
-		"src/Behaviors/*.ts",
-	],
-	"exclude": [
-		"node_modules",
-		"*.js",
-		"dist/*.js"
-	]
+	"include": [ "src" ],
+	"exclude": [ "**/node_modules", "**/.*/" ]
 }

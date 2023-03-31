@@ -185,7 +185,7 @@ export abstract /* static */ class Type
 		return (types1 & types2) !== 0;
 	}
 
-	public static IsCreep(roomObject: RoomObject): roomObject is Creep
+	public static IsCreep(roomObject: RoomObject): roomObject is AnyCreep
 	{
 		return roomObject.type === Type.Creep;
 	}

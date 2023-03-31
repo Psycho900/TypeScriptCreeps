@@ -1,5 +1,6 @@
 import { Collection } from "./Collection";
 import { CreepType } from "./CreepType";
+import { Log } from "./Log";
 import { Type } from "./Type";
 
 // Should be safe for these to live forever:
@@ -32,19 +33,6 @@ interface CreepCache extends Map<AnyCreepType, readonly AnyCreep[]>
 
 declare global
 {
-	interface CreepMemory
-	{
-		readonly _move?:
-		{
-			readonly dest?:
-			{
-				readonly x: number;
-				readonly y: number;
-				readonly room: string;
-			};
-		};
-	}
-
 	interface Room
 	{
 		cache: RoomObjectCache;
@@ -242,23 +230,6 @@ export abstract /* static */ class Find
 
 		return Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY));
 	}
-
-	// public static Destination(creep: Creep): RoomPosition | undefined
-	// {
-	// 	let destination: { x: number; y: number; room: string; } | undefined;
-	//
-	// 	return (destination = Memory.creeps[creep.name]?._move?.dest)
-	// 		&& new RoomPosition(destination.x, destination.y, destination.room);
-	// }
-	//
-	// public static DistanceToDestination(creep: Creep): number
-	// {
-	// 	const destinationPosition: RoomPosition | undefined = Find.Destination(creep);
-	//
-	// 	return destinationPosition
-	// 		? Math.max(Find.Distance(creep.pos, destinationPosition) - (creep.IsAny(CreepType.AllConsumers) ? 3 : 1), 0)
-	// 		: 0; // ^ Builders can build from 3 away, pretty much everything else needs to be right next to their destination
-	// }
 
 	private static GenerateMyRoomObjectsOfTypeArray<
 		TRoomObjectTypes extends AnyRoomObjectType,
@@ -470,25 +441,4 @@ export abstract /* static */ class Find
 	}
 }
 
-/*
-
-function IsCreepNearDestination(creep)
-{
-	return creep.DistanceToDestination() <= 1;
-}
-
-RoomObject.prototype.FindClosests = function (roomObjects)
-{
-	return FindHighestScoringElements(roomObjects, (test) => -this.GetDistanceTo(test));
-};
-
-RoomObject.prototype.FindClosest = function (roomObjects)
-{
-	const closestRoomObjects = this.FindClosests(roomObjects);
-	return closestRoomObjects[0];
-};
-
-*/
-
-// eslint-disable-next-line no-console
-console.log(`[${Game.time}] ${s_spawns.length} spawns (last is ${Collection.Last(s_spawns)?.ToString()}). ${s_rooms.length} rooms (last is ${Collection.Last(s_rooms)?.ToString()})`);
+Log.Info(`[${Game.time}] ${s_spawns.length} spawns (last is ${Collection.Last(s_spawns)?.ToString()}). ${s_rooms.length} rooms (last is ${Collection.Last(s_rooms)?.ToString()})`);
