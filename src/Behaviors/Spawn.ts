@@ -185,7 +185,7 @@ export abstract /* static */ class SpawnBehavior
 
 	// private static CollectDataForMyCreep(
 	// 	room: ControllableRoom,
-	// 	creep: AnyCreep,
+	// 	creep: Creep,
 	// 	forecastedEnergyHarvestedPerSource: Map<Id<Source>, number>,
 	// 	forecastedEnergyConsumedPerRoom: Map<Id<StructureController>, number>,
 	// ): void
@@ -242,7 +242,7 @@ export abstract /* static */ class SpawnBehavior
 	// 	}
 	// }
 
-	private static WillCreepDieSoon(creep: AnyCreep): boolean
+	private static WillCreepDieSoon(creep: Creep): boolean
 	{
 		const ticksToLive: number | undefined = creep.ticksToLive; // undefined means the creep is still spawning
 		return ticksToLive != null && (ticksToLive < c_ticksToForecast || 2 * creep.hits <= creep.hitsMax); // Creep being murdered?
@@ -300,7 +300,7 @@ export abstract /* static */ class SpawnBehavior
 	}
 
 	private static TrySpawn<
-		TCreepType extends AnyCreepType,
+		TCreepType extends number,
 		TRoomObject extends AnyTargetRoomObject>(
 			spawn: StructureSpawn,
 			creepType: TCreepType,

@@ -9,16 +9,16 @@ declare global
 	/*    */ type AttackerCreepType = 0b0000000000000000000000001000000;
 	/*       */ type EnemyCreepType = 0b0000000000000000000000010000000;
 
-	/*         */ type AnyCreepType =
-		| /*      */ AnyMyCreepType
-		| /*      */ EnemyCreepType;
-
-	/*       */ type AnyMyCreepType =
-		| /**/ AnyProducerCreepType
-		| /**/ AnyConsumerCreepType
-		| /*     */ RunnerCreepType
-		| /*    */ ClaimerCreepType
-		| /*   */ AttackerCreepType;
+	// /*         */ type AnyCreepType =
+	// 	| /*      */ AnyMyCreepType
+	// 	| /*      */ EnemyCreepType;
+	//
+	// /*       */ type AnyMyCreepType =
+	// 	| /**/ AnyProducerCreepType
+	// 	| /**/ AnyConsumerCreepType
+	// 	| /*     */ RunnerCreepType
+	// 	| /*    */ ClaimerCreepType
+	// 	| /*   */ AttackerCreepType;
 
 	/* */ type AnyProducerCreepType =
 		| /*  */ HarvesterCreepType
@@ -43,16 +43,16 @@ export abstract /* static */ class CreepType
 	public static readonly Attacker: /*  */ AttackerCreepType = 0b0000000000000000000000001000000 as const;
 	public static readonly Enemy: /*        */ EnemyCreepType = 0b0000000000000000000000010000000 as const;
 
-	public static readonly All: /*            */ AnyCreepType = 0b0000000000000000000000011111111 as AnyCreepType;
-	public static readonly AllMine: /*      */ AnyMyCreepType = 0b0000000000000000000000001111111 as AnyMyCreepType;
+	public static readonly All /*                          */ = 0b0000000000000000000000011111111 as const;
+	public static readonly AllMine /*                      */ = 0b0000000000000000000000001111111 as const;
 	public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
-	public static readonly AllRoomTargettingCreeps: AnyRoomTargettingCreepType = 0b0000000000000000000000000000010 as const;
+	public static readonly AllRoomTargettingCreeps /*      */ = 0b0000000000000000000000000000010 as const;
 
 	public static Is<
-		TCreepTypes1 extends AnyCreepType,
-		TCreepTypes2 extends AnyCreepType>(
+		TCreepTypes1 extends number,
+		TCreepTypes2 extends number>(
 			creepTypes1: TCreepTypes1,
 			creepTypes2: TCreepTypes2): creepTypes1 is (TCreepTypes1 & TCreepTypes2)
 	{
@@ -60,26 +60,27 @@ export abstract /* static */ class CreepType
 	}
 
 	public static Contains<
-		TCreepTypes1 extends AnyCreepType,
-		TCreepTypes2 extends AnyCreepType>(
+		TCreepTypes1 extends number,
+		TCreepTypes2 extends number>(
 			creepTypes1: TCreepTypes1,
 			creepTypes2: TCreepTypes2): creepTypes1 is (TCreepTypes1 & TCreepTypes2)
 	{
 		return (creepTypes1 & creepTypes2) !== 0;
 	}
 
-	public static ToString(creepType: AnyCreepType): string
+	public static ToString(creepType: number): string
 	{
-		return CreepType.c_creepTypeToString.get(creepType) ?? creepType.toString(2);
+		switch (creepType)
+		{
+			case CreepType.Harvester /**/: return "Harvester";
+			case CreepType.Runner /*   */: return "Runner";
+			case CreepType.Builder /*  */: return "Builder";
+			case CreepType.Upgrader /* */: return "Upgrader";
+			case CreepType.Miner /*    */: return "Miner";
+			case CreepType.Claimer /*  */: return "Claimer";
+			case CreepType.Attacker /* */: return "Attacker";
+			case CreepType.Enemy /*    */: return "Enemy";
+			default:                       return creepType.toString(2);
+		}
 	}
-
-	private static readonly c_creepTypeToString: Map<AnyCreepType, string> = new Map<AnyCreepType, string>()
-		.set(CreepType.Harvester /**/, "Harvester")
-		.set(CreepType.Runner /*   */, "Runner")
-		.set(CreepType.Builder /*  */, "Builder")
-		.set(CreepType.Upgrader /* */, "Upgrader")
-		.set(CreepType.Miner /*    */, "Miner")
-		.set(CreepType.Claimer /*  */, "Claimer")
-		.set(CreepType.Attacker /* */, "Attacker")
-		.set(CreepType.Enemy /*    */, "Enemy");
 }

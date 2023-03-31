@@ -6,7 +6,7 @@ import { Log } from "../Log";
 
 declare global
 {
-	type ToCreepInterface<TCreepType extends AnyCreepType> =
+	type ToCreepInterface<TCreepType extends number> =
 		| (TCreepType extends /**/ HarvesterCreepType ? /**/ HarvesterCreep : never)
 		| (TCreepType extends /*   */ RunnerCreepType ? /*   */ RunnerCreep : never)
 		| (TCreepType extends /*  */ BuilderCreepType ? /*  */ BuilderCreep : never)
@@ -25,16 +25,16 @@ declare global
 	/*    */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */>;
 	/*       */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */>;
 
-	/*         */ type AnyCreep =
-		| /*      */ AnyMyCreep
-		| /*      */ EnemyCreep;
-
-	/*       */ type AnyMyCreep =
-		| /**/ AnyProducerCreep
-		| /**/ AnyConsumerCreep
-		| /*     */ RunnerCreep
-		| /*    */ ClaimerCreep
-		| /*   */ AttackerCreep;
+	// /*         */ type Creep =
+	// 	| /*      */ AnyMyCreep
+	// 	| /*      */ EnemyCreep;
+	//
+	// /*       */ type AnyMyCreep =
+	// 	| /**/ AnyProducerCreep
+	// 	| /**/ AnyConsumerCreep
+	// 	| /*     */ RunnerCreep
+	// 	| /*    */ ClaimerCreep
+	// 	| /*   */ AttackerCreep;
 
 	type AnyProducerCreep = HarvesterCreep | MinerCreep;
 	type AnyConsumerCreep = BuilderCreep | UpgraderCreep;
@@ -45,17 +45,17 @@ declare global
 
 	interface Creep
 	{
-		Is<TCreepType extends AnyCreepType>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
-		IsAny<TCreepTypes extends AnyCreepType>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
+		Is<TCreepType extends number>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
+		IsAny<TCreepTypes extends number>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
 
 		// "virtual" methods:
-		GetCreepType(): AnyCreepType; /*      */ ct?: AnyCreepType;
+		GetCreepType(): number; /*            */ ct?: number;
 		GetTarget(): AnyTargetRoomObject; /* */ tar?: AnyTargetRoomObject;
 		GetTargetId(): Id<AnyTargetRoomObject>; tid?: Id<AnyTargetRoomObject>;
 	}
 
 	interface CreepOfType<
-		TCreepType extends AnyCreepType,
+		TCreepType extends number,
 		TTarget extends AnyTargetRoomObject> extends Creep
 	{
 		GetCreepType(): TCreepType;
@@ -65,7 +65,7 @@ declare global
 
 	interface CreepMemory
 	{
-		readonly ct: AnyCreepType; // CreepType
+		readonly ct: number; // CreepType
 		readonly tid: Id<AnyTargetRoomObject>; // Target.id
 		readonly bd: number; // BirthDay
 
@@ -144,7 +144,7 @@ export abstract /* static */ class CreepBehavior
 		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
 	}
 
-	private static TakeEnergyWithoutMoving(creep: AnyCreep): void
+	private static TakeEnergyWithoutMoving(creep: Creep): void
 	{
 		throw new Error("TODO_KevSchil: Implement this for " + creep.ToString());
 	}
@@ -159,19 +159,19 @@ export abstract /* static */ class CreepBehavior
 	}
 }
 
-Creep.prototype.Is = function <TCreepType extends AnyCreepType>(creepType: TCreepType): boolean
+Creep.prototype.Is = function(creepType: number): boolean
 {
 	return this.GetCreepType() === creepType;
 };
 
-Creep.prototype.IsAny = function <TCreepType extends AnyCreepType>(creepType: TCreepType): boolean
+Creep.prototype.IsAny = function(creepType: number): boolean
 {
 	return (this.GetCreepType() & creepType) !== 0;
 };
 
 // "virtual" methods:
 
-Creep.prototype.GetCreepType = function(): AnyCreepType
+Creep.prototype.GetCreepType = function(): number
 {
 	return this.ct ??= (Memory.creeps[this.name].ct ?? CreepType.Enemy);
 };
