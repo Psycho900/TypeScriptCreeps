@@ -410,10 +410,10 @@ export abstract /* static */ class Find
 		map: Map<TKey, TValue>,
 		key: TKey,
 		room: Room,
-		findConstant: FindConstant): TValue
+		findConstant: number): TValue
 	{
 		let result: TValue;
-		return map.get(key) ?? (map.set(key, result = room.find(findConstant) as unknown as TValue), result);
+		return map.get(key) ?? (map.set(key, result = room.find(findConstant as FIND_STRUCTURES) as unknown as TValue), result);
 	}
 }
 
