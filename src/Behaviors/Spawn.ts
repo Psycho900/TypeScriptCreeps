@@ -114,7 +114,7 @@ export abstract /* static */ class SpawnBehavior
 	// 	{
 	// 		const targetSource: Source = harvesterCreep.GetTarget();
 	//
-	// 		for (const spawnOrExtension of Find.MyTypesInRange(targetSource, Type.SpawnsAndExtensions, 4))
+	// 		for (const spawnOrExtension of Find.MyObjectsInRange(targetSource, Type.SpawnsAndExtensions, 4))
 	// 		{
 	// 			if (spawnOrExtension.store.getFreeCapacity(RESOURCE_ENERGY) !== 0)
 	// 			{
@@ -133,7 +133,7 @@ export abstract /* static */ class SpawnBehavior
 		for (const room of Find.VisibleRooms())
 		{
 			if (room.controller != null && // Hallways (etc.) have no controller
-				(Find.MyTypes(room, Type.Spawn).length !== 0 || Find.CreepsOfTypes(room, CreepType.Enemy).length === 0))
+				(Find.MyObjects(room, Type.Spawn).length !== 0 || Find.CreepsOfTypes(room, CreepType.Enemy).length === 0))
 			{
 				targetRooms.push(room as ControllableRoom); // Do not send creeps into not-my-rooms containing enemies
 			}
@@ -159,7 +159,7 @@ export abstract /* static */ class SpawnBehavior
 				}
 			}
 
-			for (const source of Find.MyTypes(room, Type.Source)) // Ensure workPartsPerSource contains all sources
+			for (const source of Find.MyObjects(room, Type.Source)) // Ensure workPartsPerSource contains all sources
 			{
 				// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 				workPartsPerSource.get(source.id) ?? workPartsPerSource.set(source.id, 0);
@@ -218,7 +218,7 @@ export abstract /* static */ class SpawnBehavior
 	// 		case CreepType.Builder: //    Building a structure consumes 5 energy per WORK body part
 	// 		case CreepType.Upgrader: // Upgrading a controller consumes 1 energy per WORK body part
 	// 			{
-	// 				if (Find.MyTypes(room, Type.ConstructionSite).length !== 0) // Building new structures:
+	// 				if (Find.MyObjects(room, Type.ConstructionSite).length !== 0) // Building new structures:
 	// 				{
 	// 					SpawnBehavior.IncreaseValueOfKeyBy(
 	// 						forecastedEnergyConsumedPerRoom,
@@ -251,7 +251,7 @@ export abstract /* static */ class SpawnBehavior
 	private static TrySpawnFirstHarvester(room: ControllableRoom, spawns: readonly StructureSpawn[]): boolean
 	{
 		const closestSpawnAndSource: readonly [StructureSpawn, Source] | null
-			= Find.ClosestPair(spawns, Find.MyTypes(room, Type.Source));
+			= Find.ClosestPair(spawns, Find.MyObjects(room, Type.Source));
 
 		if (closestSpawnAndSource === null)
 		{

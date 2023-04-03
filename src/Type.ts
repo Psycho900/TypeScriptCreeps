@@ -76,6 +76,36 @@ declare global
 	// 	| /*         */ TerminalType
 	// 	| /*            */ TowerType;
 
+	type AnyEnergyStoreType =
+		| CreepsType
+		| RuinType
+		| TombstoneType
+		| ContainerType
+		| ExtensionType
+		| FactoryType
+		| LabType
+		| LinkType
+		| NukerType
+		| PowerSpawnType
+		| SpawnType
+		| StorageType
+		| TerminalType
+		| TowerType;
+
+	type AnyEnergyTakingType =
+		| CreepsType
+		| ContainerType
+		| ExtensionType
+		| FactoryType
+		| LabType
+		| LinkType
+		| NukerType
+		| PowerSpawnType
+		| SpawnType
+		| StorageType
+		| TerminalType
+		| TowerType;
+
 	type ToInterface<TRoomObjectType extends number> =
 		// | (TRoomObjectType extends /*         */ RoomType ? Room /*                */ : never)
 		// | (TRoomObjectType extends /* */ RoomPositionType ? RoomPosition /*        */ : never)
@@ -387,12 +417,12 @@ Store.prototype.ToString = function(this: StoreDefinition): string
 {
 	const resourceTypes: readonly string[] = Object.keys(this);
 
-	if (resourceTypes.length === 0 || (resourceTypes.length === 1 && resourceTypes[0] === RESOURCE_ENERGY))
+	if (resourceTypes.length === 0 || (resourceTypes.length === 1 && resourceTypes[0] === "energy"))
 	{
-		return `[${this.energy}/${this.getCapacity(RESOURCE_ENERGY)}]`;
+		return `[${this.energy}/${this.getCapacity("energy")}]`;
 	}
 
-	return `[ ${JSON.stringify(this)} / ${this.getCapacity(RESOURCE_ENERGY)} ]`;
+	return `[ ${JSON.stringify(this)} / ${this.getCapacity("energy")} ]`;
 };
 
 function AppendPropertyString<T>(

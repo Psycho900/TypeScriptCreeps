@@ -88,6 +88,7 @@ module.exports = {
 		"object-curly-newline": "error",
 		"object-shorthand": "error",
 		"one-var": ["error", "never"],
+		"prefer-spread": "off",
 		"prettier/prettier": "off",
 		"quote-props": "off",
 		"radix": "error",
