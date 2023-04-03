@@ -5,26 +5,26 @@ import { Log } from "../Log";
 import { Type } from "../Type";
 
 const c_ticksToForecast: 100 = 100 as const;
-const c_optimalWorkBodyPartsPerSource: 5 = 5 as const; // Harvesting a source produces 2 energy per WORK body part
+const c_optimalWorkBodyPartsPerSource: 5 = 5 as const; // Harvesting a source produces 2 energy per "work" body part
 
 const c_harvesterBodyFromWorkBodyPartCount =
 	[
-		/* 0 */[MOVE, CARRY],
-		/* 1 */[MOVE, CARRY, WORK],
-		/* 2 */[MOVE, CARRY, WORK, WORK],
-		/* 3 */[MOVE, CARRY, WORK, WORK, WORK],
-		/* 4 */[MOVE, CARRY, WORK, WORK, WORK, WORK],
-		/* 5 */[MOVE, CARRY, WORK, WORK, WORK, WORK, WORK],
+		/* 0 */["move", "carry"],
+		/* 1 */["move", "carry", "work"],
+		/* 2 */["move", "carry", "work", "work"],
+		/* 3 */["move", "carry", "work", "work", "work"],
+		/* 4 */["move", "carry", "work", "work", "work", "work"],
+		/* 5 */["move", "carry", "work", "work", "work", "work", "work"],
 	] as const;
 
 const c_harvesterCostFromWorkBodyPartCount =
 	[
-		/* 0 */BODYPART_COST[MOVE] + BODYPART_COST[CARRY] + BODYPART_COST[WORK] * 0,
-		/* 1 */BODYPART_COST[MOVE] + BODYPART_COST[CARRY] + BODYPART_COST[WORK] * 1,
-		/* 2 */BODYPART_COST[MOVE] + BODYPART_COST[CARRY] + BODYPART_COST[WORK] * 2,
-		/* 3 */BODYPART_COST[MOVE] + BODYPART_COST[CARRY] + BODYPART_COST[WORK] * 3,
-		/* 4 */BODYPART_COST[MOVE] + BODYPART_COST[CARRY] + BODYPART_COST[WORK] * 4,
-		/* 5 */BODYPART_COST[MOVE] + BODYPART_COST[CARRY] + BODYPART_COST[WORK] * 5,
+		/* 0 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 0,
+		/* 1 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 1,
+		/* 2 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 2,
+		/* 3 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 3,
+		/* 4 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 4,
+		/* 5 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 5,
 	] as const;
 
 export abstract /* static */ class SpawnBehavior
@@ -155,7 +155,7 @@ export abstract /* static */ class SpawnBehavior
 					Collection.IncreaseValueOfKeyBy(
 						workPartsPerSource,
 						creep.GetTargetId(),
-						creep.getActiveBodyparts(WORK));
+						creep.getActiveBodyparts("work"));
 				}
 			}
 
@@ -200,12 +200,12 @@ export abstract /* static */ class SpawnBehavior
 	//
 	// 	switch (creep.GetCreepType())
 	// 	{
-	// 		case CreepType.Harvester: //   Harvesting a source produces 2 energy per WORK body part
+	// 		case CreepType.Harvester: //   Harvesting a source produces 2 energy per "work" body part
 	// 			{
 	// 				SpawnBehavior.IncreaseValueOfKeyBy(
 	// 					forecastedEnergyHarvestedPerSource,
 	// 					(creep as HarvesterCreep).GetTargetId(),
-	// 					ticksToForecast * 2 * creep.getActiveBodyparts(WORK));
+	// 					ticksToForecast * 2 * creep.getActiveBodyparts("work"));
 	//
 	// 				return;
 	// 			}
@@ -215,22 +215,22 @@ export abstract /* static */ class SpawnBehavior
 	// 		// 		return;
 	// 		// 	}
 	//
-	// 		case CreepType.Builder: //    Building a structure consumes 5 energy per WORK body part
-	// 		case CreepType.Upgrader: // Upgrading a controller consumes 1 energy per WORK body part
+	// 		case CreepType.Builder: //    Building a structure consumes 5 energy per "work" body part
+	// 		case CreepType.Upgrader: // Upgrading a controller consumes 1 energy per "work" body part
 	// 			{
 	// 				if (Find.MyObjects(room, Type.ConstructionSite).length !== 0) // Building new structures:
 	// 				{
 	// 					SpawnBehavior.IncreaseValueOfKeyBy(
 	// 						forecastedEnergyConsumedPerRoom,
-	// 						(creep as BuilderCreep | UpgraderCreep).GetTargetId(), // Guessing Builders are bottlenecked by CARRY's at this ratio:
-	// 						ticksToForecast * Math.min(5 * creep.getActiveBodyparts(WORK), 2 * creep.getActiveBodyparts(CARRY)));
+	// 						(creep as BuilderCreep | UpgraderCreep).GetTargetId(), // Guessing Builders are bottlenecked by "carry"'s at this ratio:
+	// 						ticksToForecast * Math.min(5 * creep.getActiveBodyparts("work"), 2 * creep.getActiveBodyparts("carry")));
 	// 				}
 	// 				else // Upgrading controller:
 	// 				{
 	// 					SpawnBehavior.IncreaseValueOfKeyBy(
 	// 						forecastedEnergyConsumedPerRoom,
 	// 						(creep as BuilderCreep | UpgraderCreep).GetTargetId(),
-	// 						ticksToForecast * creep.getActiveBodyparts(WORK));
+	// 						ticksToForecast * creep.getActiveBodyparts("work"));
 	// 				}
 	//
 	// 				return;
@@ -277,10 +277,10 @@ export abstract /* static */ class SpawnBehavior
 
 		const workBodyPartsToSpawn: 1 | 2 | 3 | 5
 			= room.energyCapacityAvailable >= c_harvesterCostFromWorkBodyPartCount[5]
-				? 5 //                                          Late game: Always spawn 5-WORK harvesters
+				? 5 //                                          Late game: Always spawn 5-"work" harvesters
 				: room.energyCapacityAvailable >= c_harvesterCostFromWorkBodyPartCount[3]
-					? (maxWorkBodyPartCount === 2 ? 2 : 3) //    Mid game: Always spawn 3-WORK harvesters, unless we need exactly 2
-					: (maxWorkBodyPartCount === 1 ? 1 : 2); // Early game: Always spawn 2-WORK harvesters, unless we need exactly 1
+					? (maxWorkBodyPartCount === 2 ? 2 : 3) //    Mid game: Always spawn 3-"work" harvesters, unless we need exactly 2
+					: (maxWorkBodyPartCount === 1 ? 1 : 2); // Early game: Always spawn 2-"work" harvesters, unless we need exactly 1
 
 		return room.energyAvailable >= c_harvesterCostFromWorkBodyPartCount[workBodyPartsToSpawn] &&
 			SpawnBehavior.TrySpawn(
@@ -296,7 +296,7 @@ export abstract /* static */ class SpawnBehavior
 			Find.Closest(Find.Center(room), spawns)!,
 			CreepType.Runner,
 			room.controller,
-			[MOVE, CARRY, MOVE, CARRY, MOVE, CARRY]); // TODO_KevSchil: Need smarter logic
+			["move", "carry", "move", "carry", "move", "carry"]); // TODO_KevSchil: Need smarter logic
 	}
 
 	private static TrySpawn<
@@ -319,7 +319,7 @@ export abstract /* static */ class SpawnBehavior
 		return (Find.Distance(targetPosition, spawn.pos) <= 25 || Find.Closest(targetPosition, Find.MySpawns())!.id === spawn.id)
 			&& Log.Succeeded(spawn.spawnCreep(
 				bodyParts,
-				`${CreepType.ToString(creepType)}${Log.GetTimestamp()}`,
+				`${CreepType.ToString(creepType)}${Find.VisibleRooms().indexOf(target.room ?? spawn.room)}${Game.time % 100}`,
 				{
 					memory:
 					{

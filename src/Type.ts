@@ -76,35 +76,52 @@ declare global
 	// 	| /*         */ TerminalType
 	// 	| /*            */ TowerType;
 
-	type AnyEnergyStoreType =
-		| CreepsType
+	// type AnyEnergyStoreType =
+	// 	| CreepsType
+	// 	| RuinType
+	// 	| TombstoneType
+	// 	| ContainerType
+	// 	| ExtensionType
+	// 	| FactoryType
+	// 	| LabType
+	// 	| LinkType
+	// 	| NukerType
+	// 	| PowerSpawnType
+	// 	| SpawnType
+	// 	| StorageType
+	// 	| TerminalType
+	// 	| TowerType;
+
+	type AnyEnergyTakingType =
+		// | CreepsType //     Handled by a separate CreepType[]
+		| ContainerType
+		| ExtensionType
+		// | FactoryType //    Add this in if we ever actually make a factory
+		// | LabType //        Add this in if we ever actually make a lab
+		| LinkType
+		// | NukerType //      Add this in if we ever actually make a nuker
+		// | PowerSpawnType // Add this in if we ever actually make a power spawn
+		| SpawnType
+		| StorageType
+		// | TerminalType //   Add this in if we ever actually make a terminal
+		| TowerType;
+
+	type AnyEnergyGivingType =
+		// | CreepsType //     Handled by a separate CreepType[]
+		// | ResourceType //   Always present. Commented out because it has no .store unlike the rest
 		| RuinType
 		| TombstoneType
 		| ContainerType
-		| ExtensionType
-		| FactoryType
-		| LabType
+		// | ExtensionType //  Why take energy out of an extension?
+		// | FactoryType //    Why take energy out of a factory?
+		// | LabType //        Why take energy out of a lab?
 		| LinkType
-		| NukerType
-		| PowerSpawnType
-		| SpawnType
-		| StorageType
-		| TerminalType
-		| TowerType;
-
-	type AnyEnergyTakingType =
-		| CreepsType
-		| ContainerType
-		| ExtensionType
-		| FactoryType
-		| LabType
-		| LinkType
-		| NukerType
-		| PowerSpawnType
-		| SpawnType
-		| StorageType
-		| TerminalType
-		| TowerType;
+		// | NukerType //      Why take energy out of a lab?
+		// | PowerSpawnType // Why take energy out of a spawn?
+		// | SpawnType //      Why take energy out of a spawn?
+		| StorageType;
+		// | TerminalType //   Add this in if we ever do anything with power spawns
+		// | TowerType //      Why take energy out of a tower?
 
 	type ToInterface<TRoomObjectType extends number> =
 		// | (TRoomObjectType extends /*         */ RoomType ? Room /*                */ : never)
