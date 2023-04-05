@@ -46,11 +46,13 @@ export abstract /* static */ class Log
 	{
 		if (s_currentError !== null)
 		{
-			Log.Info(s_currentError.stack ?? s_currentError.message, hr);
+			Log.Info(`!MULTIPLE ERRORS!:\n${s_currentError.message}\n${s_currentError.stack}`, hr);
 		}
 
 		message = Log.GenerateMessage(message, hr, creepToLog, targetToLog);
 		s_currentError = new Error(message); // thrown at the end of main
+		// eslint-disable-next-line no-debugger
+		debugger;
 		return false;
 	}
 
@@ -60,10 +62,9 @@ export abstract /* static */ class Log
 		creepToLog?: Creep,
 		targetToLog?: RoomObject): void
 	{
-		// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-		message = "!WARNING!: " + message;
+		message = `!WARNING!: ${message}`;
 
-		if ((Game.time % 1000) !== 0)
+		if ((Game.time % 100) !== 0)
 		{
 			Log.Info(message, hr, creepToLog, targetToLog);
 		}
@@ -106,7 +107,8 @@ export abstract /* static */ class Log
 
 		if (hr === ERR_NOT_IN_RANGE || hr === ERR_NOT_ENOUGH_RESOURCES)
 		{
-			// Expected
+			// Expected?
+			Log.Error("Rarely expected error code?", hr, creepToLog, targetToLog);
 		}
 		else if (hr === ERR_NO_PATH)
 		{
@@ -114,7 +116,7 @@ export abstract /* static */ class Log
 		}
 		else if (hr === ERR_NO_BODYPART)
 		{
-			Log.Error("No body part. Self destructing now", hr, creepToLog, targetToLog);
+			Log.Error("No body part", hr, creepToLog, targetToLog);
 
 			// creepToLog?.suicide(); // TODO_KevSchil: Are we ready for this yet?
 		}

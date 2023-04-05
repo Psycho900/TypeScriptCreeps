@@ -12,7 +12,7 @@ export abstract /* static */ class Collection
 		return elements[elements.length - 1];
 	}
 
-	public static LasIndexOf<T>(elements: readonly T[], predicate: (element: T) => boolean): number | -1
+	public static LastIndexOf<T>(elements: readonly T[], predicate: (element: T) => boolean): number | -1
 	{
 		let index: number = elements.length;
 		while (--index >= 0 && !predicate(elements[index]));

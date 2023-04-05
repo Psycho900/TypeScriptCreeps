@@ -154,7 +154,7 @@ export abstract /* static */ class SpawnBehavior
 				{
 					Collection.IncreaseValueOfKeyBy(
 						workPartsPerSource,
-						creep.GetTargetId(),
+						creep.GetTarget().id,
 						creep.getActiveBodyparts("work"));
 				}
 			}
@@ -204,7 +204,7 @@ export abstract /* static */ class SpawnBehavior
 	// 			{
 	// 				SpawnBehavior.IncreaseValueOfKeyBy(
 	// 					forecastedEnergyHarvestedPerSource,
-	// 					(creep as HarvesterCreep).GetTargetId(),
+	// 					(creep as HarvesterCreep).GetTarget().id,
 	// 					ticksToForecast * 2 * creep.getActiveBodyparts("work"));
 	//
 	// 				return;
@@ -215,22 +215,22 @@ export abstract /* static */ class SpawnBehavior
 	// 		// 		return;
 	// 		// 	}
 	//
-	// 		case CreepType.Builder: //    Building a structure consumes 5 energy per "work" body part
 	// 		case CreepType.Upgrader: // Upgrading a controller consumes 1 energy per "work" body part
+	// 		case CreepType.Builder: //    Building a structure consumes 5 energy per "work" body part
 	// 			{
-	// 				if (Find.MyObjects(room, Type.ConstructionSite).length !== 0) // Building new structures:
+	// 				if (Find.MyObjects(room, Type.ConstructionSite).length === 0) // Upgrading controller:
 	// 				{
 	// 					SpawnBehavior.IncreaseValueOfKeyBy(
 	// 						forecastedEnergyConsumedPerRoom,
-	// 						(creep as BuilderCreep | UpgraderCreep).GetTargetId(), // Guessing Builders are bottlenecked by "carry"'s at this ratio:
-	// 						ticksToForecast * Math.min(5 * creep.getActiveBodyparts("work"), 2 * creep.getActiveBodyparts("carry")));
-	// 				}
-	// 				else // Upgrading controller:
-	// 				{
-	// 					SpawnBehavior.IncreaseValueOfKeyBy(
-	// 						forecastedEnergyConsumedPerRoom,
-	// 						(creep as BuilderCreep | UpgraderCreep).GetTargetId(),
+	// 						(creep as UpgraderCreep | BuilderCreep).GetTarget().id,
 	// 						ticksToForecast * creep.getActiveBodyparts("work"));
+	// 				}
+	// 				else // Building new structures:
+	// 				{
+	// 					SpawnBehavior.IncreaseValueOfKeyBy(
+	// 						forecastedEnergyConsumedPerRoom,
+	// 						(creep as UpgraderCreep | BuilderCreep).GetTarget().id, // Guessing Builders are bottlenecked by "carry"'s at this ratio:
+	// 						ticksToForecast * Math.min(5 * creep.getActiveBodyparts("work"), 2 * creep.getActiveBodyparts("carry")));
 	// 				}
 	//
 	// 				return;
@@ -259,7 +259,7 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		const energyAvailable: number = room.energyAvailable;
-		const workBodyPartCount: 1 | 2 | 3 | 4 | 5 = Collection.LasIndexOf(
+		const workBodyPartCount: 1 | 2 | 3 | 4 | 5 = Collection.LastIndexOf(
 			c_harvesterCostFromWorkBodyPartCount,
 			(element: number) => energyAvailable >= element) as 1 | 2 | 3 | 4 | 5;
 
@@ -319,7 +319,7 @@ export abstract /* static */ class SpawnBehavior
 		return (Find.Distance(targetPosition, spawn.pos) <= 25 || Find.Closest(targetPosition, Find.MySpawns())!.id === spawn.id)
 			&& Log.Succeeded(spawn.spawnCreep(
 				bodyParts,
-				`${CreepType.ToString(creepType)}${Find.VisibleRooms().indexOf(target.room ?? spawn.room)}${Game.time % 100}`,
+				`${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? spawn.room) * 100 + (Game.time % 100)}`,
 				{
 					memory:
 					{

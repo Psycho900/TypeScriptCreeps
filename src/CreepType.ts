@@ -2,8 +2,8 @@ declare global
 {
 	/*   */ type HarvesterCreepType = 0b0000000000000000000000000000001;
 	/*      */ type RunnerCreepType = 0b0000000000000000000000000000010;
-	/*     */ type BuilderCreepType = 0b0000000000000000000000000000100;
-	/*    */ type UpgraderCreepType = 0b0000000000000000000000000001000;
+	/*    */ type UpgraderCreepType = 0b0000000000000000000000000000100;
+	/*     */ type BuilderCreepType = 0b0000000000000000000000000001000;
 	/*       */ type MinerCreepType = 0b0000000000000000000000000010000;
 	/*     */ type ClaimerCreepType = 0b0000000000000000000000000100000;
 	/*    */ type AttackerCreepType = 0b0000000000000000000000001000000;
@@ -25,8 +25,8 @@ declare global
 		| /*      */ MinerCreepType;
 
 	/* */ type AnyConsumerCreepType =
-		| /*    */ BuilderCreepType
-		| /*   */ UpgraderCreepType;
+		| /*   */ UpgraderCreepType
+		| /*    */ BuilderCreepType;
 
 	// If you change this, change "Creep.AnyRoomTargettingCreep" too
 	type AnyRoomTargettingCreepType = RunnerCreepType;
@@ -36,8 +36,8 @@ export abstract /* static */ class CreepType
 {
 	public static readonly Harvester: /**/ HarvesterCreepType = 0b0000000000000000000000000000001 as const;
 	public static readonly Runner: /*      */ RunnerCreepType = 0b0000000000000000000000000000010 as const;
-	public static readonly Builder: /*    */ BuilderCreepType = 0b0000000000000000000000000000100 as const;
-	public static readonly Upgrader: /*  */ UpgraderCreepType = 0b0000000000000000000000000001000 as const;
+	public static readonly Upgrader: /*  */ UpgraderCreepType = 0b0000000000000000000000000000100 as const;
+	public static readonly Builder: /*    */ BuilderCreepType = 0b0000000000000000000000000001000 as const;
 	public static readonly Miner: /*        */ MinerCreepType = 0b0000000000000000000000000010000 as const;
 	public static readonly Claimer: /*    */ ClaimerCreepType = 0b0000000000000000000000000100000 as const;
 	public static readonly Attacker: /*  */ AttackerCreepType = 0b0000000000000000000000001000000 as const;
@@ -74,8 +74,8 @@ export abstract /* static */ class CreepType
 		{
 			case CreepType.Harvester /**/: return "Harvester";
 			case CreepType.Runner /*   */: return "Runner";
-			case CreepType.Builder /*  */: return "Builder";
 			case CreepType.Upgrader /* */: return "Upgrader";
+			case CreepType.Builder /*  */: return "Builder";
 			case CreepType.Miner /*    */: return "Miner";
 			case CreepType.Claimer /*  */: return "Claimer";
 			case CreepType.Attacker /* */: return "Attacker";

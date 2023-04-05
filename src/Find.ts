@@ -9,9 +9,10 @@ const s_roomNameToMinerals /*   */: Map<string, /**/ readonly Mineral[]> = new M
 const s_roomNameToRoomCenters /**/: Map<string, /*      */ RoomPosition> = new Map<string, /*      */ RoomPosition>();
 
 // Should reset on each tick:
-let s_spawns: /**/ readonly StructureSpawn[] = Object.values(Game.spawns);
-let s_creeps: /*       */ readonly MyCreep[] = Object.values(Game.creeps);
-let s_rooms: /*           */ readonly Room[] = Object.values(Game.rooms);
+let s_creeps: /*               */ readonly MyCreep[] = Object.values(Game.creeps);
+let s_spawns: /*        */ readonly StructureSpawn[] = Object.values(Game.spawns);
+let s_constructionSites: readonly ConstructionSite[] = Object.values(Game.constructionSites);
+let s_rooms: /*                   */ readonly Room[] = Object.values(Game.rooms);
 // let s_globalCache: RoomObjectCache;
 
 type RoomObjectCache = Map<number, readonly RoomObject[]>;
@@ -31,8 +32,9 @@ export abstract /* static */ class Find
 	public static ResetCacheForBeginningOfTick(): void
 	{
 		// See "Should reset on each tick" comment near top of file:
-		s_spawns = Object.values(Game.spawns);
-		s_creeps = Object.values(Game.creeps);
+		s_creeps /*      */ = Object.values(Game.creeps);
+		s_spawns /*      */ = Object.values(Game.spawns);
+		s_constructionSites = Object.values(Game.constructionSites);
 
 		for (const room of s_rooms = Object.values(Game.rooms))
 		{
@@ -52,9 +54,9 @@ export abstract /* static */ class Find
 		}
 	}
 
-	public static VisibleRooms(): readonly Room[]
+	public static MyCreeps(): readonly MyCreep[]
 	{
-		return s_rooms;
+		return s_creeps;
 	}
 
 	public static MySpawns(): readonly StructureSpawn[]
@@ -62,9 +64,14 @@ export abstract /* static */ class Find
 		return s_spawns;
 	}
 
-	public static MyCreeps(): readonly MyCreep[]
+	public static MyConstructionSites(): readonly ConstructionSite[]
 	{
-		return s_creeps;
+		return s_constructionSites;
+	}
+
+	public static VisibleRooms(): readonly Room[]
+	{
+		return s_rooms;
 	}
 
 	public static Center(room: Room): RoomPosition
