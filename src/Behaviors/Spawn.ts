@@ -1,3 +1,4 @@
+import { } from "../Objects";
 import { Collection } from "../Collection";
 import { CreepType } from "../CreepType";
 import { Find } from "../Find";
@@ -112,7 +113,7 @@ export abstract /* static */ class SpawnBehavior
 	// {
 	// 	for (const harvesterCreep of Find.CreepsOfTypes(room, CreepType.Harvester))
 	// 	{
-	// 		const targetSource: Source = harvesterCreep.GetTarget();
+	// 		const targetSource: Source = harvesterCreep.Target;
 	//
 	// 		for (const spawnOrExtension of Find.MyObjectsInRange(targetSource, Type.SpawnsAndExtensions, 4))
 	// 		{
@@ -154,7 +155,7 @@ export abstract /* static */ class SpawnBehavior
 				{
 					Collection.IncreaseValueOfKeyBy(
 						workPartsPerSource,
-						creep.GetTarget().id,
+						creep.Target.id,
 						creep.getActiveBodyparts("work"));
 				}
 			}
@@ -198,13 +199,13 @@ export abstract /* static */ class SpawnBehavior
 	// 	const ticksToLive: number | undefined = creep.ticksToLive; // undefined means the creep is still spawning
 	// 	const ticksToForecast: number = ticksToLive! < c_ticksToForecast ? ticksToLive! : c_ticksToForecast; // comparing undefined with anything returns false
 	//
-	// 	switch (creep.GetCreepType())
+	// 	switch (creep.CreepType)
 	// 	{
 	// 		case CreepType.Harvester: //   Harvesting a source produces 2 energy per "work" body part
 	// 			{
 	// 				SpawnBehavior.IncreaseValueOfKeyBy(
 	// 					forecastedEnergyHarvestedPerSource,
-	// 					(creep as HarvesterCreep).GetTarget().id,
+	// 					(creep as HarvesterCreep).Target.id,
 	// 					ticksToForecast * 2 * creep.getActiveBodyparts("work"));
 	//
 	// 				return;
@@ -222,14 +223,14 @@ export abstract /* static */ class SpawnBehavior
 	// 				{
 	// 					SpawnBehavior.IncreaseValueOfKeyBy(
 	// 						forecastedEnergyConsumedPerRoom,
-	// 						(creep as UpgraderCreep | BuilderCreep).GetTarget().id,
+	// 						(creep as UpgraderCreep | BuilderCreep).Target.id,
 	// 						ticksToForecast * creep.getActiveBodyparts("work"));
 	// 				}
 	// 				else // Building new structures:
 	// 				{
 	// 					SpawnBehavior.IncreaseValueOfKeyBy(
 	// 						forecastedEnergyConsumedPerRoom,
-	// 						(creep as UpgraderCreep | BuilderCreep).GetTarget().id, // Guessing Builders are bottlenecked by "carry"'s at this ratio:
+	// 						(creep as UpgraderCreep | BuilderCreep).Target.id, // Guessing Builders are bottlenecked by "carry"'s at this ratio:
 	// 						ticksToForecast * Math.min(5 * creep.getActiveBodyparts("work"), 2 * creep.getActiveBodyparts("carry")));
 	// 				}
 	//
@@ -237,7 +238,7 @@ export abstract /* static */ class SpawnBehavior
 	// 			}
 	//
 	// 		default:
-	// 			Log.Error(`Unhandled CreepType '${creep.GetCreepType()}' in SpawnBehavior.Act()!`, ERR_INVALID_ARGS, creep);
+	// 			Log.Error(`Unhandled CreepType '${creep.CreepType}' in SpawnBehavior.Act()!`, ERR_INVALID_ARGS, creep);
 	// 			return;
 	// 	}
 	// }

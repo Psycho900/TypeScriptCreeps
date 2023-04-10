@@ -1,6 +1,25 @@
+declare global
+{
+	interface EnergyGiver
+	{
+		EnergyLeftToGive: number,
+	}
 
-// export abstract /* static */ class Energy
-// {
+	interface EnergyTaker
+	{
+		EnergyLeftToTake: number,
+	}
+}
+
+export abstract /* static */ class Energy
+{
+	// public static IsEnergyHolder(
+	// 	structure: Structure,
+	// 	store: StoreDefinition | undefined): structure is EnergyHolder & Structure and store is StoreDefinition
+	// {
+	// 	return store !== undefined;
+	// }
+
 // 	public static GetCurrentEnergy(roomObject: RoomObject): number
 // 	{
 // 		// @ts-ignore: Intentional Reflection
@@ -26,4 +45,4 @@
 // 			? store.getUsedCapacity() - (0 | store[RESOURCE_ENERGY]) // @ts-ignore: Intentional Reflection
 // 			: (roomObject.amount ?? (0 | roomObject.mineralAmount)) as number;
 // 	}
-// }
+}

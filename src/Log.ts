@@ -142,7 +142,6 @@ export abstract /* static */ class Log
 	// 	return condition;
 	// }
 
-
 	private static GetMessagePrefix(): string
 	{
 		return `[${Game.time} @ ${(100 * Game.cpu.getUsed() / Game.cpu.limit) | 0}% CPU]: `;

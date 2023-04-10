@@ -4,7 +4,7 @@ import { SpawnBehavior } from "./Behaviors/Spawn";
 
 export const loop = function(): void
 {
-	Find.ResetCacheForBeginningOfTick(); // THIS MUST BE THE VERY FIRST THING WE DO! Otherwise our cache will be outdated
+	Find.ResetCachedValuesForBeginningOfTick(); // THIS MUST BE THE VERY FIRST THING WE DO! Otherwise our cache will be outdated
 
 	SpawnBehavior.TryAct();
 	CreepBehavior.Act();

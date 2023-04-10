@@ -1,3 +1,4 @@
+import { } from "./Objects";
 import { Collection } from "./Collection";
 import { CreepType } from "./CreepType";
 import { Log } from "./Log";
@@ -9,10 +10,11 @@ const s_roomNameToMinerals /*   */: Map<string, /**/ readonly Mineral[]> = new M
 const s_roomNameToRoomCenters /**/: Map<string, /*      */ RoomPosition> = new Map<string, /*      */ RoomPosition>();
 
 // Should reset on each tick:
-let s_creeps: /*               */ readonly MyCreep[] = Object.values(Game.creeps);
-let s_spawns: /*        */ readonly StructureSpawn[] = Object.values(Game.spawns);
-let s_constructionSites: readonly ConstructionSite[] = Object.values(Game.constructionSites);
-let s_rooms: /*                   */ readonly Room[] = Object.values(Game.rooms);
+let s_spawns: /*             */ readonly StructureSpawn[] = Object.values(Game.spawns);
+let s_constructionSites: /**/ readonly ConstructionSite[] = Object.values(Game.constructionSites);
+let s_spawningAndSpawnedCreeps: /*  */ readonly MyCreep[] = Object.values(Game.creeps);
+let s_spawnedCreeps: /*                      */ MyCreep[];
+let s_rooms: /*                        */ readonly Room[] = Object.values(Game.rooms);
 // let s_globalCache: RoomObjectCache;
 
 type RoomObjectCache = Map<number, readonly RoomObject[]>;
@@ -29,12 +31,21 @@ declare global
 
 export abstract /* static */ class Find
 {
-	public static ResetCacheForBeginningOfTick(): void
+	public static ResetCachedValuesForBeginningOfTick(): void
 	{
 		// See "Should reset on each tick" comment near top of file:
-		s_creeps /*      */ = Object.values(Game.creeps);
-		s_spawns /*      */ = Object.values(Game.spawns);
-		s_constructionSites = Object.values(Game.constructionSites);
+		s_spawns /*             */ = Object.values(Game.spawns);
+		s_constructionSites /*  */ = Object.values(Game.constructionSites);
+		s_spawningAndSpawnedCreeps = Object.values(Game.creeps);
+
+		s_spawnedCreeps.length = 0;
+		for (const creep of s_spawningAndSpawnedCreeps)
+		{
+			if (creep.spawning === false)
+			{
+				s_spawnedCreeps.push(creep);
+			}
+		}
 
 		for (const room of s_rooms = Object.values(Game.rooms))
 		{
@@ -43,20 +54,20 @@ export abstract /* static */ class Find
 			// Clear whatever existing caches we had from the previous tick
 			const creepsCache: CreepCache = (room.creepsCache ??= new Map<number, readonly Creep[]>());
 			creepsCache.clear();
-			creepsCache.set(CreepType.All, room.find(FIND_CREEPS));
+			creepsCache.set(CreepType.All, CreepType.ResetCachedValuesForBeginningOfTick(room.find(FIND_CREEPS)));
 
 			const roomCache: RoomObjectCache = (room.cache ??= new Map<number, readonly RoomObject[]>());
 			roomCache.clear();
 			roomCache
-				.set(Type.Creep /*  */, Find.CreepsOfTypes(room, CreepType.AllMine)) // MUST be after "room.find(FIND_CREEPS)" above
+				// .set(Type.Creep/**/, Find.CreepsOfTypes(room, CreepType.AllMine)) // MUST be after "room.find(FIND_CREEPS)" above
 				.set(Type.Mineral /**/, Find.GetOrFindGeneric(s_roomNameToMinerals /**/, roomName, room, FIND_MINERALS))
 				.set(Type.Source /* */, Find.GetOrFindGeneric(s_roomNameToSources /* */, roomName, room, FIND_SOURCES));
 		}
 	}
 
-	public static MyCreeps(): readonly MyCreep[]
+	public static MySpawnedCreeps(): readonly MyCreep[]
 	{
-		return s_creeps;
+		return s_spawnedCreeps;
 	}
 
 	public static MySpawns(): readonly StructureSpawn[]
@@ -239,7 +250,7 @@ export abstract /* static */ class Find
 
 		if (structureTypes !== 0)
 		{
-			Find.GetOrAdd(cache, Type.AllStructures, () => Find.CacheEachStructureType(cache, room.find(FIND_STRUCTURES)));
+			Find.GetOrAdd(cache, Type.AllStructures, () => Find.CacheEachNonEnemyStructureType(cache, room.find(FIND_STRUCTURES)));
 
 			// This should succeed for AllStructures OR if requesting a single structure type OR anything else that happens to already be cached.
 			let structuresToAdd: readonly RoomObject[] | undefined;
@@ -365,7 +376,7 @@ export abstract /* static */ class Find
 				: Collection.Empty();
 	}
 
-	private static CacheEachStructureType(
+	private static CacheEachNonEnemyStructureType(
 		cache: RoomObjectCache,
 		allStructures: Structure[]): readonly Structure[]
 	{
@@ -377,17 +388,25 @@ export abstract /* static */ class Find
 			const structure: Structure = allStructures[index];
 
 			// @ts-ignore: Intentional Reflection to collect all non-enemy structures
+			const store: StoreDefinition | undefined = structure.store as StoreDefinition | undefined;
+			if (store !== undefined)
+			{
+				(structure as EnergyGiver & Structure).EnergyLeftToGive = store.energy;
+				(structure as EnergyTaker & Structure).EnergyLeftToTake = store.getFreeCapacity("energy");
+			}
+
+			// @ts-ignore: Intentional Reflection to collect all non-enemy structures
 			if (structure.my !== false)
 			{
 				allNonEnemyStructures?.push(structure);
-				let structuresOfType: Structure[] | undefined;
-				if ((structuresOfType = cache.get(structure.type) as Structure[] | undefined) !== undefined)
+				const structuresOfType: Structure[] | undefined = cache.get(structure.Type) as Structure[] | undefined;
+				if (structuresOfType !== undefined)
 				{
 					structuresOfType.push(structure);
 				}
 				else
 				{
-					cache.set(structure.type, [structure]);
+					cache.set(structure.Type, [structure]);
 				}
 			}
 			else if (allNonEnemyStructures === null)
@@ -468,7 +487,8 @@ export abstract /* static */ class Find
 		valueFactory: () => readonly RoomObject[]): readonly RoomObject[]
 	{
 		let result: readonly RoomObject[];
-		return cache.get(roomObjectType) ?? (cache.set(roomObjectType, result = valueFactory()), result);
+		return cache.get(roomObjectType) ??
+			(cache.set(roomObjectType, result = valueFactory()), result);
 	}
 
 	private static GetOrFind(
@@ -478,7 +498,8 @@ export abstract /* static */ class Find
 		findConstant: FindConstant): readonly RoomObject[]
 	{
 		let result: readonly RoomObject[];
-		return cache.get(roomObjectType) ?? (cache.set(roomObjectType, result = room.find(findConstant) as readonly RoomObject[]), result);
+		return cache.get(roomObjectType) ??
+			(cache.set(roomObjectType, result = room.find(findConstant) as readonly RoomObject[]), result);
 	}
 
 	private static GetOrFindGeneric<TKey, TValue>(
@@ -488,7 +509,8 @@ export abstract /* static */ class Find
 		findConstant: number): TValue
 	{
 		let result: TValue;
-		return map.get(key) ?? (map.set(key, result = room.find(findConstant as FIND_STRUCTURES) as unknown as TValue), result);
+		return map.get(key) ??
+			(map.set(key, result = room.find(findConstant as FIND_STRUCTURES) as unknown as TValue), result);
 	}
 }
 
