@@ -70,9 +70,17 @@ export abstract /* static */ class CreepBehavior
 		{
 			switch (creep.CreepType)
 			{
-				case CreepType.Harvester: CreepBehavior.HarvestOrMove(creep as HarvesterCreep); continue;
-				case CreepType.Upgrader: CreepBehavior.UpgradeOrMove(creep as UpgraderCreep); continue;
-				case CreepType.Builder: CreepBehavior.BuildOrMove(creep as BuilderCreep); continue;
+				case CreepType.Harvester:
+					CreepBehavior.HarvestOrMove(creep as HarvesterCreep);
+					continue;
+
+				case CreepType.Upgrader:
+					CreepBehavior.UpgradeOrMove(creep as UpgraderCreep);
+					continue;
+
+				case CreepType.Builder:
+					CreepBehavior.BuildOrMove(creep as BuilderCreep);
+					continue;
 			}
 		}
 
@@ -81,7 +89,7 @@ export abstract /* static */ class CreepBehavior
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					if (creep.ExpectedEnergy !== creep.MaxEnergy && creep.Energy !== creep.MaxEnergy)
+					if (creep.EnergyLeftToTake !== 0)
 					{
 						CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersTakeEnergyFrom);
 					}
@@ -89,7 +97,7 @@ export abstract /* static */ class CreepBehavior
 					continue;
 
 				case CreepType.Upgrader:
-					if (creep.ExpectedEnergy !== 0 && creep.Energy !== 0)
+					if (creep.EnergyLeftToGive !== 0)
 					{
 						CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 4, c_typesUpgradersGiveEnergyTo, c_creepTypesUpgradersGiveEnergyTo);
 					}
@@ -97,7 +105,7 @@ export abstract /* static */ class CreepBehavior
 					continue;
 
 				case CreepType.Builder:
-					if (creep.ExpectedEnergy !== 0 && creep.Energy !== 0)
+					if (creep.EnergyLeftToGive !== 0)
 					{
 						CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 4, c_typesBuildersGiveEnergyTo, c_creepTypesBuildersGiveEnergyTo);
 					}
@@ -111,7 +119,7 @@ export abstract /* static */ class CreepBehavior
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					if (creep.ExpectedEnergy !== 0)
+					if (creep.EnergyLeftToGive !== 0)
 					{
 						CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersGiveEnergyTo, c_creepTypesHarvestersGiveEnergyTo);
 					}
@@ -119,7 +127,7 @@ export abstract /* static */ class CreepBehavior
 					continue;
 
 				case CreepType.Upgrader:
-					if (creep.ExpectedEnergy !== creep.MaxEnergy)
+					if (creep.EnergyLeftToTake !== 0)
 					{
 						CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 4, c_typesUpgradersTakeEnergyFrom);
 					}
@@ -127,7 +135,7 @@ export abstract /* static */ class CreepBehavior
 					continue;
 
 				case CreepType.Builder:
-					if (creep.ExpectedEnergy !== creep.MaxEnergy)
+					if (creep.EnergyLeftToTake !== 0)
 					{
 						CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 4, c_typesBuildersTakeEnergyFrom);
 					}
@@ -144,28 +152,16 @@ export abstract /* static */ class CreepBehavior
 		typesInPriorityOrder: readonly AnyEnergyTakingType[],
 		creepTypesInPriorityOrder: readonly number[]): void
 	{
-		if (creep.CanMove === true)
-		{
-			CreepBehavior.InternalGiveEnergyInRange(
-				creep,
-				targetPosition,
-				targetRange,
-				typesInPriorityOrder,
-				creepTypesInPriorityOrder);
-		}
-		else if (creep.Energy !== 0)
-		{
-			CreepBehavior.InternalGiveEnergyInRange(
-				creep,
-				targetPosition,
-				targetRange,
-				typesInPriorityOrder,
-				creepTypesInPriorityOrder);
+		CreepBehavior.InternalGiveEnergyInRange(
+			creep,
+			targetPosition,
+			targetRange,
+			typesInPriorityOrder,
+			creepTypesInPriorityOrder);
 
-			if (creep.fatigue !== 0 && Find.IsSameRoomAndWithinRange(creep, targetPosition, targetRange) === false)
-			{
-				CreepBehavior.DropAll(creep);
-			}
+		if (creep.fatigue !== 0 && Find.IsSameRoomAndWithinRange(creep, targetPosition, targetRange) === false)
+		{
+			CreepBehavior.DropAll(creep);
 		}
 	}
 
@@ -208,8 +204,7 @@ export abstract /* static */ class CreepBehavior
 		{
 			for (const testObject of Find.MyObjects(room, type))
 			{
-				if (testObject.MaxEnergy === testObject.Energy ||
-					testObject.MaxEnergy === testObject.ExpectedEnergy ||
+				if (testObject.EnergyLeftToTake === 0 ||
 					(testDistanceToCreep = Find.Distance(creepPosition, testPosition = testObject.pos)) >= closestObjectToCreepDistance)
 				{
 					continue;
@@ -261,8 +256,7 @@ export abstract /* static */ class CreepBehavior
 		{
 			for (const testObject of Find.CreepsOfTypes(room, creepType))
 			{
-				if (testObject.MaxEnergy === testObject.Energy ||
-					testObject.MaxEnergy === testObject.ExpectedEnergy ||
+				if (testObject.EnergyLeftToTake === 0 ||
 					(testDistanceToCreep = Find.Distance(creepPosition, testPosition = testObject.pos)) >= closestObjectToCreepDistance ||
 					testObject.spawning ||
 					testObject.id === creep.id)
@@ -282,8 +276,7 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		if (closestObjectToCreep !== null // Only move if we will be full
-			&& creep.MaxEnergy === creep.ExpectedEnergy)
+		if (closestObjectToCreep !== null && creep.EnergyLeftToTake === 0) // Only move if we will be full
 		{
 			CreepBehavior.Move(creep, closestObjectToCreep);
 		}
@@ -291,15 +284,11 @@ export abstract /* static */ class CreepBehavior
 
 	private static TransferEnergyTo(creep: MyCreep, target: AnyEnergyTakingObject | Creep): void
 	{
-		const energyToTransfer: number = Math.min(
-			creep.Energy,
-			creep.ExpectedEnergy,
-			target.MaxEnergy - Math.max(target.Energy, target.ExpectedEnergy));
-
-		if (energyToTransfer > 0 && Log.Succeeded(creep.transfer(target, "energy", energyToTransfer), creep, target) !== false)
+		const energyToTransfer: number = Math.min(creep.EnergyLeftToGive, target.EnergyLeftToTake);
+		if (energyToTransfer !== 0 && Log.Succeeded(creep.transfer(target, "energy", energyToTransfer), creep, target) !== false)
 		{
-			creep.ExpectedEnergy -= energyToTransfer;
-			target.ExpectedEnergy += energyToTransfer;
+			creep.EnergyLeftToGive -= energyToTransfer;
+			target.EnergyLeftToTake -= energyToTransfer;
 		}
 	}
 
@@ -343,23 +332,18 @@ export abstract /* static */ class CreepBehavior
 
 		for (const testResource of Find.MyObjects(room, Type.Resource)) // Always do Resources first, since they decay
 		{
-			if (testResource.ExpectedEnergy === 0 ||
+			if (testResource.EnergyLeftToGive === 0 ||
 				(testDistanceToCreep = Find.Distance(creepPosition, testPosition = testResource.pos)) >= closestObjectToCreepDistance)
 			{
 				continue;
 			}
 			else if (testDistanceToCreep <= 1)
 			{
-				const energyToPickup: number = Math.min(
-					testResource.ExpectedEnergy,
-					creep.MaxEnergy - Math.max(creep.Energy, creep.ExpectedEnergy));
-
-				if (energyToPickup > 0 && Log.Succeeded(creep.pickup(testResource), creep, testResource) !== false)
+				const energyToPickup: number = Math.min(creep.EnergyLeftToTake, testResource.EnergyLeftToGive);
+				if (energyToPickup !== 0 && Log.Succeeded(creep.pickup(testResource), creep, testResource) !== false)
 				{
-					creep.ExpectedEnergy += energyToPickup;
-					testResource.ExpectedEnergy -= energyToPickup;
-
-					if (creep.ExpectedEnergy === creep.MaxEnergy)
+					testResource.EnergyLeftToGive -= energyToPickup;
+					if ((creep.EnergyLeftToTake -= energyToPickup) === 0)
 					{
 						return;
 					}
@@ -379,23 +363,18 @@ export abstract /* static */ class CreepBehavior
 		{
 			for (const testObject of Find.MyObjects(room, type))
 			{
-				if (testObject.Energy === 0 ||
-					testObject.ExpectedEnergy === 0 ||
+				if (testObject.EnergyLeftToGive === 0 ||
 					(testDistanceToCreep = Find.Distance(creepPosition, testPosition = testObject.pos)) >= closestObjectToCreepDistance)
 				{
 					continue;
 				}
 				else if (testDistanceToCreep <= 1)
 				{
-					const energyToWithdraw: number = Math.min(
-						testObject.Energy,
-						testObject.ExpectedEnergy,
-						creep.MaxEnergy - Math.max(creep.Energy, creep.ExpectedEnergy));
-
-					if (energyToWithdraw > 0 && Log.Succeeded(creep.withdraw(testObject, "energy", energyToWithdraw), creep, testObject) !== false)
+					const energyToWithdraw: number = Math.min(creep.EnergyLeftToTake, testObject.EnergyLeftToGive);
+					if (energyToWithdraw !== 0 && Log.Succeeded(creep.withdraw(testObject, "energy", energyToWithdraw), creep, testObject) !== false)
 					{
-						creep.ExpectedEnergy += energyToWithdraw;
-						testObject.ExpectedEnergy -= energyToWithdraw;
+						creep.EnergyLeftToTake -= energyToWithdraw;
+						testObject.EnergyLeftToGive -= energyToWithdraw;
 					}
 
 					return;
@@ -469,8 +448,7 @@ export abstract /* static */ class CreepBehavior
 		// 	}
 		// }
 
-		if (closestObjectToCreep !== null // Only move if we will be empty
-			&& creep.ExpectedEnergy === 0)
+		if (closestObjectToCreep !== null && creep.EnergyLeftToGive === 0) // Only move if we will be empty
 		{
 			CreepBehavior.Move(creep, closestObjectToCreep);
 		}
@@ -480,10 +458,9 @@ export abstract /* static */ class CreepBehavior
 	{
 		for (const resourceType in creep.store)
 		{
-			if (Log.Succeeded(creep.drop(resourceType as ResourceConstant), creep)
-				&& resourceType === "energy")
+			if (Log.Succeeded(creep.drop(resourceType as ResourceConstant), creep) && resourceType === "energy")
 			{
-				creep.ExpectedEnergy = 0;
+				creep.EnergyLeftToGive = 0;
 			}
 		}
 	}
@@ -496,10 +473,10 @@ export abstract /* static */ class CreepBehavior
 			source.energy !== 0 &&
 			Log.Succeeded(creep.harvest(source), creep, source) !== false)
 		{
-			creep.ExpectedEnergy += Math.min(
+			creep.EnergyLeftToTake -= Math.min(
 				source.energy,
 				2 * creep.getActiveBodyparts("work"),
-				creep.MaxEnergy - Math.max(creep.Energy, creep.ExpectedEnergy));
+				creep.EnergyLeftToTake);
 		}
 	}
 
@@ -508,14 +485,12 @@ export abstract /* static */ class CreepBehavior
 		const controller: StructureController = creep.Target;
 
 		if (CreepBehavior.TryBeInRange(creep, controller, 3) !== false &&
-			creep.Energy !== 0 &&
-			creep.ExpectedEnergy !== 0 &&
+			creep.EnergyLeftToGive !== 0 &&
 			controller.upgradeBlocked !== 0 &&
 			Log.Succeeded(creep.upgradeController(controller), creep, controller) !== false)
 		{
-			creep.ExpectedEnergy -= Math.min(
-				creep.Energy,
-				creep.ExpectedEnergy,
+			creep.EnergyLeftToGive -= Math.min(
+				creep.EnergyLeftToGive,
 				creep.getActiveBodyparts("work"));
 		}
 	}
@@ -523,19 +498,16 @@ export abstract /* static */ class CreepBehavior
 	private static BuildOrMove(creep: BuilderCreep): void
 	{
 		const constructionSite: ConstructionSite | undefined = Find.MyObjects(creep.Target.room, Type.ConstructionSite)[0];
-
 		if (constructionSite === undefined)
 		{
 			return CreepBehavior.UpgradeOrMove(creep);
 		}
 		else if (CreepBehavior.TryBeInRange(creep, constructionSite, 3) !== false &&
-			creep.Energy !== 0 &&
-			creep.ExpectedEnergy !== 0 &&
+			creep.EnergyLeftToGive !== 0 &&
 			Log.Succeeded(creep.build(constructionSite), creep, constructionSite) !== false)
 		{
-			creep.ExpectedEnergy -= Math.min(
-				creep.Energy,
-				creep.ExpectedEnergy,
+			creep.EnergyLeftToGive -= Math.min(
+				creep.EnergyLeftToGive,
 				5 * creep.getActiveBodyparts("work"));
 		}
 	}
