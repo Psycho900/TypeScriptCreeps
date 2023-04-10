@@ -31,21 +31,6 @@ const c_creepTypesHarvestersGiveEnergyTo = // In priority order
 		CreepType.Harvester,
 	] as const;
 
-// Runner arrays:
-const c_typesRunnersAlwaysGiveEnergyTo = // In priority order
-	[
-		Type.Extension,
-		Type.Spawn,
-		Type.Tower,
-	] as const;
-
-const c_typesRunnersAlwaysTakeEnergyFrom = c_typesHarvestersTakeEnergyFrom;
-const c_creepTypesRunnersAlwaysGiveEnergyTo = // In priority order
-	[
-		CreepType.Builder,
-		CreepType.Upgrader,
-	] as const;
-
 // Upgrader arrays:
 const c_typesUpgradersGiveEnergyTo = // In priority order
 	[
@@ -76,6 +61,11 @@ const c_creepTypesBuildersGiveEnergyTo = // In priority order
 	[
 		CreepType.Builder,
 	] as const;
+
+// Runner arrays:
+const c_typesRunnersAlwaysGiveEnergyTo /*    */  = c_typesUpgradersGiveEnergyTo;
+const c_typesRunnersAlwaysTakeEnergyFrom /*   */ = c_typesHarvestersTakeEnergyFrom;
+const c_creepTypesRunnersAlwaysGiveEnergyTo /**/ = c_creepTypesBuildersGiveEnergyTo;
 
 export abstract /* static */ class CreepBehavior
 {
