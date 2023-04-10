@@ -60,8 +60,10 @@ export abstract /* static */ class Find
 			roomCache.clear();
 			roomCache
 				// .set(Type.Creep/**/, Find.CreepsOfTypes(room, CreepType.AllMine)) // MUST be after "room.find(FIND_CREEPS)" above
-				.set(Type.Mineral /**/, Find.GetOrFindGeneric(s_roomNameToMinerals /**/, roomName, room, FIND_MINERALS))
-				.set(Type.Source /* */, Find.GetOrFindGeneric(s_roomNameToSources /* */, roomName, room, FIND_SOURCES));
+				.set(Type.Mineral /**/, s_roomNameToMinerals.get(roomName) ??
+					Find.SetAndGet(s_roomNameToMinerals, roomName, room.find(FIND_MINERALS)))
+				.set(Type.Source /* */, s_roomNameToSources.get(roomName) ??
+					Find.SetAndGet(s_roomNameToSources, roomName, room.find(FIND_SOURCES)));
 		}
 	}
 
@@ -87,16 +89,16 @@ export abstract /* static */ class Find
 
 	public static Center(room: Room): RoomPosition
 	{
-		let result: RoomPosition;
-		return s_roomNameToRoomCenters.get(room.name)
-			?? (s_roomNameToRoomCenters.set(room.name, result = new RoomPosition(25, 25, room.name)), result);
+		return s_roomNameToRoomCenters.get(room.name) ??
+			Find.SetAndGet(s_roomNameToRoomCenters, room.name, new RoomPosition(25, 25, room.name));
 	}
 
 	public static MyObjects<TRoomObjectTypes extends number>(
 		room: Room,
 		types: TRoomObjectTypes): readonly ToInterface<TRoomObjectTypes>[]
 	{
-		return Find.GetOrAdd(room.cache, types, () => Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as readonly ToInterface<TRoomObjectTypes>[];
+		return room.cache.get(types) as readonly ToInterface<TRoomObjectTypes>[] | undefined ??
+			Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as readonly ToInterface<TRoomObjectTypes>[];
 	}
 
 	public static MyObjectsInRange<TRoomObjectTypes extends number>(
@@ -112,9 +114,8 @@ export abstract /* static */ class Find
 
 	public static CreepsOfTypes<TCreepTypes extends number>(room: Room, creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
 	{
-		let result: readonly ToCreepInterface<TCreepTypes>[];
-		return room.creepsCache.get(creepTypes) as ToCreepInterface<TCreepTypes>[]
-			?? (room.creepsCache.set(creepTypes, result = Find.GenerateCreepsOfTypeArray(room.creepsCache.get(CreepType.All)!, creepTypes) as ToCreepInterface<TCreepTypes>[]), result);
+		return room.creepsCache.get(creepTypes) as ToCreepInterface<TCreepTypes>[] | undefined ??
+			Find.SetAndGet(room.creepsCache, creepTypes, Find.GenerateCreepsOfTypeArray(room.creepsCache.get(CreepType.All)!, creepTypes)) as ToCreepInterface<TCreepTypes>[];
 	}
 
 	public static HighestScoring<TRoomObject extends RoomObject>(
@@ -250,7 +251,10 @@ export abstract /* static */ class Find
 
 		if (structureTypes !== 0)
 		{
-			Find.GetOrAdd(cache, Type.AllStructures, () => Find.CacheEachNonEnemyStructureType(cache, room.find(FIND_STRUCTURES)));
+			if (cache.has(Type.AllStructures) === false)
+			{
+				cache.set(Type.AllStructures, Find.CacheEachNonEnemyStructureType(cache, room.find(FIND_STRUCTURES)));
+			}
 
 			// This should succeed for AllStructures OR if requesting a single structure type OR anything else that happens to already be cached.
 			let structuresToAdd: readonly RoomObject[] | undefined;
@@ -293,7 +297,8 @@ export abstract /* static */ class Find
 		}
 
 		if ((roomObjectTypesToInclude & Type.ConstructionSite) !== 0 &&
-			(roomObjectsToAdd = Find.GetOrFind(cache, Type.ConstructionSite, room, FIND_MY_CONSTRUCTION_SITES)).length !== 0)
+			(roomObjectsToAdd = cache.get(Type.ConstructionSite) ??
+				Find.SetAndGet(cache, Type.ConstructionSite, room.find(FIND_MY_CONSTRUCTION_SITES))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== null)
 			{
@@ -304,7 +309,8 @@ export abstract /* static */ class Find
 		}
 
 		if ((roomObjectTypesToInclude & Type.Flag) !== 0 &&
-			(roomObjectsToAdd = Find.GetOrFind(cache, Type.Flag, room, FIND_FLAGS)).length !== 0)
+			(roomObjectsToAdd = cache.get(Type.Flag) ??
+				Find.SetAndGet(cache, Type.Flag, room.find(FIND_FLAGS))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== null)
 			{
@@ -326,7 +332,8 @@ export abstract /* static */ class Find
 		}
 
 		if ((roomObjectTypesToInclude & Type.Resource) !== 0 &&
-			(roomObjectsToAdd = Find.GetOrFind(cache, Type.Resource, room, FIND_DROPPED_RESOURCES)).length !== 0)
+			(roomObjectsToAdd = cache.get(Type.Resource) ??
+				Find.SetAndGet(cache, Type.Resource, Find.SetEnergyGiverFieldsFromResource(room.find(FIND_DROPPED_RESOURCES)))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== null)
 			{
@@ -337,7 +344,8 @@ export abstract /* static */ class Find
 		}
 
 		if ((roomObjectTypesToInclude & Type.Ruin) !== 0 &&
-			(roomObjectsToAdd = Find.GetOrFind(cache, Type.Ruin, room, FIND_RUINS)).length !== 0)
+			(roomObjectsToAdd = cache.get(Type.Ruin) ??
+				Find.SetAndGet(cache, Type.Ruin, Find.SetEnergyGiverFieldsFromStore(room.find(FIND_RUINS)))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== null)
 			{
@@ -359,7 +367,8 @@ export abstract /* static */ class Find
 		}
 
 		if ((roomObjectTypesToInclude & Type.Tombstone) !== 0 &&
-			(roomObjectsToAdd = Find.GetOrFind(cache, Type.Tombstone, room, FIND_TOMBSTONES)).length !== 0)
+			(roomObjectsToAdd = cache.get(Type.Tombstone) ??
+				Find.SetAndGet(cache, Type.Tombstone, Find.SetEnergyGiverFieldsFromStore(room.find(FIND_TOMBSTONES)))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== null)
 			{
@@ -422,7 +431,7 @@ export abstract /* static */ class Find
 
 		for (let structureType: number = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
 		{
-			if (cache.get(structureType) === undefined)
+			if (cache.has(structureType) === false)
 			{
 				cache.set(structureType, Collection.Empty());
 			}
@@ -481,36 +490,33 @@ export abstract /* static */ class Find
 		return creepsOfType;
 	}
 
-	private static GetOrAdd(
-		cache: RoomObjectCache,
-		roomObjectType: number,
-		valueFactory: () => readonly RoomObject[]): readonly RoomObject[]
-	{
-		let result: readonly RoomObject[];
-		return cache.get(roomObjectType) ??
-			(cache.set(roomObjectType, result = valueFactory()), result);
-	}
-
-	private static GetOrFind(
-		cache: RoomObjectCache,
-		roomObjectType: number,
-		room: Room,
-		findConstant: FindConstant): readonly RoomObject[]
-	{
-		let result: readonly RoomObject[];
-		return cache.get(roomObjectType) ??
-			(cache.set(roomObjectType, result = room.find(findConstant) as readonly RoomObject[]), result);
-	}
-
-	private static GetOrFindGeneric<TKey, TValue>(
+	private static SetAndGet<TKey, TValue>(
 		map: Map<TKey, TValue>,
 		key: TKey,
-		room: Room,
-		findConstant: number): TValue
+		value: TValue): TValue
 	{
-		let result: TValue;
-		return map.get(key) ??
-			(map.set(key, result = room.find(findConstant as FIND_STRUCTURES) as unknown as TValue), result);
+		map.set(key, value);
+		return value;
+	}
+
+	private static SetEnergyGiverFieldsFromResource(resources: Resource[]): readonly Resource[]
+	{
+		for (const resource of resources)
+		{
+			resource.EnergyLeftToGive = resource.resourceType === "energy" ? resource.amount : 0;
+		}
+
+		return resources;
+	}
+
+	private static SetEnergyGiverFieldsFromStore(energyGivers: (Ruin | Tombstone)[]): readonly (Ruin | Tombstone)[]
+	{
+		for (const energyGiver of energyGivers)
+		{
+			energyGiver.EnergyLeftToGive = energyGiver.store.energy;
+		}
+
+		return energyGivers;
 	}
 }
 

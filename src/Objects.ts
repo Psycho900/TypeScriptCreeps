@@ -112,6 +112,10 @@ RoomObject.prototype.ToString = function(): string
 /* eslint-disable @typescript-eslint/no-empty-interface */
 declare global
 {
+	interface Resource extends EnergyGiver { }
+	interface Ruin extends EnergyGiver { }
+	interface Tombstone extends EnergyGiver { }
+
 	interface StructureContainer extends EnergyGiver, EnergyTaker { }
 	interface StructureExtension extends EnergyTaker { }
 	// interface StructureFactory extends EnergyHolder { }
