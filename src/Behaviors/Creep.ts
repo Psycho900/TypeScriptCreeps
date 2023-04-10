@@ -31,6 +31,21 @@ const c_creepTypesHarvestersGiveEnergyTo = // In priority order
 		CreepType.Harvester,
 	] as const;
 
+// Runner arrays:
+const c_typesRunnersAlwaysGiveEnergyTo = // In priority order
+	[
+		Type.Extension,
+		Type.Spawn,
+		Type.Tower,
+	] as const;
+
+const c_typesRunnersAlwaysTakeEnergyFrom = c_typesHarvestersTakeEnergyFrom;
+const c_creepTypesRunnersAlwaysGiveEnergyTo = // In priority order
+	[
+		CreepType.Builder,
+		CreepType.Upgrader,
+	] as const;
+
 // Upgrader arrays:
 const c_typesUpgradersGiveEnergyTo = // In priority order
 	[
@@ -66,7 +81,9 @@ export abstract /* static */ class CreepBehavior
 {
 	public static Act(): void
 	{
-		for (const creep of Find.MySpawnedCreeps()) // Produce or Consume Resources
+		const mySpawnedCreeps: readonly MyCreep[] = Find.MySpawnedCreeps();
+
+		for (const creep of mySpawnedCreeps) // Produce or Consume Resources
 		{
 			switch (creep.CreepType)
 			{
@@ -84,62 +101,56 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		for (const creep of Find.MySpawnedCreeps()) // Take or Give Resources
+		for (const creep of mySpawnedCreeps) // Take Resources
 		{
+			if (creep.EnergyLeftToTake === 0)
+			{
+				continue;
+			}
+
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					if (creep.EnergyLeftToTake !== 0)
-					{
-						CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersTakeEnergyFrom);
-					}
+					CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersTakeEnergyFrom);
+					continue;
 
+				case CreepType.Runner:
+					CreepBehavior.TakeEnergyInRange(creep, creep.pos, 1, c_typesRunnersAlwaysTakeEnergyFrom);
 					continue;
 
 				case CreepType.Upgrader:
-					if (creep.EnergyLeftToGive !== 0)
-					{
-						CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 4, c_typesUpgradersGiveEnergyTo, c_creepTypesUpgradersGiveEnergyTo);
-					}
-
+					CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 4, c_typesUpgradersTakeEnergyFrom);
 					continue;
 
 				case CreepType.Builder:
-					if (creep.EnergyLeftToGive !== 0)
-					{
-						CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 4, c_typesBuildersGiveEnergyTo, c_creepTypesBuildersGiveEnergyTo);
-					}
-
+					CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 4, c_typesBuildersTakeEnergyFrom);
 					continue;
 			}
 		}
 
-		for (const creep of Find.MySpawnedCreeps()) // Give or Take Resources
+		for (const creep of mySpawnedCreeps) // Give Resources
 		{
+			if (creep.EnergyLeftToGive === 0)
+			{
+				continue;
+			}
+
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					if (creep.EnergyLeftToGive !== 0)
-					{
-						CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersGiveEnergyTo, c_creepTypesHarvestersGiveEnergyTo);
-					}
+					CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersGiveEnergyTo, c_creepTypesHarvestersGiveEnergyTo);
+					continue;
 
+				case CreepType.Runner:
+					CreepBehavior.GiveEnergyInRange(creep, creep.pos, 1, c_typesRunnersAlwaysGiveEnergyTo, c_creepTypesRunnersAlwaysGiveEnergyTo);
 					continue;
 
 				case CreepType.Upgrader:
-					if (creep.EnergyLeftToTake !== 0)
-					{
-						CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 4, c_typesUpgradersTakeEnergyFrom);
-					}
-
+					CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 4, c_typesUpgradersGiveEnergyTo, c_creepTypesUpgradersGiveEnergyTo);
 					continue;
 
 				case CreepType.Builder:
-					if (creep.EnergyLeftToTake !== 0)
-					{
-						CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 4, c_typesBuildersTakeEnergyFrom);
-					}
-
+					CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 4, c_typesBuildersGiveEnergyTo, c_creepTypesBuildersGiveEnergyTo);
 					continue;
 			}
 		}
