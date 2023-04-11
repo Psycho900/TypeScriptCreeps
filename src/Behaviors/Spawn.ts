@@ -41,8 +41,8 @@ export abstract /* static */ class SpawnBehavior
 		const targetRooms: readonly ControllableRoom[] = SpawnBehavior.GetTargetRooms();
 
 		if (Collection.Count(targetRooms, (room: ControllableRoom): boolean =>
-			/**/ Find.CreepsOfTypes(room, CreepType.Harvester).length === 0 ? SpawnBehavior.TrySpawnFirstHarvester(room, spawns)
-				: (Find.CreepsOfTypes(room, CreepType.Runner).length === 0 && SpawnBehavior.TrySpawnFirstRunner(room, spawns))) !== 0)
+			/**/ Find.Creeps(room, CreepType.Harvester).length === 0 ? SpawnBehavior.TrySpawnFirstHarvester(room, spawns)
+				: (Find.Creeps(room, CreepType.Runner).length === 0 && SpawnBehavior.TrySpawnFirstRunner(room, spawns))) !== 0)
 		{
 			return true;
 		}
@@ -134,7 +134,7 @@ export abstract /* static */ class SpawnBehavior
 		for (const room of Find.VisibleRooms())
 		{
 			if (room.controller != null && // Hallways (etc.) have no controller
-				(Find.MyObjects(room, Type.Spawn).length !== 0 || Find.CreepsOfTypes(room, CreepType.Enemy).length === 0))
+				(Find.MyObjects(room, Type.Spawn).length !== 0 || Find.Creeps(room, CreepType.Enemy).length === 0))
 			{
 				targetRooms.push(room as ControllableRoom); // Do not send creeps into not-my-rooms containing enemies
 			}
@@ -149,7 +149,7 @@ export abstract /* static */ class SpawnBehavior
 
 		for (const room of targetRooms)
 		{
-			for (const creep of Find.CreepsOfTypes(room, CreepType.Harvester))
+			for (const creep of Find.Creeps(room, CreepType.Harvester))
 			{
 				if (!SpawnBehavior.WillCreepDieSoon(creep))
 				{

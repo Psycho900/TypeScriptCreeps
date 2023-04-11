@@ -2,14 +2,14 @@ import { } from "./Energy";
 
 declare global // CreepType-specifics
 {
-	/*   */ type HarvesterCreepType = 0b0000000000000000000000000000001;
-	/*      */ type RunnerCreepType = 0b0000000000000000000000000000010;
-	/*    */ type UpgraderCreepType = 0b0000000000000000000000000000100;
-	/*     */ type BuilderCreepType = 0b0000000000000000000000000001000;
-	/*       */ type MinerCreepType = 0b0000000000000000000000000010000;
-	/*     */ type ClaimerCreepType = 0b0000000000000000000000000100000;
-	/*    */ type AttackerCreepType = 0b0000000000000000000000001000000;
-	/*       */ type EnemyCreepType = 0b0000000000000000000000010000000;
+	/*      */ type HarvesterCreepType = 0b0000000000000000000000000000001;
+	/*         */ type RunnerCreepType = 0b0000000000000000000000000000010;
+	/*       */ type UpgraderCreepType = 0b0000000000000000000000000000100;
+	/*        */ type BuilderCreepType = 0b0000000000000000000000000001000;
+	/*          */ type MinerCreepType = 0b0000000000000000000000000010000;
+	/*        */ type ClaimerCreepType = 0b0000000000000000000000000100000;
+	/*       */ type AttackerCreepType = 0b0000000000000000000000001000000;
+	/*          */ type EnemyCreepType = 0b0000000000000000000000010000000;
 
 	// /*         */ type AnyCreepType =
 	// 	| /*      */ AnyMyCreepType
@@ -22,13 +22,19 @@ declare global // CreepType-specifics
 	// 	| /*    */ ClaimerCreepType
 	// 	| /*   */ AttackerCreepType;
 
-	/* */ type AnyProducerCreepType =
-		| /*  */ HarvesterCreepType
-		| /*      */ MinerCreepType;
+	/*    */ type AnyProducerCreepType =
+		| /*     */ HarvesterCreepType
+		| /*         */ MinerCreepType;
 
-	/* */ type AnyConsumerCreepType =
-		| /*   */ UpgraderCreepType
-		| /*    */ BuilderCreepType;
+	/*    */ type AnyConsumerCreepType =
+		| /*      */ UpgraderCreepType
+		| /*       */ BuilderCreepType;
+
+	/**/ type AnyEnergyTakingCreepType =
+		| /*     */ HarvesterCreepType
+		| /*        */ RunnerCreepType
+		| /*      */ UpgraderCreepType
+		| /*       */ BuilderCreepType;
 
 	// If you change this, change "Creep.AnyRoomTargettingCreep" too
 	type AnyRoomTargettingCreepType = RunnerCreepType;
@@ -44,7 +50,7 @@ declare global // Creep-specifics
 		| (TCreepType extends /*    */ MinerCreepType ? /*    */ MinerCreep : never)
 		| (TCreepType extends /*  */ ClaimerCreepType ? /*  */ ClaimerCreep : never)
 		| (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
-		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : MyCreep);
+		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : never);
 
 	/*   */ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */, true>;
 	/*      */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController, true>; // Proxy for "room"
@@ -130,11 +136,12 @@ export abstract /* static */ class CreepType
 	public static readonly Attacker: /*  */ AttackerCreepType = 0b0000000000000000000000001000000 as const;
 	public static readonly Enemy: /*        */ EnemyCreepType = 0b0000000000000000000000010000000 as const;
 
-	public static readonly All /*                          */ = 0b0000000000000000000000011111111 as const;
+	public static readonly All /*                          */ = 0b0000000000000000000000011111111 as HarvesterCreepType;
 	public static readonly AllMine /*                      */ = 0b0000000000000000000000001111111 as const;
 	public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
+	public static readonly AllHarvestersOrUpgradersOrBuilders = 0b0000000000000000000000000001101 as HarvesterCreepType | UpgraderCreepType | BuilderCreepType;
 	public static readonly AllRoomTargettingCreeps /*      */ = 0b0000000000000000000000000000010 as const;
 
 	public static Contains<
