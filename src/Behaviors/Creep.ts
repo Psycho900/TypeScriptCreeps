@@ -76,15 +76,19 @@ export abstract /* static */ class CreepBehavior
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					CreepBehavior.HarvestOrMove(creep);
+					if (creep.Target.energy !== 0)
+					{
+						CreepBehavior.TryHarvest(creep);
+					}
+
 					continue;
 
 				case CreepType.Upgrader:
-					CreepBehavior.UpgradeOrMove(creep);
+					CreepBehavior.UpgradeController(creep);
 					continue;
 
 				case CreepType.Builder:
-					CreepBehavior.BuildOrMove(creep);
+					CreepBehavior.TryBuild(creep);
 					continue;
 			}
 		}
@@ -99,7 +103,7 @@ export abstract /* static */ class CreepBehavior
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersTakeEnergyFrom);
+					CreepBehavior.TakeEnergyInRange(creep, creep.Target.pos, creep.Target.energy !== 0 ? 2 : Math.max(2, creep.Target.ticksToRegeneration >> 2), c_typesHarvestersTakeEnergyFrom);
 					continue;
 
 				case CreepType.Upgrader:
@@ -122,7 +126,7 @@ export abstract /* static */ class CreepBehavior
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, 2, c_typesHarvestersGiveEnergyTo, c_creepTypesHarvestersGiveEnergyTo);
+					CreepBehavior.GiveEnergyInRange(creep, creep.Target.pos, creep.Target.energy !== 0 ? 2 : Math.max(2, creep.Target.ticksToRegeneration >> 2), c_typesHarvestersGiveEnergyTo, c_creepTypesHarvestersGiveEnergyTo);
 					continue;
 
 				case CreepType.Upgrader:
@@ -502,35 +506,39 @@ export abstract /* static */ class CreepBehavior
 					creep.EnergyLeftToGive = 0;
 				}
 			}
-			else if (RESOURCES_ALL.includes(resourceType as ResourceConstant))
+			else if (RESOURCES_ALL.includes(resourceType))
 			{
-				Log.Succeeded(creep.drop(resourceType as ResourceConstant), creep, resourceType);
+				Log.Succeeded(creep.drop(resourceType), creep, resourceType);
 			}
 		}
 	}
 
-	private static HarvestOrMove(creep: HarvesterCreep): void
+	private static TryHarvest(creep: HarvesterCreep): boolean
 	{
 		const source: Source = creep.Target;
 
 		if (CreepBehavior.TryBeInRange(creep, source, 1) !== false &&
-			source.energy !== 0 &&
 			Log.Succeeded(creep.harvest(source), creep, source) !== false)
 		{
 			creep.EnergyLeftToTake -= Math.min(
 				source.energy,
 				2 * creep.getActiveBodyparts("work"),
 				creep.EnergyLeftToTake);
+
+			return true;
 		}
+
+		return false;
 	}
 
-	private static UpgradeOrMove(creep: UpgraderCreep | BuilderCreep): void
+	// According to https://docs.screeps.com/simultaneous-actions.html this never counts as an action?
+	private static UpgradeController(creep: UpgraderCreep | BuilderCreep): void
 	{
 		const controller: StructureController = creep.Target;
 
-		if (CreepBehavior.TryBeInRange(creep, controller, 3) !== false &&
+		if (controller.upgradeBlocked !== 0 &&
+			CreepBehavior.TryBeInRange(creep, controller, 3) !== false &&
 			creep.EnergyLeftToGive !== 0 &&
-			controller.upgradeBlocked !== 0 &&
 			Log.Succeeded(creep.upgradeController(controller), creep, controller) !== false)
 		{
 			creep.EnergyLeftToGive -= Math.min(
@@ -539,12 +547,13 @@ export abstract /* static */ class CreepBehavior
 		}
 	}
 
-	private static BuildOrMove(creep: BuilderCreep): void
+	private static TryBuild(creep: BuilderCreep | HarvesterCreep): boolean
 	{
 		const constructionSite: ConstructionSite | undefined = Find.MyObjects(creep.Target.room, Type.ConstructionSite)[0];
-		if (constructionSite === undefined)
+		if (constructionSite === undefined && creep.CreepType !== CreepType.Harvester) // Harvesters shouldn't go that far away
 		{
-			return CreepBehavior.UpgradeOrMove(creep);
+			CreepBehavior.UpgradeController(creep);
+			return false;
 		}
 
 		if (CreepBehavior.TryBeInRange(creep, constructionSite, 3) !== false &&
@@ -555,7 +564,11 @@ export abstract /* static */ class CreepBehavior
 				constructionSite.progressTotal - constructionSite.progress,
 				creep.EnergyLeftToGive,
 				5 * creep.getActiveBodyparts("work"));
+
+			return true;
 		}
+
+		return false;
 	}
 
 	private static TryBeInRange(
