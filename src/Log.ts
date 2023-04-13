@@ -31,7 +31,7 @@ export abstract /* static */ class Log
 		message: string,
 		hr?: ScreepsReturnCode,
 		creepToLog?: Creep,
-		targetToLog?: RoomObject): void
+		targetToLog?: RoomObject | string): void
 	{
 		// @ts-ignore: Compiler optimization to not compile "console"
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
@@ -42,7 +42,7 @@ export abstract /* static */ class Log
 		message: string,
 		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
-		targetToLog?: RoomObject): false
+		targetToLog?: RoomObject | string): false
 	{
 		if (s_currentError !== null)
 		{
@@ -60,7 +60,7 @@ export abstract /* static */ class Log
 		message: string,
 		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
-		targetToLog?: RoomObject): void
+		targetToLog?: RoomObject | string): void
 	{
 		message = `!WARNING!: ${message}`;
 
@@ -91,7 +91,7 @@ export abstract /* static */ class Log
 	public static Succeeded(
 		hr: ScreepsReturnCode,
 		creepToLog?: Creep,
-		targetToLog?: RoomObject): boolean
+		targetToLog?: RoomObject | string): boolean
 	{
 		// //if (Game.cpu.getUsed() > 1.4 * Game.cpu.limit)
 		if (s_shouldReportError !== false && Game.cpu.bucket < 9900)
@@ -159,7 +159,7 @@ export abstract /* static */ class Log
 		message: string,
 		hr: ScreepsReturnCode,
 		creepToLog: Creep | undefined,
-		targetToLog: RoomObject | undefined): string
+		targetToLog: RoomObject | string | undefined): string
 	{
 		if (hr !== 0)
 		{

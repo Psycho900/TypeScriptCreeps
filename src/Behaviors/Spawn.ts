@@ -320,7 +320,7 @@ export abstract /* static */ class SpawnBehavior
 		return (Find.Distance(targetPosition, spawn.pos) <= 25 || Find.Closest(targetPosition, Find.MySpawns())!.id === spawn.id)
 			&& Log.Succeeded(spawn.spawnCreep(
 				bodyParts,
-				`${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? spawn.room) * 100 + (Game.time % 100)}`,
+				`${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? spawn.room) * 1000 + (Game.time % 1000)}`,
 				{
 					memory:
 					{

@@ -69,6 +69,7 @@ export abstract /* static */ class Find
 			}
 
 			s_mySpawnedCreepCache = new Map<number, readonly MyCreep[]>()
+				.set(CreepType.All, mySpawnedCreeps)
 				.set(CreepType.AllMine, mySpawnedCreeps);
 		}
 		else if (s_visibleRooms.length === 1)
@@ -78,6 +79,7 @@ export abstract /* static */ class Find
 		else
 		{
 			s_mySpawnedCreepCache = new Map<number, readonly MyCreep[]>()
+				.set(CreepType.All, s_mySpawningAndSpawnedCreeps)
 				.set(CreepType.AllMine, s_mySpawningAndSpawnedCreeps);
 		}
 	}
@@ -99,7 +101,7 @@ export abstract /* static */ class Find
 		creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
 	{
 		return s_mySpawnedCreepCache.get(creepTypes) as ToCreepInterface<TCreepTypes>[] | undefined ??
-			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepsOfTypeArray(s_mySpawnedCreepCache.get(CreepType.AllMine)!, creepTypes)) as ToCreepInterface<TCreepTypes>[];
+			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepsOfTypeArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as ToCreepInterface<TCreepTypes>[];
 	}
 
 	public static MySpawns(): readonly StructureSpawn[]
