@@ -133,16 +133,16 @@ export abstract /* static */ class Find
 			Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as readonly ToInterface<TRoomObjectTypes>[];
 	}
 
-	public static MyObjectsInRange<TRoomObjectTypes extends number>(
-		roomObject: RoomObject,
-		types: TRoomObjectTypes,
-		range: number): readonly ToInterface<TRoomObjectTypes>[]
-	{
-		return Find.GetObjectsInRange(
-			Find.MyObjects(roomObject.room!, types),
-			roomObject.pos,
-			range) as readonly ToInterface<TRoomObjectTypes>[];
-	}
+	// public static MyObjectsInRange<TRoomObjectTypes extends number>(
+	// 	roomObject: RoomObject,
+	// 	types: TRoomObjectTypes,
+	// 	range: number): readonly ToInterface<TRoomObjectTypes>[]
+	// {
+	// 	return Find.GetObjectsInRange(
+	// 		Find.MyObjects(roomObject.room!, types),
+	// 		roomObject.pos,
+	// 		range) as readonly ToInterface<TRoomObjectTypes>[];
+	// }
 
 	public static Creeps<TCreepTypes extends number>(room: Room, creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
 	{
@@ -150,24 +150,42 @@ export abstract /* static */ class Find
 			Find.SetAndGet(room.creepsCache, creepTypes, Find.GenerateCreepsOfTypeArray(room.creepsCache.get(CreepType.All)!, creepTypes)) as ToCreepInterface<TCreepTypes>[];
 	}
 
-	public static HighestScoring<TRoomObject extends RoomObject>(
-		roomPosition: RoomPosition,
-		elements: readonly TRoomObject[],
-		scoreFunction: (element: TRoomObject) => number): TRoomObject | undefined
-	{
-		return Collection.HighestScoringElement2(
-			elements,
-			scoreFunction,
-			(test: TRoomObject): number => -Find.Distance(roomPosition, test.pos));
-	}
+	// public static HighestScoring<TRoomObject extends RoomObject>(
+	// 	roomPosition: RoomPosition,
+	// 	elements: readonly TRoomObject[],
+	// 	scoreFunction: (element: TRoomObject) => number): TRoomObject | undefined
+	// {
+	// 	return Collection.HighestScoringElement2(
+	// 		elements,
+	// 		scoreFunction,
+	// 		(test: TRoomObject): number => -Find.Distance(roomPosition, test.pos));
+	// }
 
 	public static Closest<TRoomObject extends RoomObject>(
 		roomPosition: RoomPosition,
 		elements: readonly TRoomObject[]): TRoomObject | undefined
 	{
-		return Collection.HighestScoringElement(
-			elements,
-			(test: TRoomObject): number => -Find.Distance(roomPosition, test.pos));
+		const elementsLength: number = elements.length;
+		let bestElement: TRoomObject | undefined = elements[0];
+
+		if (elementsLength > 1)
+		{
+			let closestDistance: number = Find.Distance(roomPosition, bestElement.pos);
+
+			for (let i: number = 1; i < elementsLength; ++i)
+			{
+				const currentElement: TRoomObject = elements[i];
+				const currentDistance: number = Find.Distance(roomPosition, currentElement.pos);
+
+				if (currentDistance < closestDistance) // Take the 1st one with the smallest distance
+				{
+					bestElement = currentElement;
+					closestDistance = currentDistance;
+				}
+			}
+		}
+
+		return bestElement;
 	}
 
 	public static ClosestPair<
@@ -471,38 +489,38 @@ export abstract /* static */ class Find
 		return allNonEnemyStructures !== null ? allNonEnemyStructures : allStructures;
 	}
 
-	private static GetObjectsInRange(
-		roomObjects: readonly RoomObject[],
-		position: RoomPosition,
-		range: number): readonly RoomObject[]
-	{
-		if (roomObjects.length <= 0)
-		{
-			return roomObjects;
-		}
-
-		let x: number = position.x;
-		let y: number = position.y;
-		const minX: number = x - range;
-		const maxX: number = x + range;
-		const minY: number = y - range;
-		const maxY: number = y + range;
-
-		const roomObjectsInRange: RoomObject[] = [];
-
-		for (const testObject of roomObjects)
-		{
-			const testPosition: RoomPosition = testObject.pos;
-
-			if ((x = testPosition.x) >= minX && x <= maxX &&
-				(y = testPosition.y) >= minY && y <= maxY)
-			{
-				roomObjectsInRange.push(testObject);
-			}
-		}
-
-		return roomObjectsInRange;
-	}
+	// private static GetObjectsInRange(
+	// 	roomObjects: readonly RoomObject[],
+	// 	position: RoomPosition,
+	// 	range: number): readonly RoomObject[]
+	// {
+	// 	if (roomObjects.length <= 0)
+	// 	{
+	// 		return roomObjects;
+	// 	}
+	//
+	// 	let x: number = position.x;
+	// 	let y: number = position.y;
+	// 	const minX: number = x - range;
+	// 	const maxX: number = x + range;
+	// 	const minY: number = y - range;
+	// 	const maxY: number = y + range;
+	//
+	// 	const roomObjectsInRange: RoomObject[] = [];
+	//
+	// 	for (const testObject of roomObjects)
+	// 	{
+	// 		const testPosition: RoomPosition = testObject.pos;
+	//
+	// 		if ((x = testPosition.x) >= minX && x <= maxX &&
+	// 			(y = testPosition.y) >= minY && y <= maxY)
+	// 		{
+	// 			roomObjectsInRange.push(testObject);
+	// 		}
+	// 	}
+	//
+	// 	return roomObjectsInRange;
+	// }
 
 	private static GenerateCreepsOfTypeArray(
 		allCreeps: readonly Creep[],

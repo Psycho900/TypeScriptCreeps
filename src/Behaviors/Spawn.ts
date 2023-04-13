@@ -162,8 +162,10 @@ export abstract /* static */ class SpawnBehavior
 
 			for (const source of Find.MyObjects(room, Type.Source)) // Ensure workPartsPerSource contains all sources
 			{
-				// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-				workPartsPerSource.get(source.id) ?? workPartsPerSource.set(source.id, 0);
+				if (workPartsPerSource.has(source.id) === false)
+				{
+					workPartsPerSource.set(source.id, 0);
+				}
 			}
 		}
 
@@ -317,19 +319,24 @@ export abstract /* static */ class SpawnBehavior
 			? Find.Center(target.room ?? spawn.room)
 			: target.pos;
 
-		return (Find.Distance(targetPosition, spawn.pos) <= 25 || Find.Closest(targetPosition, Find.MySpawns())!.id === spawn.id)
-			&& Log.Succeeded(spawn.spawnCreep(
-				bodyParts,
-				`${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? spawn.room) * 1000 + (Game.time % 1000)}`,
+		if (Find.Distance(targetPosition, spawn.pos) > 25 && Find.Closest(targetPosition, Find.MySpawns())!.id !== spawn.id)
+		{
+			return false;
+		}
+
+		const creepName: string = `${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? spawn.room) * 100 + (Game.time % 99)}`;
+		return Log.Succeeded(spawn.spawnCreep(
+			bodyParts,
+			creepName,
+			{
+				memory:
 				{
-					memory:
-					{
-						ct: creepType,
-						tid: target.id,
-						bd: Game.time,
-					},
-					// energyStructures?: Array<StructureSpawn | StructureExtension>: // TODO_KevSchil: List all spawns, then all extensions closest to creeps/sources
-				}));
+					ct: creepType,
+					tid: target.id,
+					bd: Game.time,
+				},
+				// energyStructures?: Array<StructureSpawn | StructureExtension>: // TODO_KevSchil: List all spawns, then all extensions closest to creeps/sources
+			}), spawn, creepName);
 	}
 
 	private static GetBodyPartsCost(bodyParts: readonly BodyPartConstant[]): number

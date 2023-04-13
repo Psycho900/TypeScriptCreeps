@@ -82,7 +82,7 @@ declare global // Creep-specifics
 
 	interface Creep extends EnergyGiver, EnergyTaker
 	{
-		Is<TCreepType extends number>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
+		// Is<TCreepType extends number>(creepType: TCreepType): this is ToCreepInterface<TCreepType>;
 		IsAny<TCreepTypes extends number>(creepType: TCreepTypes): this is ToCreepInterface<TCreepTypes>;
 
 		CreepType: number;
@@ -95,6 +95,9 @@ declare global // Creep-specifics
 
 		// Has any sort of creep.move*(...) method already been called this tick?
 		CanMove: TIsMine extends true ? boolean : never;
+
+		// Have any of these been called this tick? : https://docs.screeps.com/simultaneous-actions.html
+		// CanDoAction: TIsMine extends true ? boolean : never;
 	}
 
 	interface CreepOfType<
@@ -168,6 +171,7 @@ export abstract /* static */ class CreepType
 			}
 
 			(creep as MyCreep).CanMove = creep.fatigue === 0;
+			// (creep as MyCreep).CanDoAction = true;
 
 			if (creep.CreepType === undefined)
 			{
@@ -196,3 +200,13 @@ export abstract /* static */ class CreepType
 		}
 	}
 }
+
+// Creep.prototype.Is = function(creepType: number): boolean
+// {
+// 	return this.CreepType === creepType;
+// };
+
+Creep.prototype.IsAny = function(creepType: number): boolean
+{
+	return (this.CreepType & creepType) !== 0;
+};

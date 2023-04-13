@@ -30,18 +30,18 @@ export abstract /* static */ class Log
 	public static Info(
 		message: string,
 		hr?: ScreepsReturnCode,
-		creepToLog?: Creep,
+		objectToLog?: RoomObject | string,
 		targetToLog?: RoomObject | string): void
 	{
 		// @ts-ignore: Compiler optimization to not compile "console"
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr ?? OK, creepToLog, targetToLog));
+		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr ?? OK, objectToLog, targetToLog));
 	}
 
 	public static Error(
 		message: string,
 		hr: ScreepsReturnCode,
-		creepToLog?: Creep,
+		objectToLog?: RoomObject | string,
 		targetToLog?: RoomObject | string): false
 	{
 		if (s_currentError !== null)
@@ -49,7 +49,7 @@ export abstract /* static */ class Log
 			Log.Info(`!MULTIPLE ERRORS!:\n${s_currentError.message}\n${s_currentError.stack}`, hr);
 		}
 
-		message = Log.GenerateMessage(message, hr, creepToLog, targetToLog);
+		message = Log.GenerateMessage(message, hr, objectToLog, targetToLog);
 		s_currentError = new Error(message); // thrown at the end of main
 		// eslint-disable-next-line no-debugger
 		debugger;
@@ -59,18 +59,18 @@ export abstract /* static */ class Log
 	public static Warning(
 		message: string,
 		hr: ScreepsReturnCode,
-		creepToLog?: Creep,
+		objectToLog?: RoomObject | string,
 		targetToLog?: RoomObject | string): void
 	{
 		message = `!WARNING!: ${message}`;
 
 		if ((Game.time % 100) !== 0)
 		{
-			Log.Info(message, hr, creepToLog, targetToLog);
+			Log.Info(message, hr, objectToLog, targetToLog);
 		}
 		else // To get my attention if the issue persists enough ticks in a row
 		{
-			Log.Error(message, hr, creepToLog, targetToLog);
+			Log.Error(message, hr, objectToLog, targetToLog);
 		}
 	}
 
@@ -90,13 +90,13 @@ export abstract /* static */ class Log
 
 	public static Succeeded(
 		hr: ScreepsReturnCode,
-		creepToLog?: Creep,
+		objectToLog?: RoomObject | string,
 		targetToLog?: RoomObject | string): boolean
 	{
 		// //if (Game.cpu.getUsed() > 1.4 * Game.cpu.limit)
 		if (s_shouldReportError !== false && Game.cpu.bucket < 9900)
 		{
-			Log.Error("Approaching CPU limit!", hr, creepToLog, targetToLog);
+			Log.Error("Approaching CPU limit!", hr, objectToLog, targetToLog);
 			s_shouldReportError = false;
 		}
 
@@ -108,21 +108,21 @@ export abstract /* static */ class Log
 		if (hr === ERR_NOT_IN_RANGE || hr === ERR_NOT_ENOUGH_RESOURCES)
 		{
 			// Expected?
-			Log.Error("Rarely expected error code?", hr, creepToLog, targetToLog);
+			Log.Error("Rarely expected error code?", hr, objectToLog, targetToLog);
 		}
 		else if (hr === ERR_NO_PATH)
 		{
-			Log.Warning("Rarely expected error code", hr, creepToLog, targetToLog);
+			Log.Warning("Rarely expected error code", hr, objectToLog, targetToLog);
 		}
 		else if (hr === ERR_NO_BODYPART)
 		{
-			Log.Error("No body part", hr, creepToLog, targetToLog);
+			Log.Error("No body part", hr, objectToLog, targetToLog);
 
-			// creepToLog?.suicide(); // TODO_KevSchil: Are we ready for this yet?
+			// objectToLog?.suicide(); // TODO_KevSchil: Are we ready for this yet?
 		}
 		else
 		{
-			Log.Error("Unexpected error code", hr, creepToLog, targetToLog);
+			Log.Error("Unexpected error code", hr, objectToLog, targetToLog);
 		}
 
 		return false;
@@ -131,12 +131,12 @@ export abstract /* static */ class Log
 	// public static Assert(
 	// 	condition: boolean,
 	// 	message: string,
-	// 	creepToLog?: Creep,
+	// 	objectToLog?: Creep,
 	// 	targetToLog?: RoomObject): condition is true
 	// {
 	// 	if (condition !== true)
 	// 	{
-	// 		Log.Error(message, OK, creepToLog, targetToLog);
+	// 		Log.Error(message, OK, objectToLog, targetToLog);
 	// 	}
 	//
 	// 	return condition;
@@ -158,7 +158,7 @@ export abstract /* static */ class Log
 	private static GenerateMessage(
 		message: string,
 		hr: ScreepsReturnCode,
-		creepToLog: Creep | undefined,
+		objectToLog: RoomObject | string | undefined,
 		targetToLog: RoomObject | string | undefined): string
 	{
 		if (hr !== 0)
@@ -167,7 +167,7 @@ export abstract /* static */ class Log
 		}
 
 		return message
-			+ Log.ToLogString(creepToLog)
+			+ Log.ToLogString(objectToLog)
 			+ Log.ToLogString(targetToLog);
 	}
 }

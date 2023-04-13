@@ -19,105 +19,105 @@ export abstract /* static */ class Collection
 		return index;
 	}
 
-	public static HighestScoringElement<T>(
-		elements: readonly T[],
-		scoreFunction: (element: T) => number): T | undefined
-	{
-		const elementsLength: number = elements.length;
-		let bestElement: T | undefined = elements[0];
+	// public static HighestScoringElement<T>(
+	// 	elements: readonly T[],
+	// 	scoreFunction: (element: T) => number): T | undefined
+	// {
+	// 	const elementsLength: number = elements.length;
+	// 	let bestElement: T | undefined = elements[0];
+	//
+	// 	if (elementsLength <= 1)
+	// 	{
+	// 		return bestElement;
+	// 	}
+	//
+	// 	let bestScore: number = scoreFunction(bestElement);
+	//
+	// 	for (let i: number = 1; i < elementsLength; ++i)
+	// 	{
+	// 		const currentElement: T = elements[i];
+	// 		const currentScore: number = scoreFunction(currentElement);
+	//
+	// 		if (currentScore > bestScore) // Take the 1st one with the highest score
+	// 		{
+	// 			bestElement = currentElement;
+	// 			bestScore = currentScore;
+	// 		}
+	// 	}
+	//
+	// 	return bestElement;
+	// }
 
-		if (elementsLength <= 1)
-		{
-			return bestElement;
-		}
-
-		let bestScore: number = scoreFunction(bestElement);
-
-		for (let i: number = 1; i < elementsLength; ++i)
-		{
-			const currentElement: T = elements[i];
-			const currentScore: number = scoreFunction(currentElement);
-
-			if (currentScore > bestScore) // Take the 1st one with the highest score
-			{
-				bestElement = currentElement;
-				bestScore = currentScore;
-			}
-		}
-
-		return bestElement;
-	}
-
-	public static HighestScoringElement2<T>(
-		elements: readonly T[],
-		/*    */ scoreFunction: (element: T) => number,
-		secondaryScoreFunction: (element: T) => number): T | undefined
-	{
-		let elementsLength: number = elements.length;
-		let bestElement: T | undefined = elements[0];
-
-		if (elementsLength <= 1)
-		{
-			return bestElement;
-		}
-
-		let bestScore: number = scoreFunction(bestElement);
-
-		// ONLY non-null when we have more than 1 element tied for highest score
-		let bestElements: null | T[/* 2+ */] = null;
-
-		for (let i: number = 1; i < elementsLength; ++i)
-		{
-			const currentElement: T = elements[i];
-			const currentScore: number = scoreFunction(currentElement);
-
-			if (currentScore < bestScore) // Common case
-			{
-				continue;
-			}
-
-			if (currentScore > bestScore) // New highest score
-			{
-				bestElements = null; // No more tie-breaker!
-				bestElement = currentElement;
-				bestScore = currentScore;
-				continue;
-			}
-
-			if (bestElements === null) // 2-way tie for highest score
-			{
-				bestElements = [bestElement, currentElement];
-				continue;
-			}
-
-			bestElements.push(currentElement); // 3+ way tie for highest score
-		}
-
-		if (bestElements === null) // Only 1 highest score
-		{
-			return bestElement; // bestElement is only valid when bestElements is null
-		}
-
-		// Treat the normal search below as the tie-breaker search
-		elements = bestElements;
-		elementsLength = bestElements.length;
-		// bestElement = bestElements[0]; // This should still be the 1st element in bestElements
-		bestScore = secondaryScoreFunction(bestElement);
-
-		for (let i: number = 1; i < elementsLength; ++i)
-		{
-			const currentElement: T = elements[i];
-			const currentScore: number = secondaryScoreFunction(currentElement);
-
-			if (currentScore > bestScore) // Take the 1st one with the highest score
-			{
-				bestElement = currentElement;
-				bestScore = currentScore;
-			}
-		}
-
-		return bestElement;
-	}
+	// public static HighestScoringElement2<T>(
+	// 	elements: readonly T[],
+	// 	/*    */ scoreFunction: (element: T) => number,
+	// 	secondaryScoreFunction: (element: T) => number): T | undefined
+	// {
+	// 	let elementsLength: number = elements.length;
+	// 	let bestElement: T | undefined = elements[0];
+	//
+	// 	if (elementsLength <= 1)
+	// 	{
+	// 		return bestElement;
+	// 	}
+	//
+	// 	let bestScore: number = scoreFunction(bestElement);
+	//
+	// 	// ONLY non-null when we have more than 1 element tied for highest score
+	// 	let bestElements: null | T[/* 2+ */] = null;
+	//
+	// 	for (let i: number = 1; i < elementsLength; ++i)
+	// 	{
+	// 		const currentElement: T = elements[i];
+	// 		const currentScore: number = scoreFunction(currentElement);
+	//
+	// 		if (currentScore < bestScore) // Common case
+	// 		{
+	// 			continue;
+	// 		}
+	//
+	// 		if (currentScore > bestScore) // New highest score
+	// 		{
+	// 			bestElements = null; // No more tie-breaker!
+	// 			bestElement = currentElement;
+	// 			bestScore = currentScore;
+	// 			continue;
+	// 		}
+	//
+	// 		if (bestElements === null) // 2-way tie for highest score
+	// 		{
+	// 			bestElements = [bestElement, currentElement];
+	// 			continue;
+	// 		}
+	//
+	// 		bestElements.push(currentElement); // 3+ way tie for highest score
+	// 	}
+	//
+	// 	if (bestElements === null) // Only 1 highest score
+	// 	{
+	// 		return bestElement; // bestElement is only valid when bestElements is null
+	// 	}
+	//
+	// 	// Treat the normal search below as the tie-breaker search
+	// 	elements = bestElements;
+	// 	elementsLength = bestElements.length;
+	// 	// bestElement = bestElements[0]; // This should still be the 1st element in bestElements
+	// 	bestScore = secondaryScoreFunction(bestElement);
+	//
+	// 	for (let i: number = 1; i < elementsLength; ++i)
+	// 	{
+	// 		const currentElement: T = elements[i];
+	// 		const currentScore: number = secondaryScoreFunction(currentElement);
+	//
+	// 		if (currentScore > bestScore) // Take the 1st one with the highest score
+	// 		{
+	// 			bestElement = currentElement;
+	// 			bestScore = currentScore;
+	// 		}
+	// 	}
+	//
+	// 	return bestElement;
+	// }
 
 	public static HighestScoringPair<T1, T2>(
 		elements1: readonly T1[],
