@@ -224,5 +224,21 @@ declare global
 		 * @param fromIndex The position in this array at which to begin searching for searchElement.
 		 */
 		includes<T2>(searchElement: T2, fromIndex?: number): searchElement is T & T2;
+
+		/**
+		 * Appends new elements to the end of an array, and returns the new length of the array.
+		 * @param items New elements to add to the array.
+		 */
+		push(...items: readonly T[]): number;
+	}
+
+	interface CallableFunction
+	{
+		/**
+		 * Calls the function with the specified object as the this value and the elements of specified array as the arguments.
+		 * @param thisArg The object to be used as the this object.
+		 * @param args An array of argument values to be passed to the function.
+		 */
+		apply<T, A extends readonly unknown[], R>(this: (this: T, ...args: A) => R, thisArg: T, args: A): R;
 	}
 }

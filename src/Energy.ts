@@ -2,12 +2,12 @@ declare global
 {
 	interface EnergyGiver
 	{
-		EnergyLeftToGive: number,
+		EnergyLeftToGive: number;
 	}
 
 	interface EnergyTaker
 	{
-		EnergyLeftToTake: number,
+		EnergyLeftToTake: number;
 	}
 }
 

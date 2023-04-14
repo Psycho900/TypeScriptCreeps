@@ -280,7 +280,7 @@ export abstract /* static */ class Type
 			//         }
 			//     }
 			// }
-			default:                         return objectType.toString(2);
+			default:                         return `0b${objectType.toString(2)}`;
 		}
 	}
 }

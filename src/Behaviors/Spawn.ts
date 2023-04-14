@@ -1,3 +1,4 @@
+import { } from "../Energy";
 import { } from "../Objects";
 import { Collection } from "../Collection";
 import { CreepType } from "../CreepType";
@@ -27,6 +28,14 @@ const c_harvesterCostFromWorkBodyPartCount: readonly number[] =
 		/* 4 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 4,
 		/* 5 */BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 5,
 	];
+
+declare global
+{
+	interface Room extends EnergyGiver
+	{
+		MaxEnergy: number;
+	}
+}
 
 export abstract /* static */ class SpawnBehavior
 {

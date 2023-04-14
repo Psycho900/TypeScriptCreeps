@@ -140,7 +140,7 @@ export abstract /* static */ class CreepType
 	public static readonly Enemy: /*        */ EnemyCreepType = 0b0000000000000000000000010000000 as const;
 
 	public static readonly All /*                          */ = 0b0000000000000000000000011111111 as HarvesterCreepType;
-	public static readonly AllMine /*                      */ = 0b0000000000000000000000001111111 as const;
+	// public static readonly AllMine /*                      */ = 0b0000000000000000000000001111111 as const;
 	public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
@@ -196,7 +196,7 @@ export abstract /* static */ class CreepType
 			case CreepType.Claimer /*  */: return "Claimer";
 			case CreepType.Attacker /* */: return "Attacker";
 			case CreepType.Enemy /*    */: return "Enemy";
-			default /*                 */: return creepType?.toString(2) ?? "nullish";
+			default /*                 */: return `0b${creepType?.toString(2) ?? 'NULLish?'}`;
 		}
 	}
 }
