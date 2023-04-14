@@ -145,7 +145,7 @@ export abstract /* static */ class CreepType
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
 	public static readonly AllHarvestersOrUpgradersOrBuilders = 0b0000000000000000000000000001101 as HarvesterCreepType | UpgraderCreepType | BuilderCreepType;
-	public static readonly AllRoomTargettingCreeps /*      */ = 0b0000000000000000000000000000010 as const;
+	// public static readonly AllRoomTargettingCreeps /*      */ = 0b0000000000000000000000000000010 as const;
 
 	public static Contains<
 		TCreepTypes1 extends number,
@@ -156,7 +156,7 @@ export abstract /* static */ class CreepType
 		return (creepTypes1 & creepTypes2) !== 0;
 	}
 
-	public static ResetCachedValuesForBeginningOfTick(creeps: Creep[]): Creep[]
+	public static EnsureInitializedForBeginningOfTick(creeps: Creep[]): Creep[]
 	{
 		for (const creep of creeps)
 		{
@@ -196,7 +196,7 @@ export abstract /* static */ class CreepType
 			case CreepType.Claimer /*  */: return "Claimer";
 			case CreepType.Attacker /* */: return "Attacker";
 			case CreepType.Enemy /*    */: return "Enemy";
-			default:                       return creepType?.toString(2) ?? "nullish";
+			default /*                 */: return creepType?.toString(2) ?? "nullish";
 		}
 	}
 }

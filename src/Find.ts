@@ -30,10 +30,11 @@ let s_mySpawnedCreepCache: CreepCache;
 
 export abstract /* static */ class Find
 {
-	public static ResetCachedValuesForBeginningOfTick(): void
+	public static EnsureInitializedForBeginningOfTick(
+		/* reinitializeSpawnsFunction: (spawns: readonly StructureSpawn[]) => readonly StructureSpawn[] */): void
 	{
 		// See "Should reset on each tick" comment near top of file:
-		s_mySpawns /*             */ = Object.values(Game.spawns);
+		s_mySpawns /*             */ = /* reinitializeSpawnsFunction( */ Object.values(Game.spawns) /* ) */;
 		s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
 		s_mySpawningAndSpawnedCreeps = Object.values(Game.creeps);
 
@@ -44,7 +45,7 @@ export abstract /* static */ class Find
 			// Clear whatever existing caches we had from the previous tick
 			const creepsCache: CreepCache = (room.creepsCache ??= new Map<number, readonly Creep[]>());
 			creepsCache.clear();
-			creepsCache.set(CreepType.All, CreepType.ResetCachedValuesForBeginningOfTick(room.find(FIND_CREEPS)));
+			creepsCache.set(CreepType.All, CreepType.EnsureInitializedForBeginningOfTick(room.find(FIND_CREEPS)));
 
 			const roomCache: RoomObjectCache = (room.cache ??= new Map<number, readonly RoomObject[]>());
 			roomCache.clear();
@@ -191,45 +192,45 @@ export abstract /* static */ class Find
 		return bestElement;
 	}
 
-	public static ClosestPair<
-		TRoomObject1 extends RoomObject,
-		TRoomObject2 extends RoomObject>(
-			elements1: readonly TRoomObject1[],
-			elements2: readonly TRoomObject2[]): readonly [TRoomObject1, TRoomObject2] | null
-	{
-		const elements1Length: number = elements1.length;
-		const elements2Length: number = elements2.length;
-
-		if (elements1Length <= 0 || elements2Length <= 0)
-		{
-			return null;
-		}
-
-		let bestElement1: TRoomObject1 | undefined;
-		let bestElement2: TRoomObject2 | undefined;
-		let smallestDistance: number | undefined;
-
-		for (const element1 of elements1)
-		{
-			const element1Pos = element1.pos;
-
-			for (const element2 of elements2)
-			{
-				const currentDistance: number = Find.Distance(element1Pos, element2.pos);
-
-				if (currentDistance >= smallestDistance!) // All comparisons with undefined return `false`
-				{
-					continue;
-				}
-
-				bestElement1 = element1;
-				bestElement2 = element2;
-				smallestDistance = currentDistance;
-			}
-		}
-
-		return [bestElement1!, bestElement2!];
-	}
+	// public static ClosestPair<
+	// 	TRoomObject1 extends RoomObject,
+	// 	TRoomObject2 extends RoomObject>(
+	// 		elements1: readonly TRoomObject1[],
+	// 		elements2: readonly TRoomObject2[]): readonly [TRoomObject1, TRoomObject2] | null
+	// {
+	// 	const elements1Length: number = elements1.length;
+	// 	const elements2Length: number = elements2.length;
+	//
+	// 	if (elements1Length <= 0 || elements2Length <= 0)
+	// 	{
+	// 		return null;
+	// 	}
+	//
+	// 	let bestElement1: TRoomObject1 | undefined;
+	// 	let bestElement2: TRoomObject2 | undefined;
+	// 	let smallestDistance: number | undefined;
+	//
+	// 	for (const element1 of elements1)
+	// 	{
+	// 		const element1Pos = element1.pos;
+	//
+	// 		for (const element2 of elements2)
+	// 		{
+	// 			const currentDistance: number = Find.Distance(element1Pos, element2.pos);
+	//
+	// 			if (currentDistance >= smallestDistance!) // All comparisons with undefined return `false`
+	// 			{
+	// 				continue;
+	// 			}
+	//
+	// 			bestElement1 = element1;
+	// 			bestElement2 = element2;
+	// 			smallestDistance = currentDistance;
+	// 		}
+	// 	}
+	//
+	// 	return [bestElement1!, bestElement2!];
+	// }
 
 	public static IsSameRoomAndWithinRange(from: RoomPosition, to: RoomPosition, range: number): boolean
 	{

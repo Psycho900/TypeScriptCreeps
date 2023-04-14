@@ -4,9 +4,10 @@ import { SpawnBehavior } from "./Behaviors/Spawn";
 
 export const loop = function(): void
 {
-	Find.ResetCachedValuesForBeginningOfTick(); // THIS MUST BE THE VERY FIRST THING WE DO! Otherwise our cache will be outdated
+	Find.EnsureInitializedForBeginningOfTick(
+		/* SpawnBehavior.EnsureInitializedForBeginningOfTick */); // THIS MUST BE THE VERY FIRST THING WE DO! Otherwise our cache will be outdated
 
-	SpawnBehavior.TryAct();
+	SpawnBehavior.Act();
 	CreepBehavior.Act();
 
 	// Log.Info(`[${Type.RoomPosition}] Current game tick is ${Game.time}`, OK, Object.values(Game.creeps)[0], Object.values(Game.rooms)[0].controller);
