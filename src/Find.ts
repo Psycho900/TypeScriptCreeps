@@ -100,8 +100,9 @@ export abstract /* static */ class Find
 	public static MySpawnedCreeps<TCreepTypes extends number>(
 		creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
 	{
-		return s_mySpawnedCreepCache.get(creepTypes) as ToCreepInterface<TCreepTypes>[] | undefined ??
-			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepsOfTypeArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as ToCreepInterface<TCreepTypes>[];
+		type TCreeps = readonly ToCreepInterface<TCreepTypes>[];
+		return s_mySpawnedCreepCache.get(creepTypes) as TCreeps | undefined ??
+			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepsOfTypeArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
 
 	public static MySpawns(): readonly StructureSpawn[]
@@ -129,8 +130,9 @@ export abstract /* static */ class Find
 		room: Room,
 		types: TRoomObjectTypes): readonly ToInterface<TRoomObjectTypes>[]
 	{
-		return room.cache.get(types) as readonly ToInterface<TRoomObjectTypes>[] | undefined ??
-			Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as readonly ToInterface<TRoomObjectTypes>[];
+		type TRoomObjects = readonly ToInterface<TRoomObjectTypes>[];
+		return room.cache.get(types) as TRoomObjects | undefined ??
+			Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as TRoomObjects;
 	}
 
 	// public static MyObjectsInRange<TRoomObjectTypes extends number>(
@@ -146,8 +148,9 @@ export abstract /* static */ class Find
 
 	public static Creeps<TCreepTypes extends number>(room: Room, creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
 	{
-		return room.creepsCache.get(creepTypes) as ToCreepInterface<TCreepTypes>[] | undefined ??
-			Find.SetAndGet(room.creepsCache, creepTypes, Find.GenerateCreepsOfTypeArray(room.creepsCache.get(CreepType.All)!, creepTypes)) as ToCreepInterface<TCreepTypes>[];
+		type TCreeps = readonly ToCreepInterface<TCreepTypes>[];
+		return room.creepsCache.get(creepTypes) as TCreeps | undefined ??
+			Find.SetAndGet(room.creepsCache, creepTypes, Find.GenerateCreepsOfTypeArray(room.creepsCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
 
 	// public static HighestScoring<TRoomObject extends RoomObject>(
@@ -438,7 +441,7 @@ export abstract /* static */ class Find
 		cache: RoomObjectCache,
 		allStructures: Structure[]): readonly Structure[]
 	{
-		let allNonEnemyStructures: Structure[] | null = null;
+		let allNonEnemyStructures: Structure[] | undefined;
 		const allStructuresLength = allStructures.length;
 
 		for (let index = 0; index < allStructuresLength; ++index)
@@ -467,7 +470,7 @@ export abstract /* static */ class Find
 					cache.set(structure.Type, [structure]);
 				}
 			}
-			else if (allNonEnemyStructures === null)
+			else if (allNonEnemyStructures === undefined)
 			{
 				allNonEnemyStructures = [];
 
@@ -486,7 +489,7 @@ export abstract /* static */ class Find
 			}
 		}
 
-		return allNonEnemyStructures !== null ? allNonEnemyStructures : allStructures;
+		return allNonEnemyStructures !== undefined ? allNonEnemyStructures : allStructures;
 	}
 
 	// private static GetObjectsInRange(
