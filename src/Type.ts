@@ -207,7 +207,7 @@ export abstract /* static */ class Type
 	public static readonly AllStructures /*                           */  = 0b1111111111111111111110000000000 as const;
 	public static readonly AllOwnedStructures /*                      */  = 0b1111111111111111100000000000000 as const;
 
-	public static readonly FirstStructure: /*            */ ContainerType = 0b0000000000000000000010000000000 as const;
+	public static readonly BeforeFirstStructure: /*      */ TombstoneType = 0b0000000000000000000001000000000 as const;
 	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000 as const;
 
 	public static readonly SpawnsAndExtensions: SpawnType | ExtensionType = Type.Or(Type.Spawn, Type.Extension);
@@ -280,7 +280,7 @@ export abstract /* static */ class Type
 			//         }
 			//     }
 			// }
-			default:                         return `0b${objectType.toString(2)}`;
+			default /*                   */: return `0b${objectType?.toString(2) ?? 'NULLish'}`;
 		}
 	}
 }

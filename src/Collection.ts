@@ -173,23 +173,23 @@ export abstract /* static */ class Collection
 		return count;
 	}
 
-	public static CountKeysWithValue<TKey, TValue>(
-		map: Map<TKey, TValue>,
-		valueToMatch: TValue,
-		predicate: (key: TKey) => boolean): number
-	{
-		let count: number = 0;
-
-		for (const [key, value] of map)
-		{
-			if (value === valueToMatch && predicate(key) === true)
-			{
-				++count;
-			}
-		}
-
-		return count;
-	}
+	// public static CountKeysWithValue<TKey, TValue>(
+	// 	map: Map<TKey, TValue>,
+	// 	valueToMatch: TValue,
+	// 	predicate: (key: TKey) => boolean): number
+	// {
+	// 	let count: number = 0;
+	//
+	// 	for (const [key, value] of map)
+	// 	{
+	// 		if (value === valueToMatch && predicate(key) === true)
+	// 		{
+	// 			++count;
+	// 		}
+	// 	}
+	//
+	// 	return count;
+	// }
 
 	// public static GetKeysWithValue<TKey, TValue>(
 	// 	map: Map<TKey, TValue>,

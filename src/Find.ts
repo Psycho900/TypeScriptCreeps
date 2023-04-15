@@ -69,8 +69,8 @@ export abstract /* static */ class Find
 			}
 
 			s_mySpawnedCreepCache = new Map<number, readonly MyCreep[]>()
-				.set(CreepType.All, mySpawnedCreeps)
-				// .set(CreepType.AllMine, mySpawnedCreeps);
+				.set(CreepType.All, mySpawnedCreeps);
+			// .set(CreepType.AllMine, mySpawnedCreeps);
 		}
 		else if (s_visibleRooms.length === 1)
 		{
@@ -79,8 +79,8 @@ export abstract /* static */ class Find
 		else
 		{
 			s_mySpawnedCreepCache = new Map<number, readonly MyCreep[]>()
-				.set(CreepType.All, s_mySpawningAndSpawnedCreeps)
-				// .set(CreepType.AllMine, s_mySpawningAndSpawnedCreeps);
+				.set(CreepType.All, s_mySpawningAndSpawnedCreeps);
+			// .set(CreepType.AllMine, s_mySpawningAndSpawnedCreeps);
 		}
 	}
 
@@ -313,7 +313,7 @@ export abstract /* static */ class Find
 			let structuresToAdd: readonly RoomObject[] | undefined;
 			if ((structuresToAdd = cache.get(structureTypes)) === undefined)
 			{
-				for (let structureType: number = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
+				for (let structureType: number = Type.LastStructure; structureType !== Type.BeforeFirstStructure; structureType >>= 1) // Backwards so that spawning a new creep uses energy from all spawns THEN extensions
 				{
 					if ((roomObjectTypesToInclude & structureType) !== 0 &&
 						(roomObjectsToAdd = cache.get(structureType)!).length !== 0)
@@ -339,7 +339,7 @@ export abstract /* static */ class Find
 		}
 
 		if ((roomObjectTypesToInclude & Type.Creep) !== 0) // &&
-			// (roomObjectsToAdd = cache.get(Type.Creep)!).length !== 0)
+		// (roomObjectsToAdd = cache.get(Type.Creep)!).length !== 0)
 		{
 			Log.Error("Apparently we ask for Creeps this way now? Uncomment nearby code AND the commented logic in Find.Reinitialize*()", ERR_INVALID_ARGS, "roomObjectTypesToInclude: " + Type.ToString(roomObjectTypesToInclude));
 
@@ -484,7 +484,7 @@ export abstract /* static */ class Find
 			}
 		}
 
-		for (let structureType: number = Type.FirstStructure; structureType !== Type.LastStructure; structureType <<= 1)
+		for (let structureType: number = Type.LastStructure; structureType !== Type.BeforeFirstStructure; structureType >>= 1)
 		{
 			if (cache.has(structureType) === false)
 			{

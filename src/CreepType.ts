@@ -196,7 +196,7 @@ export abstract /* static */ class CreepType
 			case CreepType.Claimer /*  */: return "Claimer";
 			case CreepType.Attacker /* */: return "Attacker";
 			case CreepType.Enemy /*    */: return "Enemy";
-			default /*                 */: return `0b${creepType?.toString(2) ?? 'NULLish?'}`;
+			default /*                 */: return `0b${creepType?.toString(2) ?? 'NULLish'}`;
 		}
 	}
 }
