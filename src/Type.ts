@@ -126,32 +126,32 @@ declare global
 		// | (TRoomObjectType extends /* */ RoomPositionType ? RoomPosition /*        */ : never)
 		| (TRoomObjectType extends /*          */ CreepsType ? Creep /*               */ : never)
 		| (TRoomObjectType extends /**/ ConstructionSiteType ? ConstructionSite /*    */ : never)
-		| (TRoomObjectType extends /*            */ FlagType ? Flag /*                */ : never)
-		| (TRoomObjectType extends /*         */ MineralType ? Mineral /*             */ : never)
+		// | (TRoomObjectType extends /*         */ FlagType ? Flag /*                */ : never)
+		// | (TRoomObjectType extends /*      */ MineralType ? Mineral /*             */ : never)
 		| (TRoomObjectType extends /*        */ ResourceType ? Resource /*            */ : never)
 		| (TRoomObjectType extends /*            */ RuinType ? Ruin /*                */ : never)
 		| (TRoomObjectType extends /*          */ SourceType ? Source /*              */ : never)
 		| (TRoomObjectType extends /*       */ TombstoneType ? Tombstone /*           */ : never)
 		| (TRoomObjectType extends /*       */ ContainerType ? StructureContainer /*  */ : never)
-		| (TRoomObjectType extends /*          */ PortalType ? StructurePortal /*     */ : never)
-		| (TRoomObjectType extends /*            */ RoadType ? StructureRoad /*       */ : never)
-		| (TRoomObjectType extends /*            */ WallType ? StructureWall /*       */ : never)
+		// | (TRoomObjectType extends /*       */ PortalType ? StructurePortal /*     */ : never)
+		// | (TRoomObjectType extends /*         */ RoadType ? StructureRoad /*       */ : never)
+		// | (TRoomObjectType extends /*         */ WallType ? StructureWall /*       */ : never)
 		| (TRoomObjectType extends /*      */ ControllerType ? StructureController /* */ : never)
 		| (TRoomObjectType extends /*       */ ExtensionType ? StructureExtension /*  */ : never)
-		| (TRoomObjectType extends /*       */ ExtractorType ? StructureExtractor /*  */ : never)
-		| (TRoomObjectType extends /*         */ FactoryType ? StructureFactory /*    */ : never)
-		| (TRoomObjectType extends /*     */ InvaderCoreType ? StructureInvaderCore /**/ : never)
-		| (TRoomObjectType extends /*      */ KeeperLairType ? StructureKeeperLair /* */ : never)
-		| (TRoomObjectType extends /*             */ LabType ? StructureLab /*        */ : never)
+		// | (TRoomObjectType extends /*    */ ExtractorType ? StructureExtractor /*  */ : never)
+		// | (TRoomObjectType extends /*      */ FactoryType ? StructureFactory /*    */ : never)
+		// | (TRoomObjectType extends /*  */ InvaderCoreType ? StructureInvaderCore /**/ : never)
+		// | (TRoomObjectType extends /*   */ KeeperLairType ? StructureKeeperLair /* */ : never)
+		// | (TRoomObjectType extends /*          */ LabType ? StructureLab /*        */ : never)
 		| (TRoomObjectType extends /*            */ LinkType ? StructureLink /*       */ : never)
-		| (TRoomObjectType extends /*           */ NukerType ? StructureNuker /*      */ : never)
-		| (TRoomObjectType extends /*        */ ObserverType ? StructureObserver /*   */ : never)
-		| (TRoomObjectType extends /*       */ PowerBankType ? StructurePowerBank /*  */ : never)
-		| (TRoomObjectType extends /*      */ PowerSpawnType ? StructurePowerSpawn /* */ : never)
-		| (TRoomObjectType extends /*         */ RampartType ? StructureRampart /*    */ : never)
+		// | (TRoomObjectType extends /*        */ NukerType ? StructureNuker /*      */ : never)
+		// | (TRoomObjectType extends /*     */ ObserverType ? StructureObserver /*   */ : never)
+		// | (TRoomObjectType extends /*    */ PowerBankType ? StructurePowerBank /*  */ : never)
+		// | (TRoomObjectType extends /*   */ PowerSpawnType ? StructurePowerSpawn /* */ : never)
+		// | (TRoomObjectType extends /*      */ RampartType ? StructureRampart /*    */ : never)
 		| (TRoomObjectType extends /*           */ SpawnType ? StructureSpawn /*      */ : never)
 		| (TRoomObjectType extends /*         */ StorageType ? StructureStorage /*    */ : never)
-		| (TRoomObjectType extends /*        */ TerminalType ? StructureTerminal /*   */ : never)
+		// | (TRoomObjectType extends /*     */ TerminalType ? StructureTerminal /*   */ : never)
 		| (TRoomObjectType extends /*           */ TowerType ? StructureTower /*      */ : never);
 }
 
@@ -202,10 +202,10 @@ export abstract /* static */ class Type
 	//     }
 	// }
 
-	public static readonly All /*                                     */  = 0b1111111111111111111111111111111 as const;
-	public static readonly AllRoomObjects /*                          */  = 0b1111111111111111111111111111100 as const;
+	// public static readonly All /*                                  */  = 0b1111111111111111111111111111111 as const;
+	// public static readonly AllRoomObjects /*                       */  = 0b1111111111111111111111111111100 as const;
 	public static readonly AllStructures /*                           */  = 0b1111111111111111111110000000000 as const;
-	public static readonly AllOwnedStructures /*                      */  = 0b1111111111111111100000000000000 as const;
+	// public static readonly AllOwnedStructures /*                   */  = 0b1111111111111111100000000000000 as const;
 
 	public static readonly BeforeFirstStructure: /*      */ TombstoneType = 0b0000000000000000000001000000000 as const;
 	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000 as const;
@@ -221,14 +221,14 @@ export abstract /* static */ class Type
 		return (types1 | types2) as TTypes1 | TTypes2;
 	}
 
-	public static Contains<
-		TTypes1 extends number,
-		TTypes2 extends number>(
-			types1: TTypes1,
-			types2: TTypes2): types1 is (TTypes1 & TTypes2)
-	{
-		return (types1 & types2) !== 0;
-	}
+	// public static Contains<
+	// 	TTypes1 extends number,
+	// 	TTypes2 extends number>(
+	// 		types1: TTypes1,
+	// 		types2: TTypes2): types1 is (TTypes1 & TTypes2)
+	// {
+	// 	return (types1 & types2) !== 0;
+	// }
 
 	public static IsCreep(roomObject: RoomObject): roomObject is Creep
 	{

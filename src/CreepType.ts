@@ -6,9 +6,9 @@ declare global // CreepType-specifics
 	/*         */ type RunnerCreepType = 0b0000000000000000000000000000010;
 	/*       */ type UpgraderCreepType = 0b0000000000000000000000000000100;
 	/*        */ type BuilderCreepType = 0b0000000000000000000000000001000;
-	/*          */ type MinerCreepType = 0b0000000000000000000000000010000;
-	/*        */ type ClaimerCreepType = 0b0000000000000000000000000100000;
-	/*       */ type AttackerCreepType = 0b0000000000000000000000001000000;
+	// /*          */ type MinerCreepType = 0b0000000000000000000000000010000;
+	// /*        */ type ClaimerCreepType = 0b0000000000000000000000000100000;
+	// /*       */ type AttackerCreepType = 0b0000000000000000000000001000000;
 	/*          */ type EnemyCreepType = 0b0000000000000000000000010000000;
 
 	// /*         */ type AnyCreepType =
@@ -22,9 +22,9 @@ declare global // CreepType-specifics
 	// 	| /*    */ ClaimerCreepType
 	// 	| /*   */ AttackerCreepType;
 
-	/*    */ type AnyProducerCreepType =
-		| /*     */ HarvesterCreepType
-		| /*         */ MinerCreepType;
+	// /*    */ type AnyProducerCreepType =
+		// | /*     */ HarvesterCreepType
+		// | /*         */ MinerCreepType;
 
 	/*    */ type AnyConsumerCreepType =
 		| /*      */ UpgraderCreepType
@@ -47,18 +47,18 @@ declare global // Creep-specifics
 		| (TCreepType extends /*   */ RunnerCreepType ? /*   */ RunnerCreep : never)
 		| (TCreepType extends /* */ UpgraderCreepType ? /* */ UpgraderCreep : never)
 		| (TCreepType extends /*  */ BuilderCreepType ? /*  */ BuilderCreep : never)
-		| (TCreepType extends /*    */ MinerCreepType ? /*    */ MinerCreep : never)
-		| (TCreepType extends /*  */ ClaimerCreepType ? /*  */ ClaimerCreep : never)
-		| (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
+		// | (TCreepType extends /*    */ MinerCreepType ? /*    */ MinerCreep : never)
+		// | (TCreepType extends /*  */ ClaimerCreepType ? /*  */ ClaimerCreep : never)
+		// | (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
 		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : never);
 
 	/*   */ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */, true>;
 	/*      */ type RunnerCreep = CreepOfType</*   */ RunnerCreepType, StructureController, true>; // Proxy for "room"
 	/*    */ type UpgraderCreep = CreepOfType</* */ UpgraderCreepType, StructureController, true>;
 	/*     */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController, true>;
-	/*       */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */, true>;
-	/*     */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController, true>;
-	/*    */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */, true>;
+	// /*    */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */, true>;
+	// /*  */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController, true>;
+	// /* */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */, true>;
 	/*       */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */, false>;
 	/*          */ type MyCreep = IsMyCreep<true>;
 
@@ -73,7 +73,7 @@ declare global // Creep-specifics
 	// 	| /*    */ ClaimerCreep
 	// 	| /*   */ AttackerCreep;
 
-	type AnyProducerCreep = HarvesterCreep | MinerCreep;
+	// type AnyProducerCreep = HarvesterCreep | MinerCreep;
 	type AnyConsumerCreep = UpgraderCreep | BuilderCreep;
 
 	// If you change this, change "CreepType.AnyRoomTargettingCreepType" too
@@ -134,27 +134,27 @@ export abstract /* static */ class CreepType
 	public static readonly Runner: /*      */ RunnerCreepType = 0b0000000000000000000000000000010 as const;
 	public static readonly Upgrader: /*  */ UpgraderCreepType = 0b0000000000000000000000000000100 as const;
 	public static readonly Builder: /*    */ BuilderCreepType = 0b0000000000000000000000000001000 as const;
-	public static readonly Miner: /*        */ MinerCreepType = 0b0000000000000000000000000010000 as const;
-	public static readonly Claimer: /*    */ ClaimerCreepType = 0b0000000000000000000000000100000 as const;
-	public static readonly Attacker: /*  */ AttackerCreepType = 0b0000000000000000000000001000000 as const;
+	// public static readonly Miner: /*      */ MinerCreepType = 0b0000000000000000000000000010000 as const;
+	// public static readonly Claimer: /*  */ ClaimerCreepType = 0b0000000000000000000000000100000 as const;
+	// public static readonly Attacker: /**/ AttackerCreepType = 0b0000000000000000000000001000000 as const;
 	public static readonly Enemy: /*        */ EnemyCreepType = 0b0000000000000000000000010000000 as const;
 
 	public static readonly All /*                          */ = 0b0000000000000000000000011111111 as HarvesterCreepType;
-	// public static readonly AllMine /*                      */ = 0b0000000000000000000000001111111 as const;
-	public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000000010001 as AnyProducerCreepType;
+	// public static readonly AllMine /*                   */ = 0b0000000000000000000000001111111 as const;
+	// public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
 	public static readonly AllHarvestersOrUpgradersOrBuilders = 0b0000000000000000000000000001101 as HarvesterCreepType | UpgraderCreepType | BuilderCreepType;
-	// public static readonly AllRoomTargettingCreeps /*      */ = 0b0000000000000000000000000000010 as const;
+	// public static readonly AllRoomTargettingCreeps /*   */ = 0b0000000000000000000000000000010 as const;
 
-	public static Contains<
-		TCreepTypes1 extends number,
-		TCreepTypes2 extends number>(
-			creepTypes1: TCreepTypes1,
-			creepTypes2: TCreepTypes2): creepTypes1 is (TCreepTypes1 & TCreepTypes2)
-	{
-		return (creepTypes1 & creepTypes2) !== 0;
-	}
+	// public static Contains<
+	// 	TCreepTypes1 extends number,
+	// 	TCreepTypes2 extends number>(
+	// 		creepTypes1: TCreepTypes1,
+	// 		creepTypes2: TCreepTypes2): creepTypes1 is (TCreepTypes1 & TCreepTypes2)
+	// {
+	// 	return (creepTypes1 & creepTypes2) !== 0;
+	// }
 
 	public static EnsureInitializedForBeginningOfTick(creeps: Creep[]): Creep[]
 	{
@@ -192,9 +192,9 @@ export abstract /* static */ class CreepType
 			case CreepType.Runner /*   */: return "Runner";
 			case CreepType.Upgrader /* */: return "Upgrader";
 			case CreepType.Builder /*  */: return "Builder";
-			case CreepType.Miner /*    */: return "Miner";
-			case CreepType.Claimer /*  */: return "Claimer";
-			case CreepType.Attacker /* */: return "Attacker";
+			// case CreepType.Miner /*    */: return "Miner";
+			// case CreepType.Claimer /*  */: return "Claimer";
+			// case CreepType.Attacker /* */: return "Attacker";
 			case CreepType.Enemy /*    */: return "Enemy";
 			default /*                 */: return `0b${creepType?.toString(2) ?? 'NULLish'}`;
 		}
