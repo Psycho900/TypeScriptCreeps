@@ -51,7 +51,7 @@ export abstract /* static */ class Log
 
 		message = Log.GenerateMessage(message, hr, objectToLog, targetToLog);
 		s_currentError = new Error(message); // thrown at the end of main
-		// eslint-disable-next-line no-debugger
+
 		debugger;
 		return false;
 	}

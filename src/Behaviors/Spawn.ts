@@ -437,7 +437,7 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		const closestSpawnRoom: Room = closestSpawn.room;
-		const creepName: string = `${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? closestSpawnRoom) * 100 + ((Game.time + s_creepCounter++) % 89)}`;
+		const creepName: string = `${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? closestSpawnRoom) * 100 + ((Game.time + s_creepCounter++) % 99)}`;
 
 		if (Log.Succeeded(closestSpawn.spawnCreep(
 			bodyParts,

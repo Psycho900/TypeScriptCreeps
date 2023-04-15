@@ -62,10 +62,6 @@ declare global // Creep-specifics
 	/*       */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */, false>;
 	/*          */ type MyCreep = IsMyCreep<true>;
 
-	// /*         */ type Creep =
-	// 	| /*      */ AnyMyCreep
-	// 	| /*      */ EnemyCreep;
-	//
 	// /*       */ type AnyMyCreep =
 	// 	| /**/ AnyProducerCreep
 	// 	| /**/ AnyConsumerCreep
@@ -134,14 +130,14 @@ export abstract /* static */ class CreepType
 	public static readonly Runner: /*      */ RunnerCreepType = 0b0000000000000000000000000000010 as const;
 	public static readonly Upgrader: /*  */ UpgraderCreepType = 0b0000000000000000000000000000100 as const;
 	public static readonly Builder: /*    */ BuilderCreepType = 0b0000000000000000000000000001000 as const;
-	// public static readonly Miner: /*      */ MinerCreepType = 0b0000000000000000000000000010000 as const;
-	// public static readonly Claimer: /*  */ ClaimerCreepType = 0b0000000000000000000000000100000 as const;
-	// public static readonly Attacker: /**/ AttackerCreepType = 0b0000000000000000000000001000000 as const;
+	// public static readonly Miner: /*     */ MinerCreepType = 0b0000000000000000000000000010000 as const;
+	// public static readonly Claimer: /* */ ClaimerCreepType = 0b0000000000000000000000000100000 as const;
+	// public static readonly Attacker:     AttackerCreepType = 0b0000000000000000000000001000000 as const;
 	public static readonly Enemy: /*        */ EnemyCreepType = 0b0000000000000000000000010000000 as const;
 
 	public static readonly All /*                          */ = 0b0000000000000000000000011111111 as HarvesterCreepType;
 	// public static readonly AllMine /*                   */ = 0b0000000000000000000000001111111 as const;
-	// public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000000010001 as AnyProducerCreepType;
+	// public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
 	public static readonly AllHarvestersOrUpgradersOrBuilders = 0b0000000000000000000000000001101 as HarvesterCreepType | UpgraderCreepType | BuilderCreepType;

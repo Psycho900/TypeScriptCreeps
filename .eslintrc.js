@@ -75,6 +75,7 @@ module.exports = {
 		"no-cond-assign": "error",
 		"no-console": "off",
 		"no-constant-condition": "off",
+		"no-debugger": "off",
 		"no-eval": "error",
 		"no-invalid-this": "error",
 		"no-multiple-empty-lines": "error",

@@ -117,7 +117,11 @@ export abstract /* static */ class CreepBehavior
 			switch (creep.CreepType)
 			{
 				case CreepType.Harvester:
-					CreepBehavior.TakeEnergyInRange(creep, (source = creep.Target).pos, source.energy !== 0 ? 2 : Math.max(2, source.ticksToRegeneration >> 1), c_typesHarvestersTakeEnergyFrom);
+					if (creep.EnergyLeftToGive === 0) // Harvesters only pick up if they have a place to put it
+					{
+						CreepBehavior.TakeEnergyInRange(creep, (source = creep.Target).pos, source.energy !== 0 ? 2 : Math.max(2, source.ticksToRegeneration >> 1), c_typesHarvestersTakeEnergyFrom);
+					}
+
 					continue;
 
 				case CreepType.Upgrader:
@@ -579,7 +583,6 @@ export abstract /* static */ class CreepBehavior
 	{
 		// if (creep.CanMove === true && (creep.name === "R38" || creep.name === "H21"))
 		// {
-		// 	// eslint-disable-next-line no-debugger
 		// 	debugger;
 		// }
 
@@ -592,7 +595,6 @@ export abstract /* static */ class CreepBehavior
 	{
 		// if (creep.CanMove === true && (creep.name === "R38" || creep.name === "H21"))
 		// {
-		// 	// eslint-disable-next-line no-debugger
 		// 	debugger;
 		// }
 
