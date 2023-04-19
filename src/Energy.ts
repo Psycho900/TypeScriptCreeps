@@ -9,6 +9,8 @@ declare global
 	{
 		EnergyLeftToTake: number;
 	}
+
+	type EnergyGiverOrTaker = EnergyGiver | EnergyTaker;
 }
 
 export abstract /* static */ class Energy

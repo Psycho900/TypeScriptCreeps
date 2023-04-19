@@ -13,7 +13,7 @@ export const loop = function(): void
 	// Log.Info(`[${Type.RoomPosition}] Current game tick is ${Game.time}`, OK, Object.values(Game.creeps)[0], Object.values(Game.rooms)[0].controller);
 	// Log.Info(`${RoomObject.prototype.toString == StructureController.prototype.toString}`);
 
-	if ((Game.time & 0x1F) !== 0)
+	if ((Game.time & 0xF) !== 0)
 	{
 		return;
 	}
@@ -21,7 +21,7 @@ export const loop = function(): void
 	// Automatically delete Memory of missing creeps
 	for (const name in Memory.creeps)
 	{
-		if (Game.creeps[name] == null)
+		if (Game.creeps[name] === undefined)
 		{
 			delete Memory.creeps[name];
 		}

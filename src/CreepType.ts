@@ -2,39 +2,44 @@ import { } from "./Energy";
 
 declare global // CreepType-specifics
 {
-	/*      */ type HarvesterCreepType = 0b0000000000000000000000000000001;
-	/*         */ type RunnerCreepType = 0b0000000000000000000000000000010;
-	/*       */ type UpgraderCreepType = 0b0000000000000000000000000000100;
-	/*        */ type BuilderCreepType = 0b0000000000000000000000000001000;
-	// /*          */ type MinerCreepType = 0b0000000000000000000000000010000;
-	// /*        */ type ClaimerCreepType = 0b0000000000000000000000000100000;
-	// /*       */ type AttackerCreepType = 0b0000000000000000000000001000000;
-	/*          */ type EnemyCreepType = 0b0000000000000000000000010000000;
+	/*       */ type HarvesterCreepType = 0b0000000000000000000000000000001;
+	/*          */ type RunnerCreepType = 0b0000000000000000000000000000010;
+	/*        */ type UpgraderCreepType = 0b0000000000000000000000000000100;
+	/*         */ type BuilderCreepType = 0b0000000000000000000000000001000;
+	// /*        */ type MinerCreepType = 0b0000000000000000000000000010000;
+	// /*      */ type ClaimerCreepType = 0b0000000000000000000000000100000;
+	// /*     */ type AttackerCreepType = 0b0000000000000000000000001000000;
+	/*           */ type EnemyCreepType = 0b0000000000000000000000010000000;
 
-	// /*         */ type AnyCreepType =
-	// 	| /*      */ AnyMyCreepType
-	// 	| /*      */ EnemyCreepType;
+	// /*          */ type AnyCreepType =
+	// 	| /*          */ AnyMyCreepType
+	// 	| /*          */ EnemyCreepType;
 	//
-	// /*       */ type AnyMyCreepType =
-	// 	| /**/ AnyProducerCreepType
-	// 	| /**/ AnyConsumerCreepType
-	// 	| /*     */ RunnerCreepType
-	// 	| /*    */ ClaimerCreepType
-	// 	| /*   */ AttackerCreepType;
+	// /*        */ type AnyMyCreepType =
+	// 	| /*    */ AnyProducerCreepType
+	// 	| /*    */ AnyConsumerCreepType
+	// 	| /*         */ RunnerCreepType
+	// 	| /*        */ ClaimerCreepType
+	// 	| /*       */ AttackerCreepType;
 
-	// /*    */ type AnyProducerCreepType =
-		// | /*     */ HarvesterCreepType
-		// | /*         */ MinerCreepType;
+	// /*  */ type AnyProducerCreepType =
+		// | /*   */ HarvesterCreepType
+		// | /*       */ MinerCreepType;
 
-	/*    */ type AnyConsumerCreepType =
-		| /*      */ UpgraderCreepType
-		| /*       */ BuilderCreepType;
+	/*     */ type AnyConsumerCreepType =
+		| /*       */ UpgraderCreepType
+		| /*        */ BuilderCreepType;
 
-	/**/ type AnyEnergyTakingCreepType =
-		| /*     */ HarvesterCreepType
-		| /*        */ RunnerCreepType
-		| /*      */ UpgraderCreepType
-		| /*       */ BuilderCreepType;
+	type AnyProducerOrConsumerCreepType =
+		| /*      */ HarvesterCreepType
+		| /*       */ UpgraderCreepType
+		| /*        */ BuilderCreepType;
+
+	/* */ type AnyEnergyTakingCreepType =
+		| /*      */ HarvesterCreepType
+		| /*         */ RunnerCreepType
+		| /*       */ UpgraderCreepType
+		| /*        */ BuilderCreepType;
 
 	// If you change this, change "Creep.AnyRoomTargettingCreep" too
 	type AnyRoomTargettingCreepType = RunnerCreepType;
@@ -62,7 +67,7 @@ declare global // Creep-specifics
 	/*       */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */, false>;
 	/*          */ type MyCreep = IsMyCreep<true>;
 
-	// /*       */ type AnyMyCreep =
+	// /*    */ type AnyMyCreep =
 	// 	| /**/ AnyProducerCreep
 	// 	| /**/ AnyConsumerCreep
 	// 	| /*     */ RunnerCreep
@@ -71,6 +76,11 @@ declare global // Creep-specifics
 
 	// type AnyProducerCreep = HarvesterCreep | MinerCreep;
 	type AnyConsumerCreep = UpgraderCreep | BuilderCreep;
+
+	type AnyProducerOrConsumerCreep =
+		| /*      */ HarvesterCreep
+		| /*       */ UpgraderCreep
+		| /*        */ BuilderCreep;
 
 	// If you change this, change "CreepType.AnyRoomTargettingCreepType" too
 	type AnyRoomTargettingCreep = RunnerCreep;
@@ -94,6 +104,8 @@ declare global // Creep-specifics
 
 		// Have any of these been called this tick? : https://docs.screeps.com/simultaneous-actions.html
 		// CanDoAction: TIsMine extends true ? boolean : never;
+
+		Destination: TIsMine extends true ? RoomPosition | undefined : never;
 	}
 
 	interface CreepOfType<
@@ -111,16 +123,16 @@ declare global // Creep-specifics
 		readonly tid: Id<AnyTargetRoomObject>; // Target.id
 		readonly bd: number; // BirthDay
 
-		// // Automatically set by the game (usually?) :
-		// readonly _move?:
-		// {
-		// 	readonly dest?:
-		// 	{
-		// 		readonly x: number;
-		// 		readonly y: number;
-		// 		readonly room: string;
-		// 	};
-		// };
+		// Automatically set by the game (usually?) :
+		readonly _move?:
+		{
+			readonly dest?:
+			{
+				readonly x: number;
+				readonly y: number;
+				readonly room: string;
+			};
+		};
 	}
 }
 
@@ -140,7 +152,7 @@ export abstract /* static */ class CreepType
 	// public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
-	public static readonly AllHarvestersOrUpgradersOrBuilders = 0b0000000000000000000000000001101 as HarvesterCreepType | UpgraderCreepType | BuilderCreepType;
+	public static readonly AllProducersOrConsumers = 0b0000000000000000000000000001101 as AnyProducerOrConsumerCreepType;
 	// public static readonly AllRoomTargettingCreeps /*   */ = 0b0000000000000000000000000000010 as const;
 
 	// public static Contains<
@@ -168,6 +180,7 @@ export abstract /* static */ class CreepType
 
 			(creep as MyCreep).CanMove = creep.fatigue === 0;
 			// (creep as MyCreep).CanDoAction = true;
+			(creep as MyCreep).Destination = void 0;
 
 			if (creep.CreepType === undefined)
 			{

@@ -30,10 +30,14 @@ const c_harvesterCostFromWorkBodyPartCount: readonly number[] =
 	] as const;
 
 const c_minimumRequiredRoomEnergyToSpawnUsefulCreep: number = c_harvesterCostFromWorkBodyPartCount[1];
-let s_creepCounter: number = 0;
 
 declare global
 {
+	interface Memory
+	{
+		cc: number; // Creep Counter (increments every time we (attempt to?) spawn a new creep). Always < 100
+	}
+
 	// eslint-disable-next-line @typescript-eslint/no-empty-interface
 	interface Room extends EnergyGiver { }
 }
@@ -64,7 +68,7 @@ export abstract /* static */ class SpawnBehavior
 		{
 			const targetRoom: ControllableRoom = targetRooms[targetRoomIndex];
 			const spawnedAnyHarvesters: boolean = Find.Creeps(targetRoom, CreepType.Harvester).length === 0 && SpawnBehavior.TrySpawnFirstHarvesters(targetRoom, spawns) !== false;
-			const spawnedAnyRunners: boolean = Find.Creeps(targetRoom, CreepType.Runner).length === 0 && SpawnBehavior.TrySpawnFirstRunner(targetRoom, spawns) !== false;
+			const spawnedAnyRunners: /* */ boolean = Find.Creeps(targetRoom, CreepType.Runner).length === 0 && SpawnBehavior.TrySpawnFirstRunner(targetRoom, spawns) !== false;
 
 			if (spawnedAnyHarvesters === false && spawnedAnyRunners === false)
 			{
@@ -79,9 +83,21 @@ export abstract /* static */ class SpawnBehavior
 			targetRooms.splice(targetRoomIndex, 1); // Remove this room from being considered below since we already spawned harvesters and/or runners
 		}
 
-		if (SpawnBehavior.TrySpawnHarvestersToSaturateSources(targetRooms, spawns) !== false)
+		if (SpawnBehavior.TrySpawnHarvestersToSaturateSources(targetRooms, spawns) !== false
+			&& spawns.length === 0)
 		{
 			return;
+		}
+
+		for (const room of targetRooms)
+		{
+			if (Find.MyObjects(room, Type.ConstructionSite).length !== 0 &&
+				Find.Creeps(room, CreepType.Builder).length < 5 &&
+				SpawnBehavior.TrySpawnBuilder(room, spawns) !== false &&
+				spawns.length === 0)
+			{
+				return;
+			}
 		}
 
 		// const forecastedEnergyConsumedPerRoom: Map<Id<StructureController>, number> = new Map<Id<StructureController>, number>();
@@ -398,6 +414,20 @@ export abstract /* static */ class SpawnBehavior
 			["move", "carry", "move", "carry", "move", "carry"]); // TODO_KevSchil: Need smarter logic
 	}
 
+	private static TrySpawnBuilder(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	{
+		if (spawns.length === 0)
+		{
+			return true; // We have done everything we can do this tick!
+		}
+
+		return SpawnBehavior.TrySpawn(
+			spawns,
+			CreepType.Builder,
+			room.controller,
+			["move", "work", "carry", "carry", "carry"]); // TODO_KevSchil: Need smarter logic
+	}
+
 	private static TrySpawn<
 		TCreepType extends number,
 		TRoomObject extends AnyTargetRoomObject>(
@@ -414,16 +444,17 @@ export abstract /* static */ class SpawnBehavior
 
 		const targetPosition: RoomPosition = target.pos;
 		const bodyPartsCost: number = SpawnBehavior.GetBodyPartsCost(bodyParts);
+		let closestSpawn: StructureSpawn | undefined;
 		let closestSpawnIndex: number = 0;
-		let closestSpawn: StructureSpawn = spawns[0];
-		let closestDistance: number = Find.Distance(targetPosition, closestSpawn.pos);
+		let closestDistance: number = 1000000000;
 		let testSpawn: StructureSpawn;
 		let testDistance: number;
+		let spawnIndex: number = -1;
 
-		for (let spawnIndex: number = 1; spawnIndex < spawnCount; ++spawnIndex)
+		while (++spawnIndex < spawnCount)
 		{
-			if (bodyPartsCost <= (testSpawn = spawns[spawnIndex]).room.EnergyLeftToGive
-				&& closestDistance > (testDistance = Find.Distance(targetPosition, testSpawn.pos)))
+			if (bodyPartsCost <= (testSpawn = spawns[spawnIndex]).room.EnergyLeftToGive &&
+				closestDistance > (testDistance = Find.Distance(targetPosition, testSpawn.pos)))
 			{
 				closestSpawn = testSpawn;
 				closestSpawnIndex = spawnIndex;
@@ -431,13 +462,14 @@ export abstract /* static */ class SpawnBehavior
 			}
 		}
 
-		if (closestDistance > 25 && closestSpawn.id !== Find.Closest(targetPosition, Find.MySpawns())!.id)
+		if (closestSpawn === undefined ||
+			(closestDistance > 25 && closestSpawn.id !== Find.Closest(targetPosition, Find.MySpawns())!.id))
 		{
 			return false; // Wait for a closer spawn to be available
 		}
 
 		const closestSpawnRoom: Room = closestSpawn.room;
-		const creepName: string = `${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? closestSpawnRoom) * 100 + ((Game.time + s_creepCounter++) % 99)}`;
+		const creepName: string = `${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? closestSpawnRoom) * 100 + (Memory.cc = (Memory.cc + 1 | 0) % 100)}`;
 
 		if (Log.Succeeded(closestSpawn.spawnCreep(
 			bodyParts,
@@ -449,7 +481,7 @@ export abstract /* static */ class SpawnBehavior
 					tid: target.id,
 					bd: Game.time,
 				},
-				energyStructures: Find.MyObjects(closestSpawnRoom, Type.SpawnsAndExtensions), // Internal implementation should put spawns THEN extensions
+				// energyStructures: Find.MyObjects(closestSpawnRoom, Type.SpawnsAndExtensions), // Internal implementation should put spawns THEN extensions
 			}), closestSpawn, creepName) === false)
 		{
 			return false;
@@ -458,7 +490,7 @@ export abstract /* static */ class SpawnBehavior
 		spawns.splice(closestSpawnIndex, 1); // Remove 1 element at index spawnIndex
 		closestSpawnRoom.EnergyLeftToGive -= bodyPartsCost;
 
-		let spawnIndex: number = spawnCount - 1; // Because we already removed 1 element a couple lines earlier
+		spawnIndex = spawnCount - 1; // Because we already removed 1 element a couple lines earlier
 		while (--spawnIndex >= 0)
 		{
 			if (spawns[spawnIndex].room.EnergyLeftToGive < c_minimumRequiredRoomEnergyToSpawnUsefulCreep)
