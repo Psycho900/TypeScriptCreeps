@@ -6,7 +6,7 @@ import { Find } from "../Find";
 import { Log } from "../Log";
 import { Type } from "../Type";
 
-const c_ticksToForecast: 100 = 100 as const;
+const c_ticksToForecast = 200 as const;
 const c_optimalWorkBodyPartsPerSource: 5 = 5 as const; // Harvesting a source produces 2 energy per "work" body part
 
 const c_harvesterBodyFromWorkBodyPartCount: readonly (readonly ("move" | "carry" | "work")[])[] =
@@ -68,7 +68,7 @@ export abstract /* static */ class SpawnBehavior
 		{
 			const targetRoom: ControllableRoom = targetRooms[targetRoomIndex];
 			const spawnedAnyHarvesters: boolean = Find.Creeps(targetRoom, CreepType.Harvester).length === 0 && SpawnBehavior.TrySpawnFirstHarvesters(targetRoom, spawns) !== false;
-			const spawnedAnyRunners: /* */ boolean = Find.Creeps(targetRoom, CreepType.Runner).length === 0 && SpawnBehavior.TrySpawnFirstRunner(targetRoom, spawns) !== false;
+			const spawnedAnyRunners: /* */ boolean = Find.Creeps(targetRoom, CreepType.Runner).length === 0 && SpawnBehavior.TrySpawnRunner(targetRoom, spawns) !== false;
 
 			if (spawnedAnyHarvesters === false && spawnedAnyRunners === false)
 			{
@@ -80,7 +80,7 @@ export abstract /* static */ class SpawnBehavior
 				return;
 			}
 
-			targetRooms.splice(targetRoomIndex, 1); // Remove this room from being considered below since we already spawned harvesters and/or runners
+			targetRooms.splice(targetRoomIndex, 1); // Remove this targetRoom from being considered below since we already spawned harvesters and/or runners
 		}
 
 		if (SpawnBehavior.TrySpawnHarvestersToSaturateSources(targetRooms, spawns) !== false
@@ -89,25 +89,34 @@ export abstract /* static */ class SpawnBehavior
 			return;
 		}
 
-		for (const room of targetRooms)
+		for (const targetRoom of targetRooms)
 		{
-			if (Find.MyObjects(room, Type.ConstructionSite).length !== 0 &&
-				Find.Creeps(room, CreepType.Builder).length < 5 &&
-				SpawnBehavior.TrySpawnBuilder(room, spawns) !== false &&
+			if (Find.MyObjects(targetRoom, Type.ConstructionSite).length === 0)
+			{
+				if (Find.Creeps(targetRoom, CreepType.Upgrader).length < 1 &&
+					SpawnBehavior.TrySpawnUpgrader(targetRoom, spawns) !== false &&
+					spawns.length === 0)
+				{
+					return;
+				}
+			}
+			else
+			{
+				if (Find.Creeps(targetRoom, CreepType.Builder).length < 1 &&
+					SpawnBehavior.TrySpawnBuilder(targetRoom, spawns) !== false &&
+					spawns.length === 0)
+				{
+					return;
+				}
+			}
+
+			if (Find.Creeps(targetRoom, CreepType.Runner).length < 1 &&
+				SpawnBehavior.TrySpawnRunner(targetRoom, spawns) !== false &&
 				spawns.length === 0)
 			{
 				return;
 			}
 		}
-
-		// const forecastedEnergyConsumedPerRoom: Map<Id<StructureController>, number> = new Map<Id<StructureController>, number>();
-		//
-		// for (const room of targetRooms)
-		// {
-		// 	SpawnBehavior.CollectDataForRoom(room, forecastedEnergyHarvestedPerSource, forecastedEnergyConsumedPerRoom);
-		// }
-		//
-		// throw new Error("TODO_KevSchil: Implement this");
 	}
 
 	private static GetMyUsableSpawns(): StructureSpawn[] | undefined
@@ -132,59 +141,6 @@ export abstract /* static */ class SpawnBehavior
 
 		return spawns;
 	}
-
-	// private static GetSpawnsWithMoreRoomEnergy(spawns: StructureSpawn[]): StructureSpawn[]
-	// {
-	// 	const spawnsWithMoreRoomEnergy: StructureSpawn[] = [];
-	//
-	// 	for (const spawn of spawns)
-	// 	{
-	// 		const room: ControllableRoom = spawn.room;
-	//
-	// 		if (room.EnergyLeftToGive >= room.energyCapacityAvailable
-	// 			|| SpawnBehavior.AreAllExtensionsNearHarvestersFull(room))
-	// 		{
-	// 			spawnsWithMoreRoomEnergy.push(spawn);
-	// 		}
-	// 	}
-	//
-	// 	return spawnsWithMoreRoomEnergy;
-	// }
-	//
-	// private static GetSpawnsWithFullRoomEnergy(spawns: StructureSpawn[]): StructureSpawn[]
-	// {
-	// 	const spawnsWithFullRoomEnergy: StructureSpawn[] = [];
-	//
-	// 	for (const spawn of spawns)
-	// 	{
-	// 		const room: ControllableRoom = spawn.room;
-	//
-	// 		if (room.EnergyLeftToGive >= room.energyCapacityAvailable)
-	// 		{
-	// 			spawnsWithFullRoomEnergy.push(spawn);
-	// 		}
-	// 	}
-	//
-	// 	return spawnsWithFullRoomEnergy;
-	// }
-	//
-	// private static AreAllExtensionsNearHarvestersFull(room: ControllableRoom): boolean
-	// {
-	// 	for (const harvesterCreep of Find.CreepsOfTypes(room, CreepType.Harvester))
-	// 	{
-	// 		const targetSource: Source = harvesterCreep.Target;
-	//
-	// 		for (const spawnOrExtension of Find.MyObjectsInRange(targetSource, Type.SpawnsAndExtensions, 4))
-	// 		{
-	// 			if (spawnOrExtension.store.getFreeCapacity(RESOURCE_ENERGY) !== 0)
-	// 			{
-	// 				return false;
-	// 			}
-	// 		}
-	// 	}
-	//
-	// 	return true;
-	// }
 
 	private static GetTargetRooms(): ControllableRoom[] | undefined
 	{
@@ -260,65 +216,6 @@ export abstract /* static */ class SpawnBehavior
 		return false;
 	}
 
-	// private static CollectDataForMyCreep(
-	// 	room: ControllableRoom,
-	// 	creep: Creep,
-	// 	forecastedEnergyHarvestedPerSource: Map<Id<Source>, number>,
-	// 	forecastedEnergyConsumedPerRoom: Map<Id<StructureController>, number>,
-	// ): void
-	// {
-	// 	if (SpawnBehavior.WillCreepDieSoon(creep))
-	// 	{
-	// 		return;
-	// 	}
-	//
-	// 	const ticksToLive: number | undefined = creep.ticksToLive; // undefined means the creep is still spawning
-	// 	const ticksToForecast: number = ticksToLive! < c_ticksToForecast ? ticksToLive! : c_ticksToForecast; // comparing undefined with anything returns false
-	//
-	// 	switch (creep.CreepType)
-	// 	{
-	// 		case CreepType.Harvester: //   Harvesting a source produces 2 energy per "work" body part
-	// 			{
-	// 				SpawnBehavior.IncreaseValueOfKeyBy(
-	// 					forecastedEnergyHarvestedPerSource,
-	// 					(creep as HarvesterCreep).Target.id,
-	// 					ticksToForecast * 2 * creep.getActiveBodyparts("work"));
-	//
-	// 				return;
-	// 			}
-	//
-	// 		// case CreepType.Runner:
-	// 		// 	{
-	// 		// 		return;
-	// 		// 	}
-	//
-	// 		case CreepType.Upgrader: // Upgrading a controller consumes 1 energy per "work" body part
-	// 		case CreepType.Builder: //    Building a structure consumes 5 energy per "work" body part
-	// 			{
-	// 				if (Find.MyObjects(room, Type.ConstructionSite).length === 0) // Upgrading controller:
-	// 				{
-	// 					SpawnBehavior.IncreaseValueOfKeyBy(
-	// 						forecastedEnergyConsumedPerRoom,
-	// 						(creep as UpgraderCreep | BuilderCreep).Target.id,
-	// 						ticksToForecast * creep.getActiveBodyparts("work"));
-	// 				}
-	// 				else // Building new structures:
-	// 				{
-	// 					SpawnBehavior.IncreaseValueOfKeyBy(
-	// 						forecastedEnergyConsumedPerRoom,
-	// 						(creep as UpgraderCreep | BuilderCreep).Target.id, // Guessing Builders are bottlenecked by "carry"'s at this ratio:
-	// 						ticksToForecast * Math.min(5 * creep.getActiveBodyparts("work"), 2 * creep.getActiveBodyparts("carry")));
-	// 				}
-	//
-	// 				return;
-	// 			}
-	//
-	// 		default:
-	// 			Log.Error(`Unhandled CreepType '${creep.CreepType}' in SpawnBehavior.Act()!`, ERR_INVALID_ARGS, creep);
-	// 			return;
-	// 	}
-	// }
-
 	private static WillCreepDieSoon(creep: Creep): boolean
 	{
 		const ticksToLive: number | undefined = creep.ticksToLive; // undefined means the creep is still spawning
@@ -351,7 +248,7 @@ export abstract /* static */ class SpawnBehavior
 
 			if (spawns.length === 0)
 			{
-				return true;
+				return true; // We have done everything we can do this tick!
 			}
 
 			anyHarvestersSpawned = true;
@@ -400,32 +297,65 @@ export abstract /* static */ class SpawnBehavior
 				c_harvesterBodyFromWorkBodyPartCount[workBodyPartsToSpawn]);
 	}
 
-	private static TrySpawnFirstRunner(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	private static TrySpawnRunner(room: ControllableRoom, spawns: StructureSpawn[]): boolean
 	{
 		if (spawns.length === 0)
 		{
 			return true; // We have done everything we can do this tick!
 		}
 
-		return SpawnBehavior.TrySpawn(
-			spawns,
-			CreepType.Runner,
-			room.controller,
-			["move", "carry", "move", "carry", "move", "carry"]); // TODO_KevSchil: Need smarter logic
+		let roomEnergyLeft: number = Math.min(1300, room.EnergyLeftToGive) - 3 * (BODYPART_COST.move + BODYPART_COST.carry);
+		const bodyParts: BodyPartConstant[] = ["move", "carry", "move", "carry", "move", "carry"];
+
+		if ((roomEnergyLeft -= BODYPART_COST.move + BODYPART_COST.work) >= 0)
+		{
+			bodyParts.push("move");
+			bodyParts.push("work");
+
+			while ((roomEnergyLeft -= 100) >= 0)
+			{
+				bodyParts.push("move");
+				bodyParts.push("carry");
+			}
+		}
+
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Runner, room.controller, bodyParts);
+	}
+
+	private static TrySpawnUpgrader(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	{
+		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
+		{
+			return true; // We have done everything we can do this tick!
+		}
+
+		let roomEnergyLeft: number = room.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry);
+		const bodyParts: BodyPartConstant[] = ["move", "carry"];
+
+		while ((roomEnergyLeft -= 100) >= 0)
+		{
+			bodyParts.push("work");
+		}
+
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Upgrader, room.controller, bodyParts);
 	}
 
 	private static TrySpawnBuilder(room: ControllableRoom, spawns: StructureSpawn[]): boolean
 	{
-		if (spawns.length === 0)
+		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
 		{
 			return true; // We have done everything we can do this tick!
 		}
 
-		return SpawnBehavior.TrySpawn(
-			spawns,
-			CreepType.Builder,
-			room.controller,
-			["move", "work", "carry", "carry", "carry"]); // TODO_KevSchil: Need smarter logic
+		let roomEnergyLeft: number = Math.min(1800, room.EnergyLeftToGive) - (BODYPART_COST.move + BODYPART_COST.carry + 5 * BODYPART_COST.work);
+		const bodyParts: BodyPartConstant[] = ["move", "carry", "work", "work", "work", "work", "work"];
+
+		while ((roomEnergyLeft -= 50) >= 0)
+		{
+			bodyParts.push("carry");
+		}
+
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Builder, room.controller, bodyParts);
 	}
 
 	private static TrySpawn<
@@ -468,8 +398,18 @@ export abstract /* static */ class SpawnBehavior
 			return false; // Wait for a closer spawn to be available
 		}
 
-		const closestSpawnRoom: Room = closestSpawn.room;
-		const creepName: string = `${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room ?? closestSpawnRoom) * 100 + (Memory.cc = (Memory.cc + 1 | 0) % 100)}`;
+		const closestSpawnRoom: ControllableRoom = closestSpawn.room;
+		const creepName: string = `${CreepType.ToString(creepType)[0]}${Find.VisibleRooms().indexOf(target.room || closestSpawnRoom) * 100 + (Memory.cc = (Memory.cc + 1 | 0) % 100)}`;
+
+		// Take energy from the furthest away spawns and extensions first:
+		const energyStructuresPriority: (StructureSpawn | StructureExtension)[] = Find.MyObjects(closestSpawnRoom, Type.SpawnsAndExtensions) as (StructureSpawn | StructureExtension)[];
+		const controllerPosition: RoomPosition = closestSpawnRoom.controller.pos;
+		energyStructuresPriority.sort((c1, c2) =>
+		{
+			return c1.Type !== c2.Type // Put all Spawns before all Extensions
+				? c2.Type - c1.Type
+				: Find.Distance(c2.pos, controllerPosition) - Find.Distance(c1.pos, controllerPosition);
+		});
 
 		if (Log.Succeeded(closestSpawn.spawnCreep(
 			bodyParts,
@@ -481,7 +421,8 @@ export abstract /* static */ class SpawnBehavior
 					tid: target.id,
 					bd: Game.time,
 				},
-				// energyStructures: Find.MyObjects(closestSpawnRoom, Type.SpawnsAndExtensions), // Internal implementation should put spawns THEN extensions
+				energyStructures: energyStructuresPriority,
+				directions: [closestSpawn.pos.getDirectionTo(targetPosition)],
 			}), closestSpawn, creepName) === false)
 		{
 			return false;

@@ -8,7 +8,7 @@ declare global // CreepType-specifics
 	/*         */ type BuilderCreepType = 0b0000000000000000000000000001000;
 	// /*        */ type MinerCreepType = 0b0000000000000000000000000010000;
 	// /*      */ type ClaimerCreepType = 0b0000000000000000000000000100000;
-	// /*     */ type AttackerCreepType = 0b0000000000000000000000001000000;
+	/*        */ type AttackerCreepType = 0b0000000000000000000000001000000;
 	/*           */ type EnemyCreepType = 0b0000000000000000000000010000000;
 
 	// /*          */ type AnyCreepType =
@@ -144,7 +144,7 @@ export abstract /* static */ class CreepType
 	public static readonly Builder: /*    */ BuilderCreepType = 0b0000000000000000000000000001000 as const;
 	// public static readonly Miner: /*     */ MinerCreepType = 0b0000000000000000000000000010000 as const;
 	// public static readonly Claimer: /* */ ClaimerCreepType = 0b0000000000000000000000000100000 as const;
-	// public static readonly Attacker:     AttackerCreepType = 0b0000000000000000000000001000000 as const;
+	public static readonly Attacker: /*  */ AttackerCreepType = 0b0000000000000000000000001000000 as const;
 	public static readonly Enemy: /*        */ EnemyCreepType = 0b0000000000000000000000010000000 as const;
 
 	public static readonly All /*                          */ = 0b0000000000000000000000011111111 as HarvesterCreepType;
@@ -152,7 +152,7 @@ export abstract /* static */ class CreepType
 	// public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
-	public static readonly AllProducersOrConsumers = 0b0000000000000000000000000001101 as AnyProducerOrConsumerCreepType;
+	public static readonly AllProducersOrConsumers /*      */ = 0b0000000000000000000000000001101 as AnyProducerOrConsumerCreepType;
 	// public static readonly AllRoomTargettingCreeps /*   */ = 0b0000000000000000000000000000010 as const;
 
 	// public static Contains<
@@ -205,7 +205,7 @@ export abstract /* static */ class CreepType
 			// case CreepType.Claimer /*  */: return "Claimer";
 			// case CreepType.Attacker /* */: return "Attacker";
 			case CreepType.Enemy /*    */: return "Enemy";
-			default /*                 */: return `0b${creepType?.toString(2) ?? 'NULLish'}`;
+			default /*                 */: return `0b${creepType?.toString(2) ?? "NULLish"}`;
 		}
 	}
 }

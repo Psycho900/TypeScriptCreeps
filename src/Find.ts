@@ -42,17 +42,17 @@ export abstract /* static */ class Find
 			const roomName: string = room.name;
 
 			// Clear whatever existing caches we had from the previous tick
-			const creepCache: CreepCache = (room.creepCache ??= new Map<number, readonly Creep[]>());
+			const creepCache: CreepCache = (room.creepCache ||= new Map<number, readonly Creep[]>());
 			creepCache.clear();
 			creepCache.set(CreepType.All, CreepType.EnsureInitializedForBeginningOfTick(room.find(FIND_CREEPS)));
 
-			const roomCache: RoomObjectCache = (room.cache ??= new Map<number, readonly RoomObject[]>());
+			const roomCache: RoomObjectCache = (room.cache ||= new Map<number, readonly RoomObject[]>());
 			roomCache.clear();
 			roomCache
 				// .set(Type.Creep/**/, Find.Creeps(room, CreepType.AllMine)) // MUST be after "room.find(FIND_CREEPS)" above
-				.set(Type.Mineral /**/, s_roomNameToMinerals.get(roomName) ??
+				.set(Type.Mineral /**/, s_roomNameToMinerals.get(roomName) ||
 					Find.SetAndGet(s_roomNameToMinerals, roomName, room.find(FIND_MINERALS)))
-				.set(Type.Source /* */, s_roomNameToSources.get(roomName) ??
+				.set(Type.Source /* */, s_roomNameToSources.get(roomName) ||
 					Find.SetAndGet(s_roomNameToSources, roomName, room.find(FIND_SOURCES)));
 		}
 
@@ -101,7 +101,7 @@ export abstract /* static */ class Find
 		creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
 	{
 		type TCreeps = readonly ToCreepInterface<TCreepTypes>[];
-		return s_mySpawnedCreepCache.get(creepTypes) as TCreeps | undefined ??
+		return s_mySpawnedCreepCache.get(creepTypes) as TCreeps | undefined ||
 			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
 
@@ -122,7 +122,7 @@ export abstract /* static */ class Find
 
 	public static Center(room: Room): RoomPosition
 	{
-		return s_roomNameToRoomCenters.get(room.name) ??
+		return s_roomNameToRoomCenters.get(room.name) ||
 			Find.SetAndGet(s_roomNameToRoomCenters, room.name, new RoomPosition(25, 25, room.name));
 	}
 
@@ -131,7 +131,7 @@ export abstract /* static */ class Find
 		types: TRoomObjectTypes): readonly ToInterface<TRoomObjectTypes>[]
 	{
 		type TRoomObjects = readonly ToInterface<TRoomObjectTypes>[];
-		return room.cache.get(types) as TRoomObjects | undefined ??
+		return room.cache.get(types) as TRoomObjects | undefined ||
 			Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as TRoomObjects;
 	}
 
@@ -150,7 +150,7 @@ export abstract /* static */ class Find
 	{
 		type TCreeps = readonly ToCreepInterface<TCreepTypes>[];
 		const creepCache: CreepCache = room.creepCache;
-		return creepCache.get(creepTypes) as TCreeps | undefined ??
+		return creepCache.get(creepTypes) as TCreeps | undefined ||
 			Find.SetAndGet(creepCache, creepTypes, Find.GenerateCreepArray(creepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
 
@@ -293,6 +293,26 @@ export abstract /* static */ class Find
 		return Math.max(Math.abs(toX - fromX), Math.abs(toY - fromY));
 	}
 
+	public static DirectionTo(from: RoomPosition, to: RoomPosition): DirectionConstant
+	{
+		if ((Game.time & 3) === 0)
+		{
+			return from.getDirectionTo(to);
+		}
+
+		let deltaX: number;
+		let deltaY: number;
+		const slope: number = (deltaY = to.y - from.y) / (deltaX = to.x - from.x);
+
+		return slope === 1
+			? (deltaX > 0 ? BOTTOM_RIGHT : TOP_LEFT)
+			: slope === -1
+				? (deltaX > 0 ? TOP_RIGHT : BOTTOM_LEFT)
+				: slope > -1 && slope < 1
+					? (deltaX > 0 ? RIGHT : LEFT)
+					: (deltaY > 0 ? BOTTOM : TOP);
+	}
+
 	private static GenerateMyRoomObjectsOfTypeArray(room: Room, roomObjectTypesToInclude: number): readonly RoomObject[]
 	{
 		let lastRoomObjectsOfTypes: readonly RoomObject[] | undefined;
@@ -320,7 +340,7 @@ export abstract /* static */ class Find
 					{
 						if (lastRoomObjectsOfTypes !== undefined)
 						{
-							(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+							(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 						}
 
 						lastRoomObjectsOfTypes = roomObjectsToAdd;
@@ -331,7 +351,7 @@ export abstract /* static */ class Find
 			{
 				if (lastRoomObjectsOfTypes !== undefined)
 				{
-					(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+					(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 				}
 
 				lastRoomObjectsOfTypes = structuresToAdd;
@@ -345,31 +365,31 @@ export abstract /* static */ class Find
 
 			// if (lastRoomObjectsOfTypes !== undefined)
 			// {
-			// 	(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+			// 	(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			// }
 			//
 			// lastRoomObjectsOfTypes = roomObjectsToAdd;
 		}
 
 		if ((roomObjectTypesToInclude & Type.ConstructionSite) !== 0 &&
-			(roomObjectsToAdd = cache.get(Type.ConstructionSite) ??
+			(roomObjectsToAdd = cache.get(Type.ConstructionSite) ||
 				Find.SetAndGet(cache, Type.ConstructionSite, room.find(FIND_MY_CONSTRUCTION_SITES))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== undefined)
 			{
-				(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+				(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			}
 
 			lastRoomObjectsOfTypes = roomObjectsToAdd;
 		}
 
 		if ((roomObjectTypesToInclude & Type.Flag) !== 0 &&
-			(roomObjectsToAdd = cache.get(Type.Flag) ??
+			(roomObjectsToAdd = cache.get(Type.Flag) ||
 				Find.SetAndGet(cache, Type.Flag, room.find(FIND_FLAGS))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== undefined)
 			{
-				(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+				(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			}
 
 			lastRoomObjectsOfTypes = roomObjectsToAdd;
@@ -380,31 +400,31 @@ export abstract /* static */ class Find
 		{
 			if (lastRoomObjectsOfTypes !== undefined)
 			{
-				(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+				(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			}
 
 			lastRoomObjectsOfTypes = roomObjectsToAdd;
 		}
 
 		if ((roomObjectTypesToInclude & Type.Resource) !== 0 &&
-			(roomObjectsToAdd = cache.get(Type.Resource) ??
+			(roomObjectsToAdd = cache.get(Type.Resource) ||
 				Find.SetAndGet(cache, Type.Resource, Find.SetEnergyGiverFieldsFromResource(room.find(FIND_DROPPED_RESOURCES)))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== undefined)
 			{
-				(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+				(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			}
 
 			lastRoomObjectsOfTypes = roomObjectsToAdd;
 		}
 
 		if ((roomObjectTypesToInclude & Type.Ruin) !== 0 &&
-			(roomObjectsToAdd = cache.get(Type.Ruin) ??
+			(roomObjectsToAdd = cache.get(Type.Ruin) ||
 				Find.SetAndGet(cache, Type.Ruin, Find.SetEnergyGiverFieldsFromStore(room.find(FIND_RUINS)))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== undefined)
 			{
-				(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+				(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			}
 
 			lastRoomObjectsOfTypes = roomObjectsToAdd;
@@ -415,19 +435,19 @@ export abstract /* static */ class Find
 		{
 			if (lastRoomObjectsOfTypes !== undefined)
 			{
-				(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+				(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			}
 
 			lastRoomObjectsOfTypes = roomObjectsToAdd;
 		}
 
 		if ((roomObjectTypesToInclude & Type.Tombstone) !== 0 &&
-			(roomObjectsToAdd = cache.get(Type.Tombstone) ??
+			(roomObjectsToAdd = cache.get(Type.Tombstone) ||
 				Find.SetAndGet(cache, Type.Tombstone, Find.SetEnergyGiverFieldsFromStore(room.find(FIND_TOMBSTONES)))).length !== 0)
 		{
 			if (lastRoomObjectsOfTypes !== undefined)
 			{
-				(roomObjectsOfTypes ??= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
+				(roomObjectsOfTypes ||= []).push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes);
 			}
 
 			lastRoomObjectsOfTypes = roomObjectsToAdd;
@@ -462,7 +482,11 @@ export abstract /* static */ class Find
 			// @ts-ignore: Intentional Reflection to collect all non-enemy structures
 			if (structure.my !== false)
 			{
-				allNonEnemyStructures?.push(structure);
+				if (allNonEnemyStructures !== undefined)
+				{
+					allNonEnemyStructures.push(structure);
+				}
+
 				const structuresOfType: Structure[] | undefined = cache.get(structure.Type) as Structure[] | undefined;
 				if (structuresOfType === undefined)
 				{
@@ -549,7 +573,7 @@ export abstract /* static */ class Find
 			}
 		}
 
-		return creepsOfType ?? Collection.Empty();
+		return creepsOfType || Collection.Empty();
 	}
 
 	private static SetAndGet<TKey, TValue>(map: Map<TKey, TValue>, key: TKey, value: TValue): TValue

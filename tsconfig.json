@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "esnext",
+		"module": "ESNext",
 		"lib": [ "ESNext" ],
-		"target": "ESNext",
+		"target": "ES2019",
 		"moduleResolution": "Node",
 		"outDir": "dist",
 		"baseUrl": "src/",
@@ -13,6 +13,7 @@
 		"allowSyntheticDefaultImports": true,
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,
+		"exactOptionalPropertyTypes": true,
 		"experimentalDecorators": true,
 		"forceConsistentCasingInFileNames": true,
 		"importHelpers": true,
@@ -26,7 +27,9 @@
 		"noImplicitThis": true,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
+		"noPropertyAccessFromIndexSignature": true,
 		"noResolve": false,
+		"noUncheckedIndexedAccess": false,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"pretty": true,

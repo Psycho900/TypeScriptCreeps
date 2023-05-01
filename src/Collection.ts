@@ -12,13 +12,6 @@ export abstract /* static */ class Collection
 		return elements[elements.length - 1];
 	}
 
-	public static LastIndexOf<T>(elements: readonly T[], predicate: (element: T) => boolean): number | -1
-	{
-		let index: number = elements.length;
-		while (--index >= 0 && !predicate(elements[index]));
-		return index;
-	}
-
 	// public static HighestScoringElement<T>(
 	// 	elements: readonly T[],
 	// 	scoreFunction: (element: T) => number): T | undefined
@@ -210,7 +203,7 @@ export abstract /* static */ class Collection
 
 	public static IncreaseValueOfKeyBy<TKey>(map: Map<TKey, number>, key: TKey, valueIncrement: number): void
 	{
-		map.set(key, (map.get(key) ?? 0) + valueIncrement);
+		map.set(key, (map.get(key) || 0) + valueIncrement);
 	}
 }
 

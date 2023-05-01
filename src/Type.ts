@@ -114,11 +114,11 @@ declare global
 		// | FactoryType //    Why take energy out of a factory?
 		// | LabType //        Why take energy out of a lab?
 		| LinkType
-		// | NukerType //      Why take energy out of a lab?
+		// | NukerType //      Why take energy out of a nuker?
 		// | PowerSpawnType // Why take energy out of a spawn?
-		// | SpawnType //      Why take energy out of a spawn?
+		// | SpawnType //      when room.energyAvailable < 300, generates 1 energy per tick
 		| StorageType;
-		// | TerminalType //   Add this in if we ever do anything with power spawns
+		// | TerminalType //   Add this in if we ever do anything with terminals
 		// | TowerType //      Why take energy out of a tower?
 
 	type ToInterface<TRoomObjectType extends number> =
@@ -280,7 +280,7 @@ export abstract /* static */ class Type
 			//         }
 			//     }
 			// }
-			default /*                   */: return `0b${objectType?.toString(2) ?? 'NULLish'}`;
+			default /*                   */: return `0b${objectType?.toString(2) ?? "NULLish"}`;
 		}
 	}
 }

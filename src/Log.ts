@@ -1,22 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
-const c_hrToString: Map<ScreepsReturnCode, string> = new Map<ScreepsReturnCode, string>()
-	.set(OK, "OK")
-	.set(ERR_NOT_OWNER, "ERR_NOT_OWNER")
-	.set(ERR_NO_PATH, "ERR_NO_PATH")
-	.set(ERR_NAME_EXISTS, "ERR_NAME_EXISTS")
-	.set(ERR_BUSY, "ERR_BUSY")
-	.set(ERR_NOT_FOUND, "ERR_NOT_FOUND")
-	.set(ERR_NOT_ENOUGH_RESOURCES, "ERR_NOT_ENOUGH_RESOURCES")
-	.set(ERR_INVALID_TARGET, "ERR_INVALID_TARGET")
-	.set(ERR_FULL, "ERR_FULL")
-	.set(ERR_NOT_IN_RANGE, "ERR_NOT_IN_RANGE")
-	.set(ERR_INVALID_ARGS, "ERR_INVALID_ARGS")
-	.set(ERR_TIRED, "ERR_TIRED")
-	.set(ERR_NO_BODYPART, "ERR_NO_BODYPART")
-	.set(ERR_RCL_NOT_ENOUGH, "ERR_RCL_NOT_ENOUGH")
-	.set(ERR_GCL_NOT_ENOUGH, "ERR_GCL_NOT_ENOUGH");
-
 let s_currentError: Error | null = null;
 let s_shouldReportError: boolean = true; // Gets reset every ~150 ticks or so
 
@@ -31,18 +14,18 @@ export abstract /* static */ class Log
 		message: string,
 		hr?: ScreepsReturnCode,
 		objectToLog?: RoomObject | string,
-		targetToLog?: RoomObject | string): void
+		targetToLog?: RoomObject | RoomPosition | string): void
 	{
 		// @ts-ignore: Compiler optimization to not compile "console"
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr ?? OK, objectToLog, targetToLog));
+		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr || OK, objectToLog, targetToLog));
 	}
 
 	public static Error(
 		message: string,
 		hr: ScreepsReturnCode,
 		objectToLog?: RoomObject | string,
-		targetToLog?: RoomObject | string): false
+		targetToLog?: RoomObject | RoomPosition | string): false
 	{
 		if (s_currentError !== null)
 		{
@@ -60,7 +43,7 @@ export abstract /* static */ class Log
 		message: string,
 		hr: ScreepsReturnCode,
 		objectToLog?: RoomObject | string,
-		targetToLog?: RoomObject | string): void
+		targetToLog?: RoomObject | RoomPosition | string): void
 	{
 		message = `!WARNING!: ${message}`;
 
@@ -91,7 +74,7 @@ export abstract /* static */ class Log
 	public static Succeeded(
 		hr: ScreepsReturnCode,
 		objectToLog?: RoomObject | string,
-		targetToLog?: RoomObject | string): boolean
+		targetToLog?: RoomObject | RoomPosition | string): boolean
 	{
 		// //if (Game.cpu.getUsed() > 1.4 * Game.cpu.limit)
 		if (s_shouldReportError !== false && Game.cpu.bucket < 9900)
@@ -155,15 +138,38 @@ export abstract /* static */ class Log
 			: `\n${objectToLog.ToString ? objectToLog.ToString() : objectToLog}`;
 	}
 
+	private static ReturnCodeToString(hr: ScreepsReturnCode): string
+	{
+		switch (hr)
+		{
+			case OK: return "OK";
+			case ERR_NOT_OWNER /*      */: return "ERR_NOT_OWNER";
+			case ERR_NO_PATH /*        */: return "ERR_NO_PATH";
+			case ERR_NAME_EXISTS /*    */: return "ERR_NAME_EXISTS";
+			case ERR_BUSY /*           */: return "ERR_BUSY";
+			case ERR_NOT_FOUND /*      */: return "ERR_NOT_FOUND";
+			case ERR_NOT_ENOUGH_RESOURCES: return "ERR_NOT_ENOUGH_RESOURCES";
+			case ERR_INVALID_TARGET /* */: return "ERR_INVALID_TARGET";
+			case ERR_FULL /*           */: return "ERR_FULL";
+			case ERR_NOT_IN_RANGE /*   */: return "ERR_NOT_IN_RANGE";
+			case ERR_INVALID_ARGS /*   */: return "ERR_INVALID_ARGS";
+			case ERR_TIRED /*          */: return "ERR_TIRED";
+			case ERR_NO_BODYPART /*    */: return "ERR_NO_BODYPART";
+			case ERR_RCL_NOT_ENOUGH /* */: return "ERR_RCL_NOT_ENOUGH";
+			case ERR_GCL_NOT_ENOUGH /* */: return "ERR_GCL_NOT_ENOUGH";
+			default /*                 */: return (hr as number | null | undefined)?.toString() ?? "NULLish";
+		}
+	}
+
 	private static GenerateMessage(
 		message: string,
 		hr: ScreepsReturnCode,
 		objectToLog: RoomObject | string | undefined,
-		targetToLog: RoomObject | string | undefined): string
+		targetToLog: RoomObject | RoomPosition | string | undefined): string
 	{
 		if (hr !== 0)
 		{
-			message = `${c_hrToString.get(hr) ?? hr}! ${message}`;
+			message = `${Log.ReturnCodeToString(hr)}! ${message}`;
 		}
 
 		return message
