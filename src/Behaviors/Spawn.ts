@@ -144,7 +144,9 @@ export abstract /* static */ class SpawnBehavior
 		return targetRooms;
 	}
 
-	private static TrySpawnHarvestersToSaturateSources(targetRooms: readonly ControllableRoom[], spawns: StructureSpawn[]): boolean
+	private static TrySpawnHarvestersToSaturateSources(
+		targetRooms: readonly ControllableRoom[],
+		spawns: StructureSpawn[]): boolean
 	{
 		if (targetRooms.length === 0 || spawns.length === 0)
 		{

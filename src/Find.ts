@@ -105,6 +105,11 @@ export abstract /* static */ class Find
 			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
 
+	public static MySpawningAndSpawnedCreeps(): readonly MyCreep[]
+	{
+		return s_mySpawningAndSpawnedCreeps;
+	}
+
 	public static MySpawns(): readonly StructureSpawn[]
 	{
 		return s_mySpawns;
