@@ -54,7 +54,7 @@ declare global // Creep-specifics
 		| (TCreepType extends /*  */ BuilderCreepType ? /*  */ BuilderCreep : never)
 		// | (TCreepType extends /*    */ MinerCreepType ? /*    */ MinerCreep : never)
 		// | (TCreepType extends /*  */ ClaimerCreepType ? /*  */ ClaimerCreep : never)
-		// | (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
+		| (TCreepType extends /* */ AttackerCreepType ? /* */ AttackerCreep : never)
 		| (TCreepType extends /*    */ EnemyCreepType ? /*    */ EnemyCreep : never);
 
 	/*   */ type HarvesterCreep = CreepOfType</**/ HarvesterCreepType, Source /*        */, true>;
@@ -63,16 +63,17 @@ declare global // Creep-specifics
 	/*     */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController, true>;
 	// /*    */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */, true>;
 	// /*  */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, StructureController, true>;
-	// /* */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */, true>;
+	/*    */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* NotSure */, true>;
 	/*       */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */, false>;
 	/*          */ type MyCreep = IsMyCreep<true>;
 
-	// /*    */ type AnyMyCreep =
-	// 	| /**/ AnyProducerCreep
-	// 	| /**/ AnyConsumerCreep
-	// 	| /*     */ RunnerCreep
-	// 	| /*    */ ClaimerCreep
-	// 	| /*   */ AttackerCreep;
+	/*       */ type AnyCreep =
+		| /**/ HarvesterCreep
+		| /*   */ RunnerCreep
+		| /* */ UpgraderCreep
+		| /*  */ BuilderCreep
+		| /* */ AttackerCreep
+		| /*    */ EnemyCreep;
 
 	// type AnyProducerCreep = HarvesterCreep | MinerCreep;
 	type AnyConsumerCreep = UpgraderCreep | BuilderCreep;
@@ -105,7 +106,7 @@ declare global // Creep-specifics
 		// Have any of these been called this tick? : https://docs.screeps.com/simultaneous-actions.html
 		// CanDoAction: TIsMine extends true ? boolean : never;
 
-		Destination: TIsMine extends true ? RoomPosition | undefined : never;
+		// Destination: TIsMine extends true ? RoomPosition | undefined : never;
 	}
 
 	interface CreepOfType<
@@ -124,15 +125,15 @@ declare global // Creep-specifics
 		readonly bd: number; // BirthDay
 
 		// Automatically set by the game (usually?) :
-		readonly _move?:
-		{
-			readonly dest?:
-			{
-				readonly x: number;
-				readonly y: number;
-				readonly room: string;
-			};
-		};
+		// readonly _move?:
+		// {
+		// 	readonly dest?:
+		// 	{
+		// 		readonly x: number;
+		// 		readonly y: number;
+		// 		readonly room: string;
+		// 	};
+		// };
 	}
 }
 
@@ -152,7 +153,7 @@ export abstract /* static */ class CreepType
 	// public static readonly AllProducers: AnyProducerCreepType = 0b0000000000000000000000010001 as AnyProducerCreepType;
 	public static readonly AllConsumers: AnyConsumerCreepType = 0b0000000000000000000000000001100 as AnyConsumerCreepType;
 
-	public static readonly AllProducersOrConsumers /*      */ = 0b0000000000000000000000000001101 as AnyProducerOrConsumerCreepType;
+	// public static readonly AllProducersOrConsumers /*   */ = 0b0000000000000000000000000001101 as AnyProducerOrConsumerCreepType;
 	// public static readonly AllRoomTargettingCreeps /*   */ = 0b0000000000000000000000000000010 as const;
 
 	// public static Contains<
@@ -180,7 +181,7 @@ export abstract /* static */ class CreepType
 
 			(creep as MyCreep).CanMove = creep.fatigue === 0;
 			// (creep as MyCreep).CanDoAction = true;
-			(creep as MyCreep).Destination = void 0;
+			// (creep as MyCreep).Destination = void 0;
 
 			if (creep.CreepType === undefined)
 			{
@@ -203,7 +204,7 @@ export abstract /* static */ class CreepType
 			case CreepType.Builder /*  */: return "Builder";
 			// case CreepType.Miner /*    */: return "Miner";
 			// case CreepType.Claimer /*  */: return "Claimer";
-			// case CreepType.Attacker /* */: return "Attacker";
+			case CreepType.Attacker /* */: return "Attacker";
 			case CreepType.Enemy /*    */: return "Enemy";
 			default /*                 */: return `0b${creepType?.toString(2) ?? "NULLish"}`;
 		}

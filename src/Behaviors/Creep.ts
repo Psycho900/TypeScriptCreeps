@@ -101,10 +101,10 @@ export abstract /* static */ class CreepBehavior
 		// Harvesters, Upgraders, and Builders
 		for (const room of Find.VisibleRooms())
 		{
-			const nonRunnerCreeps: readonly AnyProducerOrConsumerCreep[] = Find.Creeps(room, CreepType.AllProducersOrConsumers);
+			const allCreeps: readonly AnyCreep[] = Find.Creeps(room, CreepType.All);
 			const constructionSites: readonly /*   */ ConstructionSite[] = Find.MyObjects(room, Type.ConstructionSite);
 
-			for (const creep of nonRunnerCreeps) // First, make sure everything prioritizes the things only they can do
+			for (const creep of allCreeps) // First, make sure non-runners prioritizes the things only they can do
 			{
 				if (creep.spawning !== false)
 				{
@@ -126,12 +126,16 @@ export abstract /* static */ class CreepBehavior
 							: CreepBehavior.TryUpgradeController(creep)) !== false
 							|| CreepBehavior.TryRepair(creep);
 						continue;
+
+					case CreepType.Attacker:
+						CreepBehavior.TryAttack(creep);
+						continue;
 				}
 			}
 
 			let source: Source;
 
-			for (const creep of nonRunnerCreeps) // Next, non-runners should give & take as many resources nearby as possible
+			for (const creep of allCreeps) // Next, non-runners should give & take as many nearby resources as possible
 			{
 				if (creep.spawning !== false)
 				{
@@ -819,6 +823,46 @@ export abstract /* static */ class CreepBehavior
 		creep.EnergyLeftToGive -= Math.min(
 			creep.getActiveBodyparts("work"),
 			creep.EnergyLeftToGive);
+		return true;
+	}
+
+	private static TryAttack(creep: AttackerCreep): boolean
+	{
+		return CreepBehavior.TryAttackObject(creep, "W29S27", "63ce96a4adb15e207c97af10")
+			|| CreepBehavior.TryAttackObject(creep, "W29S26", "63d524d4466774029787dae5")
+			|| CreepBehavior.TryAttackObject(creep, "W29S26", "6443a1460965325432bd84da")
+			|| CreepBehavior.TryAttackObject(creep, "W29S26", "63e253c71dad4e0afbe11b37")
+			|| CreepBehavior.TryAttackObject(creep, "W29S26", "64428643096532f363bd326f");
+	}
+
+	private static TryAttackObject(creep: AttackerCreep, targetRoomName: string, targetId: string): boolean
+	{
+		const target: EnemyCreep | PowerCreep | Structure | null = Game.getObjectById(targetId);
+		if (target === null)
+		{
+			for (const room of Find.VisibleRooms())
+			{
+				if (room.name === targetRoomName)
+				{
+					return false; // We already killed it. Attack the next thing in the list
+				}
+			}
+
+			CreepBehavior.MoveTo(creep, Find.Center(targetRoomName)); // Move towards non-visible room
+		}
+		else if (Find.IsSameRoomAndWithinRange(creep.pos, target.pos, 1) === false)
+		{
+			CreepBehavior.MoveTo(creep, target.pos);
+		}
+		else if (target.Type === Type.Controller)
+		{
+			Log.Succeeded(creep.attackController(target as StructureController), creep, target);
+		}
+		else
+		{
+			Log.Succeeded(creep.attack(target), creep, target);
+		}
+
 		return true;
 	}
 

@@ -44,11 +44,6 @@ declare global
 
 export abstract /* static */ class SpawnBehavior
 {
-	// public static EnsureInitializedForBeginningOfTick(spawns: readonly StructureSpawn[]): readonly StructureSpawn[]
-	// {
-	// 	return spawns;
-	// }
-
 	public static Act(): void
 	{
 		const spawns: StructureSpawn[] | undefined = SpawnBehavior.GetMyUsableSpawns();
@@ -61,26 +56,6 @@ export abstract /* static */ class SpawnBehavior
 		if (targetRooms === undefined)
 		{
 			return;
-		}
-
-		let targetRoomIndex: number = targetRooms.length;
-		while (--targetRoomIndex >= 0) // Backwards so that splicing below doesn't mess us up (and perf)
-		{
-			const targetRoom: ControllableRoom = targetRooms[targetRoomIndex];
-			const spawnedAnyHarvesters: boolean = Find.Creeps(targetRoom, CreepType.Harvester).length === 0 && SpawnBehavior.TrySpawnFirstHarvesters(targetRoom, spawns) !== false;
-			const spawnedAnyRunners: /* */ boolean = Find.Creeps(targetRoom, CreepType.Runner).length === 0 && SpawnBehavior.TrySpawnRunner(targetRoom, spawns) !== false;
-
-			if (spawnedAnyHarvesters === false && spawnedAnyRunners === false)
-			{
-				continue;
-			}
-
-			if (spawns.length === 0)
-			{
-				return;
-			}
-
-			targetRooms.splice(targetRoomIndex, 1); // Remove this targetRoom from being considered below since we already spawned harvesters and/or runners
 		}
 
 		if (SpawnBehavior.TrySpawnHarvestersToSaturateSources(targetRooms, spawns) !== false
@@ -116,6 +91,8 @@ export abstract /* static */ class SpawnBehavior
 			{
 				return;
 			}
+
+			// SpawnBehavior.TrySpawnAttacker(targetRoom, spawns);
 		}
 	}
 
@@ -222,53 +199,45 @@ export abstract /* static */ class SpawnBehavior
 		return ticksToLive !== undefined && (ticksToLive < c_ticksToForecast || 2 * creep.hits <= creep.hitsMax); // Creep being murdered?
 	}
 
-	private static TrySpawnFirstHarvesters(room: ControllableRoom, spawns: StructureSpawn[]): boolean
-	{
-		if (spawns.length === 0)
-		{
-			return true; // We have done everything we can do this tick!
-		}
-
-		const sources: readonly Source[] = Find.MyObjects(room, Type.Source);
-		const closestSource: Source | undefined = Find.Closest(room.controller.pos, sources);
-		if (closestSource === undefined)
-		{
-			return false;
-		}
-
-		let anyHarvestersSpawned: boolean = SpawnBehavior.TrySpawnFirstHarvesterForSource(room, spawns, closestSource);
-
-		for (const source of sources) // We want to do closestSource first to be optimal, and then skip it here
-		{
-			if (source.id === closestSource.id ||
-				SpawnBehavior.TrySpawnFirstHarvesterForSource(room, spawns, source) === false)
-			{
-				continue;
-			}
-
-			if (spawns.length === 0)
-			{
-				return true; // We have done everything we can do this tick!
-			}
-
-			anyHarvestersSpawned = true;
-		}
-
-		return anyHarvestersSpawned;
-	}
-
-	private static TrySpawnFirstHarvesterForSource(room: ControllableRoom, spawns: StructureSpawn[], source: Source): boolean
-	{
-		const roomEnergyLeftToSpend: number = room.EnergyLeftToGive;
-		let workBodyPartCount: number = c_harvesterCostFromWorkBodyPartCount.length;
-		while (--workBodyPartCount >= 0 && roomEnergyLeftToSpend < c_harvesterCostFromWorkBodyPartCount[workBodyPartCount]);
-
-		return SpawnBehavior.TrySpawn(
-			spawns,
-			CreepType.Harvester,
-			source,
-			c_harvesterBodyFromWorkBodyPartCount[workBodyPartCount]);
-	}
+	// private static TrySpawnFirstHarvesters(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	// {
+	// 	if (spawns.length === 0)
+	// 	{
+	// 		return true; // We have done everything we can do this tick!
+	// 	}
+	//
+	// 	const sources: readonly Source[] = Find.MyObjects(room, Type.Source);
+	// 	const closestSource: Source | undefined = Find.Closest(room.controller.pos, sources);
+	// 	if (closestSource === undefined)
+	// 	{
+	// 		return false;
+	// 	}
+	//
+	// 	let anyHarvestersSpawned: boolean = SpawnBehavior.TrySpawnHarvester(spawns, closestSource, 5);
+	//
+	// 	if (spawns.length === 0)
+	// 	{
+	// 		return true; // We have done everything we can do this tick!
+	// 	}
+	//
+	// 	for (const source of sources) // We want to do closestSource first to be optimal, and then skip it here
+	// 	{
+	// 		if (source.id === closestSource.id ||
+	// 			SpawnBehavior.TrySpawnHarvester(spawns, source, 5) === false)
+	// 		{
+	// 			continue;
+	// 		}
+	//
+	// 		if (spawns.length === 0)
+	// 		{
+	// 			return true; // We have done everything we can do this tick!
+	// 		}
+	//
+	// 		anyHarvestersSpawned = true;
+	// 	}
+	//
+	// 	return anyHarvestersSpawned;
+	// }
 
 	private static TrySpawnHarvester(
 		spawns: StructureSpawn[],
@@ -356,6 +325,26 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Builder, room.controller, bodyParts);
+	}
+
+	// @ts-ignore: Expected to be unused when I'm not attacking
+	private static TrySpawnAttacker(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	{
+		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
+		{
+			return true; // We have done everything we can do this tick!
+		}
+
+		let roomEnergyLeft: number = room.EnergyLeftToGive;
+		const bodyParts: BodyPartConstant[] = [];
+
+		while ((roomEnergyLeft -= BODYPART_COST.move + BODYPART_COST.attack) >= 0)
+		{
+			bodyParts.push("move");
+			bodyParts.push("attack");
+		}
+
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Attacker, room.controller, bodyParts);
 	}
 
 	private static TrySpawn<

@@ -120,10 +120,10 @@ export abstract /* static */ class Find
 		return s_visibleRooms;
 	}
 
-	public static Center(room: Room): RoomPosition
+	public static Center(roomName: string): RoomPosition
 	{
-		return s_roomNameToRoomCenters.get(room.name) ||
-			Find.SetAndGet(s_roomNameToRoomCenters, room.name, new RoomPosition(25, 25, room.name));
+		return s_roomNameToRoomCenters.get(roomName) ||
+			Find.SetAndGet(s_roomNameToRoomCenters, roomName, new RoomPosition(25, 25, roomName));
 	}
 
 	public static MyObjects<TRoomObjectTypes extends number>(
@@ -146,7 +146,9 @@ export abstract /* static */ class Find
 	// 		range) as readonly ToInterface<TRoomObjectTypes>[];
 	// }
 
-	public static Creeps<TCreepTypes extends number>(room: Room, creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
+	public static Creeps<TCreepTypes extends number>(
+		room: Room,
+		creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
 	{
 		type TCreeps = readonly ToCreepInterface<TCreepTypes>[];
 		const creepCache: CreepCache = room.creepCache;
