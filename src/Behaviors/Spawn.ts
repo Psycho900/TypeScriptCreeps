@@ -66,6 +66,13 @@ export abstract /* static */ class SpawnBehavior
 
 		for (const targetRoom of targetRooms)
 		{
+			if (Find.Creeps(targetRoom, CreepType.Runner).length < 2 &&
+				SpawnBehavior.TrySpawnRunner(targetRoom, spawns) !== false &&
+				spawns.length === 0)
+			{
+				return;
+			}
+
 			if (Find.MyObjects(targetRoom, Type.ConstructionSite).length === 0)
 			{
 				if (Find.Creeps(targetRoom, CreepType.Upgrader).length < 1 &&
@@ -85,13 +92,7 @@ export abstract /* static */ class SpawnBehavior
 				}
 			}
 
-			if (Find.Creeps(targetRoom, CreepType.Runner).length < 1 &&
-				SpawnBehavior.TrySpawnRunner(targetRoom, spawns) !== false &&
-				spawns.length === 0)
-			{
-				return;
-			}
-
+			// SpawnBehavior.TrySpawnClaimer(targetRoom, spawns);
 			// SpawnBehavior.TrySpawnAttacker(targetRoom, spawns);
 		}
 	}
@@ -201,46 +202,6 @@ export abstract /* static */ class SpawnBehavior
 		return ticksToLive !== undefined && (ticksToLive < c_ticksToForecast || 2 * creep.hits <= creep.hitsMax); // Creep being murdered?
 	}
 
-	// private static TrySpawnFirstHarvesters(room: ControllableRoom, spawns: StructureSpawn[]): boolean
-	// {
-	// 	if (spawns.length === 0)
-	// 	{
-	// 		return true; // We have done everything we can do this tick!
-	// 	}
-	//
-	// 	const sources: readonly Source[] = Find.MyObjects(room, Type.Source);
-	// 	const closestSource: Source | undefined = Find.Closest(room.controller.pos, sources);
-	// 	if (closestSource === undefined)
-	// 	{
-	// 		return false;
-	// 	}
-	//
-	// 	let anyHarvestersSpawned: boolean = SpawnBehavior.TrySpawnHarvester(spawns, closestSource, 5);
-	//
-	// 	if (spawns.length === 0)
-	// 	{
-	// 		return true; // We have done everything we can do this tick!
-	// 	}
-	//
-	// 	for (const source of sources) // We want to do closestSource first to be optimal, and then skip it here
-	// 	{
-	// 		if (source.id === closestSource.id ||
-	// 			SpawnBehavior.TrySpawnHarvester(spawns, source, 5) === false)
-	// 		{
-	// 			continue;
-	// 		}
-	//
-	// 		if (spawns.length === 0)
-	// 		{
-	// 			return true; // We have done everything we can do this tick!
-	// 		}
-	//
-	// 		anyHarvestersSpawned = true;
-	// 	}
-	//
-	// 	return anyHarvestersSpawned;
-	// }
-
 	private static TrySpawnHarvester(
 		spawns: StructureSpawn[],
 		targetSource: Source,
@@ -300,8 +261,8 @@ export abstract /* static */ class SpawnBehavior
 			return true; // We have done everything we can do this tick!
 		}
 
-		let roomEnergyLeft: number = room.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry);
-		const bodyParts: BodyPartConstant[] = ["move", "carry"];
+		let roomEnergyLeft: number = room.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work);
+		const bodyParts: BodyPartConstant[] = ["move", "carry", "work"];
 
 		while ((roomEnergyLeft -= 100) >= 0)
 		{
@@ -318,15 +279,32 @@ export abstract /* static */ class SpawnBehavior
 			return true; // We have done everything we can do this tick!
 		}
 
-		let roomEnergyLeft: number = Math.min(1800, room.EnergyLeftToGive) - (BODYPART_COST.move + BODYPART_COST.carry + 5 * BODYPART_COST.work);
-		const bodyParts: BodyPartConstant[] = ["move", "carry", "work", "work", "work", "work", "work"];
+		let roomEnergyLeft: number = Math.min(1800, room.EnergyLeftToGive) - (BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work);
+		const bodyParts: BodyPartConstant[] = ["move", "carry", "work"];
 
 		while ((roomEnergyLeft -= 50) >= 0)
 		{
 			bodyParts.push("carry");
+
+			if (bodyParts.length <= 10 && roomEnergyLeft >= 100)
+			{
+				roomEnergyLeft -= 100;
+				bodyParts.push("work");
+			}
 		}
 
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Builder, room.controller, bodyParts);
+	}
+
+	// @ts-ignore: Expected to be unused when I'm not claiming
+	private static TrySpawnClaimer(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	{
+		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
+		{
+			return true; // We have done everything we can do this tick!
+		}
+
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Claimer, room.controller, ["move", "claim"]);
 	}
 
 	// @ts-ignore: Expected to be unused when I'm not attacking
@@ -337,8 +315,8 @@ export abstract /* static */ class SpawnBehavior
 			return true; // We have done everything we can do this tick!
 		}
 
-		let roomEnergyLeft: number = room.EnergyLeftToGive;
-		const bodyParts: BodyPartConstant[] = [];
+		let roomEnergyLeft: number = room.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.attack);
+		const bodyParts: BodyPartConstant[] = ["move", "attack"];
 
 		while ((roomEnergyLeft -= BODYPART_COST.move + BODYPART_COST.attack) >= 0)
 		{
@@ -413,7 +391,7 @@ export abstract /* static */ class SpawnBehavior
 					bd: Game.time,
 				},
 				energyStructures: energyStructuresPriority,
-				directions: [closestSpawn.pos.getDirectionTo(targetPosition)],
+				// directions: [closestSpawn.pos.getDirectionTo(targetPosition)],
 			}), closestSpawn, creepName) === false)
 		{
 			return false;

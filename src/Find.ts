@@ -98,9 +98,9 @@ export abstract /* static */ class Find
 	}
 
 	public static MySpawnedCreeps<TCreepTypes extends number>(
-		creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
+		creepTypes: TCreepTypes): readonly ToMyCreepInterface<TCreepTypes>[]
 	{
-		type TCreeps = readonly ToCreepInterface<TCreepTypes>[];
+		type TCreeps = readonly ToMyCreepInterface<TCreepTypes>[]
 		return s_mySpawnedCreepCache.get(creepTypes) as TCreeps | undefined ||
 			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}

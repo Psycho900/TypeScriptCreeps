@@ -101,7 +101,9 @@ export abstract /* static */ class Log
 		{
 			Log.Error("No body part", hr, objectToLog, targetToLog);
 
-			// objectToLog?.suicide(); // TODO_KevSchil: Are we ready for this yet?
+			// @ts-ignore
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unused-expressions
+			objectToLog && objectToLog.suicide && objectToLog.suicide(); // TODO_KevSchil: Are we ready for this yet?
 		}
 		else
 		{

@@ -80,21 +80,9 @@ export abstract /* static */ class CreepBehavior
 		for (const creep of Find.MySpawnedCreeps(CreepType.All)) // Get off room boundaries
 		{
 			const creepPosition: RoomPosition = creep.pos;
-			if (creepPosition.x === 0)
+			if (creepPosition.x === 0 || creepPosition.x === 49 || creepPosition.y === 0 || creepPosition.y === 49)
 			{
-				CreepBehavior.MoveTowards(creep, RIGHT);
-			}
-			else if (creepPosition.x === 49)
-			{
-				CreepBehavior.MoveTowards(creep, LEFT);
-			}
-			else if (creepPosition.y === 0)
-			{
-				CreepBehavior.MoveTowards(creep, BOTTOM);
-			}
-			else if (creepPosition.y === 49)
-			{
-				CreepBehavior.MoveTowards(creep, TOP);
+				CreepBehavior.MoveTowards(creep, creep.pos.getDirectionTo(Find.Center(creep.room.name)));
 			}
 		}
 
@@ -102,7 +90,7 @@ export abstract /* static */ class CreepBehavior
 		for (const room of Find.VisibleRooms())
 		{
 			const allCreeps: readonly AnyCreep[] = Find.Creeps(room, CreepType.All);
-			const constructionSites: readonly /*   */ ConstructionSite[] = Find.MyObjects(room, Type.ConstructionSite);
+			const constructionSites: readonly ConstructionSite[] = Find.MyObjects(room, Type.ConstructionSite);
 
 			for (const creep of allCreeps) // First, make sure non-runners prioritizes the things only they can do
 			{
@@ -125,6 +113,10 @@ export abstract /* static */ class CreepBehavior
 							? CreepBehavior.TryBuild(creep, constructionSites[0])
 							: CreepBehavior.TryUpgradeController(creep)) !== false
 							|| CreepBehavior.TryRepair(creep);
+						continue;
+
+					case CreepType.Claimer:
+						CreepBehavior.TryClaim(creep);
 						continue;
 
 					case CreepType.Attacker:
@@ -219,20 +211,17 @@ export abstract /* static */ class CreepBehavior
 							testEnergyBank.EnergyLeftToTake = 0; // Do not give to energy banks (that are probably) near sources
 						}
 					}
+					else if (Find.IsSameRoomAndWithinRange(testPosition, constructionSite.pos, 4) !== false)
+					{
+						testEnergyBank.EnergyLeftToGive = 0; // Do not take from energy banks near construction sites
+					}
 					else
 					{
-						if (Find.IsSameRoomAndWithinRange(testPosition, constructionSite.pos, 4) !== false)
-						{
-							testEnergyBank.EnergyLeftToGive = 0; // Do not take from energy banks near construction sites
-						}
-						else
-						{
-							testEnergyBank.EnergyLeftToTake = 0; // Do not give to energy banks (that are probably) near sources
+						testEnergyBank.EnergyLeftToTake = 0; // Do not give to energy banks (that are probably) near sources
 
-							if (Find.IsSameRoomAndWithinRange(testPosition, room.controller.pos, 4) !== false)
-							{
-								testEnergyBank.EnergyLeftToGive = 0; // Do not take from energy banks near controllers
-							}
+						if (Find.IsSameRoomAndWithinRange(testPosition, room.controller.pos, 4) !== false)
+						{
+							testEnergyBank.EnergyLeftToGive = 0; // Do not take from energy banks near controllers
 						}
 					}
 				}
@@ -826,12 +815,43 @@ export abstract /* static */ class CreepBehavior
 		return true;
 	}
 
+	private static TryClaim(creep: ClaimerCreep): boolean
+	{
+		return CreepBehavior.TryClaimRoom(creep, "W29S28");
+	}
+
+	private static TryClaimRoom(creep: ClaimerCreep, targetRoomName: string): boolean
+	{
+		const targetRoom: Room | undefined = Game.rooms[targetRoomName];
+		const targetController: StructureController | undefined = targetRoom && targetRoom.controller;
+		if (targetController === undefined)
+		{
+			CreepBehavior.MoveTo(creep, Find.Center(targetRoomName)); // Move towards non-visible room
+		}
+		else if (targetController.my !== false)
+		{
+			return false; // We already claimed it. Claim the next controller in the list
+		}
+		else if (Find.IsSameRoomAndWithinRange(creep.pos, targetController.pos, 1) === false)
+		{
+			CreepBehavior.MoveTo(creep, targetController.pos);
+		}
+		else if (targetController.level !== 0)
+		{
+			Log.Succeeded(creep.attackController(targetController), creep, targetController);
+		}
+		else
+		{
+			// On successfully claiming, start moving to the next controller in the list immediately
+			return Log.Succeeded(creep.claimController(targetController), creep, targetController) === false;
+		}
+
+		return true;
+	}
+
 	private static TryAttack(creep: AttackerCreep): boolean
 	{
 		return CreepBehavior.TryAttackObject(creep, "W29S27", "63ce96a4adb15e207c97af10")
-			|| CreepBehavior.TryAttackObject(creep, "W29S26", "63d524d4466774029787dae5")
-			|| CreepBehavior.TryAttackObject(creep, "W29S26", "6443a1460965325432bd84da")
-			|| CreepBehavior.TryAttackObject(creep, "W29S26", "63e253c71dad4e0afbe11b37")
 			|| CreepBehavior.TryAttackObject(creep, "W29S26", "64428643096532f363bd326f");
 	}
 
@@ -853,10 +873,6 @@ export abstract /* static */ class CreepBehavior
 		else if (Find.IsSameRoomAndWithinRange(creep.pos, target.pos, 1) === false)
 		{
 			CreepBehavior.MoveTo(creep, target.pos);
-		}
-		else if (target.Type === Type.Controller)
-		{
-			Log.Succeeded(creep.attackController(target as StructureController), creep, target);
 		}
 		else
 		{
@@ -931,9 +947,9 @@ export abstract /* static */ class CreepBehavior
 		const runnerPosition: RoomPosition = runner.pos;
 		let calculateTaking: boolean = runner.EnergyLeftToTake >= runner.EnergyLeftToGive;
 
-		for (let energyDirectionsCalculated: number = 0;
-			energyDirectionsCalculated !== 2;
-			++energyDirectionsCalculated, calculateTaking = calculateTaking === false)
+		for (let energyDirectionsCalculated: number = 2;
+			energyDirectionsCalculated-- !== 0;
+			calculateTaking = calculateTaking === false)
 		{
 			if (calculateTaking !== false) // Calculate Runner taking energy
 			{
