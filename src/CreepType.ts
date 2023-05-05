@@ -109,7 +109,7 @@ declare global // Creep-specifics
 
 	// If you change this, change "CreepType.AnyRoomTargettingCreepType" too
 	type AnyRoomTargettingCreep = RunnerCreep;
-	type AnyTargetRoomObject = Source | Mineral | StructureController;
+	type AnyTargetRoomObject = Source /* | Mineral */ | StructureController;
 
 	interface Creep extends EnergyGiver, EnergyTaker
 	{
@@ -188,29 +188,47 @@ export abstract /* static */ class CreepType
 	// 	return (creepTypes1 & creepTypes2) !== 0;
 	// }
 
-	public static EnsureInitializedForBeginningOfTick(creeps: Creep[]): Creep[]
+	public static EnsureMyCreepsAreInitializedForBeginningOfTick(creeps: MyCreep[]): readonly AnyMyCreep[]
 	{
 		for (const creep of creeps)
 		{
-			const store: StoreDefinition = creep.store;
-			creep.EnergyLeftToGive = store.energy;
-			creep.EnergyLeftToTake = store.getFreeCapacity("energy");
-
-			if (creep.my === false)
+			if (creep.spawning === false)
 			{
-				creep.CreepType = CreepType.Enemy;
-				continue;
+				const store: StoreDefinition = creep.store;
+				creep.EnergyLeftToGive = store.energy;
+				creep.EnergyLeftToTake = store.getFreeCapacity("energy");
+				creep.CanMove = creep.fatigue === 0;
+				// creep.CanDoAction = true;
+				// creep.Destination = void 0;
 			}
-
-			(creep as MyCreep).CanMove = creep.fatigue === 0;
-			// (creep as MyCreep).CanDoAction = true;
-			// (creep as MyCreep).Destination = void 0;
+			else
+			{
+				creep.EnergyLeftToGive = creep.EnergyLeftToTake = 0;
+				creep.CanMove = false;
+				// creep.CanDoAction = false;
+				// creep.Destination = void 0;
+			}
 
 			if (creep.CreepType === undefined)
 			{
 				const creepMemory: CreepMemory = Memory.creeps[creep.name];
 				creep.CreepType = creepMemory.ct;
 				creep.Target = Game.getObjectById(creepMemory.tid)!;
+			}
+		}
+
+		return creeps as readonly AnyMyCreep[];
+	}
+
+	public static EnsureEnemyCreepsAreInitializedForBeginningOfTick(creeps: Creep[]): readonly Creep[]
+	{
+		for (const creep of creeps)
+		{
+			if (creep.my === false)
+			{
+				creep.CreepType = CreepType.Enemy;
+				creep.EnergyLeftToGive = creep.store.energy;
+				creep.EnergyLeftToTake = 0;
 			}
 		}
 

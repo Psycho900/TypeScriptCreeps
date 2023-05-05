@@ -201,10 +201,10 @@ export abstract /* static */ class Collection
 	// 	return matchingKeys;
 	// }
 
-	public static IncreaseValueOfKeyBy<TKey>(map: Map<TKey, number>, key: TKey, valueIncrement: number): void
-	{
-		map.set(key, (map.get(key) || 0) + valueIncrement);
-	}
+	// public static IncreaseValueOfKeyBy<TKey>(map: Map<TKey, number>, key: TKey, valueIncrement: number): void
+	// {
+	// 	map.set(key, (map.get(key) || 0) + valueIncrement);
+	// }
 }
 
 declare global

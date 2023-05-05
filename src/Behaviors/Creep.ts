@@ -86,8 +86,7 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		// Harvesters, Upgraders, and Builders
-		for (const room of Find.VisibleRooms())
+		for (const room of Find.VisibleRooms()) // Harvesters, Upgraders, and Builders
 		{
 			const allCreeps: readonly AnyCreep[] = Find.Creeps(room, CreepType.All);
 			const constructionSites: readonly ConstructionSite[] = Find.MyObjects(room, Type.ConstructionSite);
@@ -184,8 +183,7 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		// Set Energy banks's EnergyLeftToGive or EnergyLeftToTake to 0 depending on how close it is to a controller or construction site
-		for (const room of Find.VisibleRooms())
+		for (const room of Find.VisibleRooms()) // Set Energy banks's EnergyLeftToGive or EnergyLeftToTake to 0 depending on position
 		{
 			if (room.controller === undefined)
 			{
@@ -234,7 +232,10 @@ export abstract /* static */ class CreepBehavior
 
 			for (const runner of runners) // Runners should only give/take nearby resources NOT handled by others
 			{
-				CreepBehavior.TryRepair(runner);
+				if (runner.getActiveBodyparts("work") !== 0)
+				{
+					CreepBehavior.TryRepair(runner);
+				}
 
 				const energyGiven: number = runner.EnergyLeftToGive === 0 ? 0 :
 					CreepBehavior.GiveEnergyInRange(runner, runner.pos, 1, c_typesHarvestersGiveEnergyTo, c_creepTypesConsumersGiveEnergyTo);

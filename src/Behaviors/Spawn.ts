@@ -1,13 +1,11 @@
 import { } from "../Energy";
 import { } from "../Objects";
-import { Collection } from "../Collection";
 import { CreepType } from "../CreepType";
 import { Find } from "../Find";
 import { Log } from "../Log";
 import { Type } from "../Type";
 
 const c_ticksToForecast = 200 as const;
-const c_optimalWorkBodyPartsPerSource: 5 = 5 as const; // Harvesting a source produces 2 energy per "work" body part
 
 const c_harvesterBodyFromWorkBodyPartCount: readonly (readonly ("move" | "carry" | "work")[])[] =
 	[
@@ -29,7 +27,7 @@ const c_harvesterCostFromWorkBodyPartCount: readonly number[] =
 		BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work * 5,
 	] as const;
 
-const c_minimumRequiredRoomEnergyToSpawnUsefulCreep: number = c_harvesterCostFromWorkBodyPartCount[1];
+const c_minimumRequiredRoomEnergyToSpawnUsefulCreep: 300 = 300 as const;
 
 declare global
 {
@@ -46,62 +44,9 @@ export abstract /* static */ class SpawnBehavior
 {
 	public static Act(): void
 	{
-		const spawns: StructureSpawn[] | undefined = SpawnBehavior.GetMyUsableSpawns();
-		if (spawns === undefined)
-		{
-			return;
-		}
-
-		const targetRooms: ControllableRoom[] | undefined = SpawnBehavior.GetTargetRooms();
-		if (targetRooms === undefined)
-		{
-			return;
-		}
-
-		if (SpawnBehavior.TrySpawnHarvestersToSaturateSources(targetRooms, spawns) !== false
-			&& spawns.length === 0)
-		{
-			return;
-		}
-
-		for (const targetRoom of targetRooms)
-		{
-			if (Find.Creeps(targetRoom, CreepType.Runner).length < 2 &&
-				SpawnBehavior.TrySpawnRunner(targetRoom, spawns) !== false &&
-				spawns.length === 0)
-			{
-				return;
-			}
-
-			if (Find.MyObjects(targetRoom, Type.ConstructionSite).length === 0)
-			{
-				if (Find.Creeps(targetRoom, CreepType.Upgrader).length < 1 &&
-					SpawnBehavior.TrySpawnUpgrader(targetRoom, spawns) !== false &&
-					spawns.length === 0)
-				{
-					return;
-				}
-			}
-			else
-			{
-				if (Find.Creeps(targetRoom, CreepType.Builder).length < 1 &&
-					SpawnBehavior.TrySpawnBuilder(targetRoom, spawns) !== false &&
-					spawns.length === 0)
-				{
-					return;
-				}
-			}
-
-			// SpawnBehavior.TrySpawnClaimer(targetRoom, spawns);
-			// SpawnBehavior.TrySpawnAttacker(targetRoom, spawns);
-		}
-	}
-
-	private static GetMyUsableSpawns(): StructureSpawn[] | undefined
-	{
 		let spawns: StructureSpawn[] | undefined;
 
-		for (const spawn of Find.MySpawns())
+		for (const spawn of Find.MySpawns()) // Get all my usable spawns
 		{
 			if (spawn.spawning === null &&
 				spawn.room.energyAvailable >= c_minimumRequiredRoomEnergyToSpawnUsefulCreep)
@@ -117,14 +62,14 @@ export abstract /* static */ class SpawnBehavior
 			}
 		}
 
-		return spawns;
-	}
+		if (spawns === undefined)
+		{
+			return;
+		}
 
-	private static GetTargetRooms(): ControllableRoom[] | undefined
-	{
 		let targetRooms: ControllableRoom[] | undefined;
 
-		for (const room of Find.VisibleRooms())
+		for (const room of Find.VisibleRooms()) // Get all target rooms
 		{
 			room.EnergyLeftToGive = room.energyAvailable;
 
@@ -142,64 +87,92 @@ export abstract /* static */ class SpawnBehavior
 			}
 		}
 
-		return targetRooms;
-	}
-
-	private static TrySpawnHarvestersToSaturateSources(
-		targetRooms: readonly ControllableRoom[],
-		spawns: StructureSpawn[]): boolean
-	{
-		if (targetRooms.length === 0 || spawns.length === 0)
+		if (targetRooms === undefined)
 		{
-			return true; // We have done everything we can do this tick!
+			return;
 		}
 
-		const workPartsPerSource: Map<Id<Source>, number> = new Map<Id<Source>, number>();
+		const workPartCounts: Map<Id<AnyTargetRoomObject>, number> = new Map<Id<AnyTargetRoomObject>, number>();
+		const carryPartCounts: Map<Id<AnyTargetRoomObject>, number> = new Map<Id<AnyTargetRoomObject>, number>();
+		const runnerCarryPartCounts: Map<Id<StructureController>, number> = new Map<Id<StructureController>, number>();
 
-		for (const room of targetRooms)
+		for (const creep of Find.MySpawningAndSpawnedCreeps()) // Collect how many body parts are working towards each target
 		{
-			for (const creep of Find.Creeps(room, CreepType.Harvester))
+			const ticksToLive: number | undefined = creep.ticksToLive; // undefined means the creep is still spawning
+			if (ticksToLive !== undefined && (ticksToLive < c_ticksToForecast || 2 * creep.hits <= creep.hitsMax)) // Creep being murdered?
 			{
-				if (SpawnBehavior.WillCreepDieSoon(creep) === false)
-				{
-					Collection.IncreaseValueOfKeyBy(
-						workPartsPerSource,
-						creep.Target.id,
-						creep.getActiveBodyparts("work"));
-				}
+				continue; // Creep is probably dying soon
 			}
 
-			for (const source of Find.MyObjects(room, Type.Source)) // Ensure workPartsPerSource contains all sources
+			switch (creep.CreepType)
 			{
-				if (workPartsPerSource.has(source.id) === false)
-				{
-					workPartsPerSource.set(source.id, 0);
-				}
-			}
-		}
+				case CreepType.Runner:
+					runnerCarryPartCounts.set(creep.Target.id, (runnerCarryPartCounts.get(creep.Target.id) || 0) + creep.getActiveBodyparts("carry"));
+					continue;
 
-		for (let maxWorkPartCount: 0 | 1 | 2 | 3 | 4 = 0; maxWorkPartCount !== c_optimalWorkBodyPartsPerSource; ++maxWorkPartCount)
-		{
-			for (const [sourceId, workPartCount] of workPartsPerSource)
-			{
-				if (workPartCount === maxWorkPartCount &&
-					SpawnBehavior.TrySpawnHarvester(
-						spawns,
-						Game.getObjectById(sourceId)!,
-						c_optimalWorkBodyPartsPerSource - maxWorkPartCount as 1 | 2 | 3 | 4 | 5) !== false)
-				{
-					return true;
-				}
+				case CreepType.Harvester:
+				case CreepType.Upgrader:
+				case CreepType.Builder:
+					{
+						const targetId: Id<AnyTargetRoomObject> = creep.Target.id;
+						workPartCounts.set(targetId, (workPartCounts.get(targetId) || 0) + creep.getActiveBodyparts("work"));
+						carryPartCounts.set(targetId, (carryPartCounts.get(targetId) || 0) + creep.getActiveBodyparts("carry"));
+						continue;
+					}
 			}
 		}
 
-		return false;
-	}
+		for (const targetRoom of targetRooms) // Make sure each source has at least 1 harvester on it
+		{
+			for (const source of Find.MyObjects(targetRoom, Type.Source))
+			{
+				if (workPartCounts.has(source.id) === false)
+				{
+					SpawnBehavior.TrySpawnHarvester(spawns, source, 5);
+					return;
+				}
+			}
 
-	private static WillCreepDieSoon(creep: Creep): boolean
-	{
-		const ticksToLive: number | undefined = creep.ticksToLive; // undefined means the creep is still spawning
-		return ticksToLive !== undefined && (ticksToLive < c_ticksToForecast || 2 * creep.hits <= creep.hitsMax); // Creep being murdered?
+			const targetControllerId: Id<StructureController> = targetRoom.controller.id;
+
+			if (runnerCarryPartCounts.has(targetControllerId) === false) // Make sure each room has at least 1 runner
+			{
+				SpawnBehavior.TrySpawnRunner(spawns, targetRoom);
+			}
+			else if (Find.MyObjects(targetRoom, Type.ConstructionSite).length === 0)
+			{
+				if ((workPartCounts.get(targetControllerId) || 0) < 16 &&
+					(carryPartCounts.get(targetControllerId) || 0) < 5)
+				{
+					SpawnBehavior.TrySpawnUpgrader(spawns, targetRoom);
+				}
+			}
+			else if ((workPartCounts.get(targetControllerId) || 0) < 4
+				|| (carryPartCounts.get(targetControllerId) || 0) < 5)
+			{
+				SpawnBehavior.TrySpawnBuilder(spawns, targetRoom);
+			}
+
+			if (spawns.length === 0)
+			{
+				return;
+			}
+
+			// for (let maxWorkPartCount: 1 | 2 | 3 = 1; maxWorkPartCount !== 4; ++maxWorkPartCount) // saturate sources with harvesters
+			// {
+			// 	for (const source of Find.MyObjects(targetRoom, Type.Source))
+			// 	{
+			// 		if (workPartCounts.get(source.id)! === maxWorkPartCount)
+			// 		{
+			// 			SpawnBehavior.TrySpawnHarvester(spawns, source, 5 - maxWorkPartCount as 2 | 3 | 4);
+			// 			return;
+			// 		}
+			// 	}
+			// }
+
+			// SpawnBehavior.TrySpawnClaimer(targetRoom, spawns);
+			// SpawnBehavior.TrySpawnAttacker(targetRoom, spawns);
+		}
 	}
 
 	private static TrySpawnHarvester(
@@ -229,102 +202,106 @@ export abstract /* static */ class SpawnBehavior
 				c_harvesterBodyFromWorkBodyPartCount[workBodyPartsToSpawn]);
 	}
 
-	private static TrySpawnRunner(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	private static TrySpawnRunner(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
-		if (spawns.length === 0)
+		let targetRoomEnergyToSpend: number = Math.min(targetRoom.energyCapacityAvailable, 1300);
+		if (targetRoom.EnergyLeftToGive < targetRoomEnergyToSpend)
 		{
 			return true; // We have done everything we can do this tick!
 		}
 
-		let roomEnergyLeft: number = Math.min(1300, room.EnergyLeftToGive) - 3 * (BODYPART_COST.move + BODYPART_COST.carry);
+		targetRoomEnergyToSpend -= 3 * (BODYPART_COST.move + BODYPART_COST.carry);
 		const bodyParts: BodyPartConstant[] = ["move", "carry", "move", "carry", "move", "carry"];
 
-		if ((roomEnergyLeft -= BODYPART_COST.move + BODYPART_COST.work) >= 0)
+		if ((targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.work) >= 0)
 		{
 			bodyParts.push("move");
 			bodyParts.push("work");
 
-			while ((roomEnergyLeft -= 100) >= 0)
+			while ((targetRoomEnergyToSpend -= 100) >= 0)
 			{
 				bodyParts.push("move");
 				bodyParts.push("carry");
 			}
 		}
 
-		return SpawnBehavior.TrySpawn(spawns, CreepType.Runner, room.controller, bodyParts);
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Runner, targetRoom.controller, bodyParts);
 	}
 
-	private static TrySpawnUpgrader(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	private static TrySpawnUpgrader(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
-		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
+		let targetRoomEnergyToSpend: number = Math.min(targetRoom.energyCapacityAvailable, 1800);
+		if (targetRoom.EnergyLeftToGive < targetRoomEnergyToSpend)
 		{
 			return true; // We have done everything we can do this tick!
 		}
 
-		let roomEnergyLeft: number = room.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work);
+		targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work;
 		const bodyParts: BodyPartConstant[] = ["move", "carry", "work"];
 
-		while ((roomEnergyLeft -= 100) >= 0)
+		while ((targetRoomEnergyToSpend -= 100) >= 0)
 		{
 			bodyParts.push("work");
 		}
 
-		return SpawnBehavior.TrySpawn(spawns, CreepType.Upgrader, room.controller, bodyParts);
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Upgrader, targetRoom.controller, bodyParts);
 	}
 
-	private static TrySpawnBuilder(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	private static TrySpawnBuilder(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
-		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
+		let targetRoomEnergyToSpend: number = Math.min(targetRoom.energyCapacityAvailable, 1800);
+		if (targetRoom.EnergyLeftToGive < targetRoomEnergyToSpend)
 		{
 			return true; // We have done everything we can do this tick!
 		}
 
-		let roomEnergyLeft: number = Math.min(1800, room.EnergyLeftToGive) - (BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work);
+		targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work;
 		const bodyParts: BodyPartConstant[] = ["move", "carry", "work"];
 
-		while ((roomEnergyLeft -= 50) >= 0)
+		while ((targetRoomEnergyToSpend -= 50) >= 0)
 		{
 			bodyParts.push("carry");
 
-			if (bodyParts.length <= 10 && roomEnergyLeft >= 100)
+			if (bodyParts.length <= 10 && targetRoomEnergyToSpend >= 100)
 			{
-				roomEnergyLeft -= 100;
+				targetRoomEnergyToSpend -= 100;
 				bodyParts.push("work");
 			}
 		}
 
-		return SpawnBehavior.TrySpawn(spawns, CreepType.Builder, room.controller, bodyParts);
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Builder, targetRoom.controller, bodyParts);
 	}
 
 	// @ts-ignore: Expected to be unused when I'm not claiming
-	private static TrySpawnClaimer(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	private static TrySpawnClaimer(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
-		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
+		if (targetRoom.EnergyLeftToGive !== targetRoom.energyCapacityAvailable)
 		{
 			return true; // We have done everything we can do this tick!
 		}
 
-		return SpawnBehavior.TrySpawn(spawns, CreepType.Claimer, room.controller, ["move", "claim"]);
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Claimer, targetRoom.controller, ["move", "claim"]);
 	}
 
 	// @ts-ignore: Expected to be unused when I'm not attacking
-	private static TrySpawnAttacker(room: ControllableRoom, spawns: StructureSpawn[]): boolean
+	private static TrySpawnAttacker(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
-		if (spawns.length === 0 || room.EnergyLeftToGive !== room.energyCapacityAvailable)
+		let targetRoomEnergyToSpend: number = Math.min(targetRoom.energyCapacityAvailable, 2000);
+		if (targetRoom.EnergyLeftToGive < targetRoomEnergyToSpend)
 		{
 			return true; // We have done everything we can do this tick!
 		}
 
-		let roomEnergyLeft: number = room.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.attack);
+		targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.attack;
 		const bodyParts: BodyPartConstant[] = ["move", "attack"];
 
-		while ((roomEnergyLeft -= BODYPART_COST.move + BODYPART_COST.attack) >= 0)
+		while ((targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.attack) >= 0)
 		{
 			bodyParts.push("move");
 			bodyParts.push("attack");
 		}
 
-		return SpawnBehavior.TrySpawn(spawns, CreepType.Attacker, room.controller, bodyParts);
+		return SpawnBehavior.TrySpawn(spawns, CreepType.Attacker, targetRoom.controller, bodyParts);
 	}
 
 	private static TrySpawn<
@@ -362,7 +339,7 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		if (closestSpawn === undefined ||
-			(closestDistance > 25 && closestSpawn.id !== Find.Closest(targetPosition, Find.MySpawns())!.id))
+			(closestDistance > 50 && closestSpawn.id !== Find.Closest(targetPosition, Find.MySpawns())!.id))
 		{
 			return false; // Wait for a closer spawn to be available
 		}
@@ -373,11 +350,11 @@ export abstract /* static */ class SpawnBehavior
 		// Take energy from the furthest away spawns and extensions first:
 		const energyStructuresPriority: (StructureSpawn | StructureExtension)[] = Find.MyObjects(closestSpawnRoom, Type.SpawnsAndExtensions) as (StructureSpawn | StructureExtension)[];
 		const controllerPosition: RoomPosition = closestSpawnRoom.controller.pos;
-		energyStructuresPriority.sort((c1, c2) =>
+		energyStructuresPriority.sort((spawnOrExtension1, spawnOrExtension2) =>
 		{
-			return c1.Type !== c2.Type // Put all Spawns before all Extensions
-				? c2.Type - c1.Type
-				: Find.Distance(c2.pos, controllerPosition) - Find.Distance(c1.pos, controllerPosition);
+			return spawnOrExtension1.Type !== spawnOrExtension2.Type // Put all Spawns before all Extensions
+				? spawnOrExtension2.Type - spawnOrExtension1.Type
+				: Find.Distance(spawnOrExtension2.pos, controllerPosition) - Find.Distance(spawnOrExtension1.pos, controllerPosition);
 		});
 
 		if (Log.Succeeded(closestSpawn.spawnCreep(

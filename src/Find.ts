@@ -22,10 +22,10 @@ const s_roomNameToMinerals /*   */: Map<string, /**/ readonly Mineral[]> = new M
 const s_roomNameToRoomCenters /**/: Map<string, /*      */ RoomPosition> = new Map<string, /*      */ RoomPosition>();
 
 // Should reset on each tick:
-let s_mySpawns: /*             */ readonly StructureSpawn[] = Object.values(Game.spawns);
-let s_myConstructionSites: /**/ readonly ConstructionSite[] = Object.values(Game.constructionSites);
-let s_mySpawningAndSpawnedCreeps: /*  */ readonly MyCreep[] = Object.values(Game.creeps);
-let s_visibleRooms: /*                   */ readonly Room[] = Object.values(Game.rooms);
+let s_mySpawns: /*              */ readonly StructureSpawn[] = Object.values(Game.spawns);
+let s_myConstructionSites: /* */ readonly ConstructionSite[] = Object.values(Game.constructionSites);
+let s_mySpawningAndSpawnedCreeps: /**/ readonly AnyMyCreep[] = Object.values(Game.creeps);
+let s_visibleRooms: /*                    */ readonly Room[] = Object.values(Game.rooms);
 let s_mySpawnedCreepCache: CreepCache;
 
 export abstract /* static */ class Find
@@ -35,7 +35,7 @@ export abstract /* static */ class Find
 		// See "Should reset on each tick" comment near top of file:
 		s_mySpawns /*             */ = Object.values(Game.spawns); // reinitializeSpawnsFunction(Object.values(Game.spawns));
 		s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
-		s_mySpawningAndSpawnedCreeps = Object.values(Game.creeps);
+		s_mySpawningAndSpawnedCreeps = CreepType.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
 
 		for (const room of s_visibleRooms = Object.values(Game.rooms))
 		{
@@ -44,7 +44,7 @@ export abstract /* static */ class Find
 			// Clear whatever existing caches we had from the previous tick
 			const creepCache: CreepCache = (room.creepCache ||= new Map<number, readonly Creep[]>());
 			creepCache.clear();
-			creepCache.set(CreepType.All, CreepType.EnsureInitializedForBeginningOfTick(room.find(FIND_CREEPS)));
+			creepCache.set(CreepType.All, CreepType.EnsureEnemyCreepsAreInitializedForBeginningOfTick(room.find(FIND_CREEPS)));
 
 			const roomCache: RoomObjectCache = (room.cache ||= new Map<number, readonly RoomObject[]>());
 			roomCache.clear();
@@ -105,7 +105,7 @@ export abstract /* static */ class Find
 			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
 
-	public static MySpawningAndSpawnedCreeps(): readonly MyCreep[]
+	public static MySpawningAndSpawnedCreeps(): readonly AnyMyCreep[]
 	{
 		return s_mySpawningAndSpawnedCreeps;
 	}
