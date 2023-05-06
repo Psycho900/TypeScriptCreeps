@@ -25,7 +25,7 @@ const s_roomNameToRoomCenters /**/: Map<string, /*      */ RoomPosition> = new M
 let s_mySpawns: /*              */ readonly StructureSpawn[] = Object.values(Game.spawns);
 let s_myConstructionSites: /* */ readonly ConstructionSite[] = Object.values(Game.constructionSites);
 let s_mySpawningAndSpawnedCreeps: /**/ readonly AnyMyCreep[] = Object.values(Game.creeps);
-let s_visibleRooms: /*                    */ readonly Room[] = Object.values(Game.rooms);
+const s_visibleRooms: /*                           */ Room[] = Object.values(Game.rooms);
 let s_mySpawnedCreepCache: CreepCache;
 
 export abstract /* static */ class Find
@@ -37,7 +37,20 @@ export abstract /* static */ class Find
 		s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
 		s_mySpawningAndSpawnedCreeps = CreepType.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
 
-		for (const room of s_visibleRooms = Object.values(Game.rooms))
+		// TODO_KevSchil: Remove this logic?
+		{
+			s_visibleRooms.length = 0;
+
+			for (const roomName in Game.rooms)
+			{
+				// if (roomName !== "W29S25")
+				{
+					s_visibleRooms.push(Game.rooms[roomName]);
+				}
+			}
+		}
+
+		for (const room of s_visibleRooms)
 		{
 			const roomName: string = room.name;
 
@@ -100,7 +113,7 @@ export abstract /* static */ class Find
 	public static MySpawnedCreeps<TCreepTypes extends number>(
 		creepTypes: TCreepTypes): readonly ToMyCreepInterface<TCreepTypes>[]
 	{
-		type TCreeps = readonly ToMyCreepInterface<TCreepTypes>[]
+		type TCreeps = readonly ToMyCreepInterface<TCreepTypes>[];
 		return s_mySpawnedCreepCache.get(creepTypes) as TCreeps | undefined ||
 			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
@@ -136,8 +149,9 @@ export abstract /* static */ class Find
 		types: TRoomObjectTypes): readonly ToInterface<TRoomObjectTypes>[]
 	{
 		type TRoomObjects = readonly ToInterface<TRoomObjectTypes>[];
-		return room.cache.get(types) as TRoomObjects | undefined ||
-			Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as TRoomObjects;
+		return room.cache
+			? room.cache.get(types) as TRoomObjects | undefined || Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as TRoomObjects
+			: Collection.Empty();
 	}
 
 	// public static MyObjectsInRange<TRoomObjectTypes extends number>(

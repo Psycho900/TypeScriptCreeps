@@ -852,36 +852,110 @@ export abstract /* static */ class CreepBehavior
 
 	private static TryAttack(creep: AttackerCreep): boolean
 	{
-		return CreepBehavior.TryAttackObject(creep, "W29S27", "63ce96a4adb15e207c97af10")
-			|| CreepBehavior.TryAttackObject(creep, "W29S26", "64428643096532f363bd326f");
+		return CreepBehavior.TryAttackRoom(creep, "W29S25");
+			// || CreepBehavior.TryAttackObject(creep, "W29S24", "6133295eed49e2824e09e179");
 	}
 
-	private static TryAttackObject(creep: AttackerCreep, targetRoomName: string, targetId: string): boolean
+	private static TryAttackRoom(creep: AttackerCreep, targetRoomName: string): boolean
 	{
-		const target: EnemyCreep | PowerCreep | Structure | null = Game.getObjectById(targetId);
-		if (target === null)
-		{
-			for (const room of Find.VisibleRooms())
-			{
-				if (room.name === targetRoomName)
-				{
-					return false; // We already killed it. Attack the next thing in the list
-				}
-			}
+		let enemyCreeps: readonly EnemyCreep[];
 
-			CreepBehavior.MoveTo(creep, Find.Center(targetRoomName)); // Move towards non-visible room
-		}
-		else if (Find.IsSameRoomAndWithinRange(creep.pos, target.pos, 1) === false)
+		if (creep.pos.roomName !== targetRoomName)
 		{
-			CreepBehavior.MoveTo(creep, target.pos);
+			CreepBehavior.MoveTo(creep, Find.Center(targetRoomName));
+			return true;
+		}
+
+		if ((enemyCreeps = Find.Creeps(creep.room, CreepType.Enemy)).length === 0)
+		{
+			return false;
+		}
+
+		enemyCreeps = CreepBehavior.GetEnemiesToAttack(enemyCreeps);
+		const enemyCreep: EnemyCreep = Find.Closest(creep.pos, enemyCreeps)!;
+
+		if (Find.IsSameRoomAndWithinRange(creep.pos, enemyCreep.pos, 1) === false)
+		{
+			CreepBehavior.MoveTo(creep, enemyCreep.pos);
 		}
 		else
 		{
-			Log.Succeeded(creep.attack(target), creep, target);
+			Log.Succeeded(creep.attack(enemyCreep), creep, enemyCreep);
 		}
 
 		return true;
 	}
+
+	private static GetEnemiesToAttack(enemyCreeps: readonly EnemyCreep[]): readonly EnemyCreep[]
+	{
+		if (enemyCreeps.length <= 1)
+		{
+			return enemyCreeps;
+		}
+
+		let bestEnemyCreeps: EnemyCreep[] | undefined;
+
+		for (const enemyCreep of enemyCreeps)
+		{
+			if (enemyCreep.getActiveBodyparts("heal") !== 0)
+			{
+				(bestEnemyCreeps ||= []).push(enemyCreep);
+			}
+		}
+
+		if (bestEnemyCreeps !== undefined)
+		{
+			return bestEnemyCreeps;
+		}
+
+		for (const enemyCreep of enemyCreeps)
+		{
+			if (enemyCreep.getActiveBodyparts("attack") !== 0)
+			{
+				(bestEnemyCreeps ||= []).push(enemyCreep);
+			}
+		}
+
+		if (bestEnemyCreeps !== undefined)
+		{
+			return bestEnemyCreeps;
+		}
+
+		for (const enemyCreep of enemyCreeps)
+		{
+			if (enemyCreep.getActiveBodyparts("ranged_attack") !== 0)
+			{
+				(bestEnemyCreeps ||= []).push(enemyCreep);
+			}
+		}
+
+		return bestEnemyCreeps || enemyCreeps;
+	}
+
+	// private static TryAttackObject(creep: AttackerCreep, targetRoomName: string, targetId: string): boolean
+	// {
+	// 	const target: EnemyCreep | PowerCreep | Structure | null = Game.getObjectById(targetId as Id<EnemyCreep | PowerCreep | Structure>);
+	// 	if (target === null)
+	// 	{
+	// 		for (const room of Find.VisibleRooms())
+	// 		{
+	// 			if (room.name === targetRoomName)
+	// 			{
+	// 				return false; // We already killed it. Attack the next thing in the list
+	// 			}
+	// 		}
+	// 		CreepBehavior.MoveTo(creep, Find.Center(targetRoomName)); // Move towards non-visible room
+	// 	}
+	// 	else if (Find.IsSameRoomAndWithinRange(creep.pos, target.pos, 1) === false)
+	// 	{
+	// 		CreepBehavior.MoveTo(creep, target.pos);
+	// 	}
+	// 	else
+	// 	{
+	// 		Log.Succeeded(creep.attack(target), creep, target);
+	// 	}
+	// 	return true;
+	// }
 
 	private static TryBeInRange(
 		creep: AnyProducerOrConsumerCreep,
@@ -994,18 +1068,17 @@ export abstract /* static */ class CreepBehavior
 					continue;
 				}
 
+				const runnerTargetRoom: Room = runner.Target.room;
+
 				for (const type of c_typesHarvestersGiveEnergyTo)
 				{
-					for (const room of Find.VisibleRooms())
+					for (const testObject of Find.MyObjects(runnerTargetRoom, type))
 					{
-						for (const testObject of Find.MyObjects(room, type))
+						if ((testEnergy = testObject.EnergyLeftToTake) > maxEnergyFlowPerTick &&
+							(testScore = Math.min(testEnergy, runnerEnergyLeftToGive) / Math.max(1, Find.Distance(runnerPosition, testObject.pos) - 1)) > maxEnergyFlowPerTick)
 						{
-							if ((testEnergy = testObject.EnergyLeftToTake) > maxEnergyFlowPerTick &&
-								(testScore = Math.min(testEnergy, runnerEnergyLeftToGive) / Math.max(1, Find.Distance(runnerPosition, testObject.pos) - 1)) > maxEnergyFlowPerTick)
-							{
-								bestTarget = testObject;
-								runnerEnergyDifference = -(maxEnergyFlowPerTick = testScore);
-							}
+							bestTarget = testObject;
+							runnerEnergyDifference = -(maxEnergyFlowPerTick = testScore);
 						}
 					}
 				}
