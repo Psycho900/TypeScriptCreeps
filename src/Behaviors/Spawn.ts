@@ -6,6 +6,7 @@ import { Log } from "../Log";
 import { Type } from "../Type";
 
 const c_ticksToForecast = 100 as const;
+const c_maxSpawnDistanceFromTarget = 150 as const;
 
 const c_harvesterBodyWithWorkCount =
 	[
@@ -19,7 +20,6 @@ const c_harvesterBodyWithWorkCount =
 
 const c_optimalRunnerBody =
 	[
-		"work", "move",
 		"carry", "move", //  1 carry
 		"carry", "move", //  2 carry's
 		"carry", "move", //  3 carry's
@@ -34,6 +34,7 @@ const c_optimalRunnerBody =
 		"carry", "move", // 12 carry's
 		"carry", "move", // 13 carry's
 		"carry", "move", // 14 carry's
+		"work", "move",
 	] as const;
 
 const c_optimalBuilderBody =
@@ -41,9 +42,11 @@ const c_optimalBuilderBody =
 		"carry", "carry", "carry", "carry", "carry", //  5 carry's
 		"carry", "carry", "carry", "carry", "carry", // 10 carry's
 		"carry", "carry", "carry", "carry", "carry", // 15 carry's
-		"carry", "carry", "carry", "carry", "carry", // 20 carry's
-		"carry", "carry", "carry", "carry", "carry", // 25 carry's
-		"work", "work", "work", "work", "work", //  5 work's
+		"work", "carry", // 1 work's                    16 carry's
+		"work", "carry", // 2 work's                    17 carry's
+		"work", "carry", // 3 work's                    18 carry's
+		"work", "carry", // 4 work's                    19 carry's
+		"work", "carry", // 5 work's                    20 carry's
 		"move",
 	] as const;
 
@@ -59,11 +62,6 @@ const c_optimalAttackerBody =
 		"attack", "move", //  8 attack's
 		"attack", "move", //  9 attack's
 		"attack", "move", // 10 attack's
-		"attack", "move", // 11 attack's
-		"attack", "move", // 12 attack's
-		"attack", "move", // 13 attack's
-		"attack", "move", // 14 attack's
-		"attack", "move", // 15 attack's
 	] as const;
 
 declare global
@@ -246,26 +244,27 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		let targetRoomEnergyToSpend: number = targetRoom.EnergyLeftToGive - 3 * (BODYPART_COST.move + BODYPART_COST.carry);
-		const bodyParts: BodyPartConstant[] = ["carry", "carry", "carry", "move", "move", "move"];
+		const bodyParts: BodyPartConstant[] = [];
 
 		if ((targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.work) >= 0)
 		{
-			bodyParts.push("move");
 			bodyParts.push("work");
+			bodyParts.push("move");
 
 			while ((targetRoomEnergyToSpend -= 100) >= 0)
 			{
-				bodyParts.push("move");
 				bodyParts.push("carry");
+				bodyParts.push("move");
 			}
 		}
 
+		bodyParts.push("carry", "move", "carry", "move", "carry", "move");
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Runner, targetRoom.controller, bodyParts);
 	}
 
 	private static ShouldSpawnUpgrader(targetRoom: ControllableRoom): boolean
 	{
-		if ((Game.time & 0xFF) !== 0 || Find.Creeps(targetRoom, CreepType.Enemy).length !== 0)
+		if (Find.Creeps(targetRoom, CreepType.Enemy).length !== 0)
 		{
 			return false;
 		}
@@ -278,6 +277,11 @@ export abstract /* static */ class SpawnBehavior
 			{
 				return testStorage.EnergyLeftToTake < 900000;
 			}
+		}
+
+		if ((Game.time & 0x7F) !== 0)
+		{
+			return false;
 		}
 
 		for (const testContainer of Find.MyObjects(targetRoom, Type.Container))
@@ -309,13 +313,14 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		let targetRoomEnergyToSpend: number = targetRoom.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work);
-		const bodyParts: BodyPartConstant[] = ["work", "carry", "move"];
+		const bodyParts: BodyPartConstant[] = [];
 
 		while ((targetRoomEnergyToSpend -= 100) >= 0)
 		{
 			bodyParts.push("work");
 		}
 
+		bodyParts.push("work", "carry", "move");
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Upgrader, targetRoom.controller, bodyParts);
 	}
 
@@ -328,7 +333,7 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		let targetRoomEnergyToSpend: number = targetRoom.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work);
-		const bodyParts: BodyPartConstant[] = ["work", "carry", "move"];
+		const bodyParts: BodyPartConstant[] = [];
 
 		while ((targetRoomEnergyToSpend -= 50) >= 0)
 		{
@@ -341,6 +346,7 @@ export abstract /* static */ class SpawnBehavior
 			}
 		}
 
+		bodyParts.push("work", "carry", "move");
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Builder, targetRoom.controller, bodyParts);
 	}
 
@@ -369,8 +375,8 @@ export abstract /* static */ class SpawnBehavior
 
 		while ((targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.attack) >= 0)
 		{
-			bodyParts.push("move");
 			bodyParts.push("attack");
+			bodyParts.push("move");
 		}
 
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Attacker, targetRoom.controller, bodyParts);
@@ -394,7 +400,7 @@ export abstract /* static */ class SpawnBehavior
 		const bodyPartsCost: number = SpawnBehavior.GetBodyPartsCost(bodyParts);
 		let closestSpawn: StructureSpawn | undefined;
 		let closestSpawnIndex: number = 0;
-		let closestDistance: number = 1000000000;
+		let closestDistance: number = 750; // Make sure the creep spends at least half its life doing its job
 		let testSpawn: StructureSpawn;
 		let testDistance: number;
 		let spawnIndex: number = -1;
@@ -411,7 +417,7 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		if (closestSpawn === undefined ||
-			(closestDistance > 100 && closestSpawn.id !== Find.Closest(targetPosition, Find.MySpawns())!.id))
+			(closestDistance > c_maxSpawnDistanceFromTarget && closestSpawn.id !== Find.Closest(targetPosition, Find.MySpawns())!.id))
 		{
 			return false; // Wait for a closer spawn to be available
 		}

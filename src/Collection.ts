@@ -1,11 +1,6 @@
-const c_emptyArray: readonly [] = [] as const;
-
 export abstract /* static */ class Collection
 {
-	public static Empty(): readonly []
-	{
-		return c_emptyArray;
-	}
+	public static readonly c_empty: readonly [] = [] as const;
 
 	public static Last<T>(elements: readonly T[]): T | undefined
 	{
@@ -112,59 +107,59 @@ export abstract /* static */ class Collection
 	// 	return bestElement;
 	// }
 
-	public static HighestScoringPair<T1, T2>(
-		elements1: readonly T1[],
-		elements2: readonly T2[],
-		scoreFunction: (element1: T1, element2: T2) => number): readonly [T1, T2] | null
-	{
-		const elements1Length: number = elements1.length;
-		const elements2Length: number = elements2.length;
+	// public static HighestScoringPair<T1, T2>(
+	// 	elements1: readonly T1[],
+	// 	elements2: readonly T2[],
+	// 	scoreFunction: (element1: T1, element2: T2) => number): readonly [T1, T2] | null
+	// {
+	// 	const elements1Length: number = elements1.length;
+	// 	const elements2Length: number = elements2.length;
+	//
+	// 	if (elements1Length <= 0 || elements2Length <= 0)
+	// 	{
+	// 		return null;
+	// 	}
+	//
+	// 	let bestElement1: T1;
+	// 	let bestElement2: T2;
+	// 	let bestScore: number | undefined;
+	//
+	// 	for (const element1 of elements1)
+	// 	{
+	// 		for (const element2 of elements2)
+	// 		{
+	// 			const currentScore: number = scoreFunction(element1, element2);
+	//
+	// 			if (currentScore <= bestScore!) // All comparison with undefined results in `false`
+	// 			{
+	// 				continue; // Take the 1st one with the highest score
+	// 			}
+	//
+	// 			bestElement1 = element1;
+	// 			bestElement2 = element2;
+	// 			bestScore = currentScore;
+	// 		}
+	// 	}
+	//
+	// 	return [bestElement1!, bestElement2!];
+	// }
 
-		if (elements1Length <= 0 || elements2Length <= 0)
-		{
-			return null;
-		}
-
-		let bestElement1: T1;
-		let bestElement2: T2;
-		let bestScore: number | undefined;
-
-		for (const element1 of elements1)
-		{
-			for (const element2 of elements2)
-			{
-				const currentScore: number = scoreFunction(element1, element2);
-
-				if (currentScore <= bestScore!) // All comparison with undefined results in `false`
-				{
-					continue; // Take the 1st one with the highest score
-				}
-
-				bestElement1 = element1;
-				bestElement2 = element2;
-				bestScore = currentScore;
-			}
-		}
-
-		return [bestElement1!, bestElement2!];
-	}
-
-	public static Count<T>(
-		elements: readonly T[],
-		predicate: (element: T) => boolean): number
-	{
-		let count: number = 0;
-
-		for (const element of elements)
-		{
-			if (predicate(element) === true)
-			{
-				++count;
-			}
-		}
-
-		return count;
-	}
+	// public static Count<T>(
+	// 	elements: readonly T[],
+	// 	predicate: (element: T) => boolean): number
+	// {
+	// 	let count: number = 0;
+	//
+	// 	for (const element of elements)
+	// 	{
+	// 		if (predicate(element) === true)
+	// 		{
+	// 			++count;
+	// 		}
+	// 	}
+	//
+	// 	return count;
+	// }
 
 	// public static CountKeysWithValue<TKey, TValue>(
 	// 	map: Map<TKey, TValue>,

@@ -151,7 +151,7 @@ export abstract /* static */ class Find
 		type TRoomObjects = readonly ToInterface<TRoomObjectTypes>[];
 		return room.cache
 			? room.cache.get(types) as TRoomObjects | undefined || Find.SetAndGet(room.cache, types, Find.GenerateMyRoomObjectsOfTypeArray(room, types)) as TRoomObjects
-			: Collection.Empty();
+			: Collection.c_empty;
 	}
 
 	// public static MyObjectsInRange<TRoomObjectTypes extends number>(
@@ -478,7 +478,7 @@ export abstract /* static */ class Find
 			? (roomObjectsOfTypes.push.apply(roomObjectsOfTypes, lastRoomObjectsOfTypes!), roomObjectsOfTypes)
 			: lastRoomObjectsOfTypes !== undefined
 				? lastRoomObjectsOfTypes
-				: Collection.Empty();
+				: Collection.c_empty;
 	}
 
 	private static CacheEachNonEnemyStructureType(
@@ -533,7 +533,7 @@ export abstract /* static */ class Find
 		{
 			if (cache.has(structureType) === false)
 			{
-				cache.set(structureType, Collection.Empty());
+				cache.set(structureType, Collection.c_empty);
 			}
 		}
 
@@ -594,7 +594,7 @@ export abstract /* static */ class Find
 			}
 		}
 
-		return creepsOfType || Collection.Empty();
+		return creepsOfType || Collection.c_empty;
 	}
 
 	private static SetAndGet<TKey, TValue>(map: Map<TKey, TValue>, key: TKey, value: TValue): TValue

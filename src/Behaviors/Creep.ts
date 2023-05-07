@@ -42,6 +42,14 @@ const c_typesConsumersTakeEnergyFrom = // In priority order
 		Type.Link,
 	] as const;
 
+const c_creepTypesConsumersTakeEnergyFrom = // In priority order
+	[
+		CreepType.Harvester,
+		CreepType.Runner,
+		CreepType.Upgrader,
+		CreepType.Builder,
+	] as const;
+
 const c_typesConsumersGiveEnergyTo = // In priority order
 	[
 		Type.Extension,
@@ -152,7 +160,8 @@ export abstract /* static */ class CreepBehavior
 								creep,
 								(source = creep.Target).pos,
 								source.energy !== 0 ? 2 : Math.max(2, (source.ticksToRegeneration / 6 - 3) | 0),
-								c_typesHarvestersTakeEnergyFrom);
+								c_typesHarvestersTakeEnergyFrom,
+								Collection.c_empty);
 						}
 
 						continue;
@@ -166,7 +175,7 @@ export abstract /* static */ class CreepBehavior
 								(constructionSites[0] || creep.Target).pos,
 								4,
 								c_typesConsumersGiveEnergyTo,
-								Collection.Empty());
+								Collection.c_empty);
 						}
 
 						if (creep.EnergyLeftToTake !== 0)
@@ -175,7 +184,8 @@ export abstract /* static */ class CreepBehavior
 								creep,
 								(constructionSites[0] || creep.Target).pos,
 								4,
-								c_typesConsumersTakeEnergyFrom);
+								c_typesConsumersTakeEnergyFrom,
+								c_creepTypesConsumersTakeEnergyFrom);
 						}
 
 						continue;
@@ -237,12 +247,23 @@ export abstract /* static */ class CreepBehavior
 					CreepBehavior.TryRepair(runner);
 				}
 
-				const energyGiven: number = runner.EnergyLeftToGive === 0 ? 0 :
-					CreepBehavior.GiveEnergyInRange(runner, runner.pos, 1, c_typesHarvestersGiveEnergyTo, c_creepTypesConsumersGiveEnergyTo);
+				const energyGiven: number = runner.EnergyLeftToGive === 0
+					? 0
+					: CreepBehavior.GiveEnergyInRange(
+						runner,
+						runner.pos,
+						1,
+						c_typesHarvestersGiveEnergyTo,
+						c_creepTypesConsumersGiveEnergyTo);
 
 				if (runner.EnergyLeftToTake !== 0)
 				{
-					runner.EnergyLeftToGive += CreepBehavior.TakeEnergyInRange(runner, runner.pos, 1, c_typesConsumersTakeEnergyFrom);
+					runner.EnergyLeftToGive += CreepBehavior.TakeEnergyInRange(
+						runner,
+						runner.pos,
+						1,
+						c_typesConsumersTakeEnergyFrom,
+						c_creepTypesConsumersTakeEnergyFrom);
 				}
 
 				// This can/should only be done immediately before CreepBehavior.Run, which always operates on 2+ ticks in the future
@@ -264,7 +285,7 @@ export abstract /* static */ class CreepBehavior
 		targetPosition: RoomPosition,
 		targetRange: number,
 		typesInPriorityOrder: readonly AnyEnergyTakingType[],
-		creepTypesInPriorityOrder: readonly AnyEnergyTakingCreepType[]): number // Returns amount of energy given
+		creepTypesInPriorityOrder: readonly AnyEnergyCreepType[]): number // Returns amount of energy given
 	{
 		let energyGiven: number = CreepBehavior.InternalGiveEnergyInRange(
 			creep,
@@ -289,7 +310,7 @@ export abstract /* static */ class CreepBehavior
 		targetPosition: RoomPosition,
 		targetRange: number,
 		typesInPriorityOrder: readonly AnyEnergyTakingType[],
-		creepTypesInPriorityOrder: readonly AnyEnergyTakingCreepType[]): number // Returns amount of energy given
+		creepTypesInPriorityOrder: readonly AnyEnergyCreepType[]): number // Returns amount of energy given
 	{
 		const room: Room = creep.room;
 		const creepPosition: RoomPosition = creep.pos;
@@ -500,7 +521,8 @@ export abstract /* static */ class CreepBehavior
 		creep: MyCreep,
 		targetPosition: RoomPosition,
 		targetRange: number,
-		typesInPriorityOrder: readonly AnyEnergyGivingType[]): number // Returns amount of energy taken
+		typesInPriorityOrder: readonly AnyEnergyGivingType[],
+		creepTypesInPriorityOrder: readonly AnyEnergyCreepType[]): number // Returns amount of energy taken
 	{
 		const creepPosition: RoomPosition = creep.pos;
 
@@ -853,7 +875,7 @@ export abstract /* static */ class CreepBehavior
 	private static TryAttack(creep: AttackerCreep): boolean
 	{
 		return CreepBehavior.TryAttackRoom(creep, "W29S25");
-			// || CreepBehavior.TryAttackObject(creep, "W29S24", "6133295eed49e2824e09e179");
+		// || CreepBehavior.TryAttackObject(creep, "W29S24", "6133295eed49e2824e09e179");
 	}
 
 	private static TryAttackRoom(creep: AttackerCreep, targetRoomName: string): boolean

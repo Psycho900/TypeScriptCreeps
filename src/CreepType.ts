@@ -39,7 +39,7 @@ declare global // CreepType-specifics
 		| /*       */ UpgraderCreepType
 		| /*        */ BuilderCreepType;
 
-	/* */ type AnyEnergyTakingCreepType =
+	/*       */ type AnyEnergyCreepType =
 		| /*      */ HarvesterCreepType
 		| /*         */ RunnerCreepType
 		| /*       */ UpgraderCreepType
