@@ -441,13 +441,15 @@ export abstract /* static */ class CreepBehavior
 				if ((testEnergy = (testObject = testCreeps[testCreepIndex]).EnergyLeftToTake) === 0 ||
 					testObject.spawning !== false ||
 					((testDistance = Find.Distance(creepPosition, testPosition = testObject.pos)) >= closestObjectDistance) ||
-					testObject.id === creep.id)
+					testDistance === 0) // 0 Distance means testObject == this creep
 				{
 					continue;
 				}
-				else if (testDistance > 1)
+				else if (testDistance !== 1)
 				{
-					if (creepType !== testCreepType && (x = testPosition.x) >= minX && x <= maxX && (y = testPosition.y) >= minY && y <= maxY)
+					if (creepType !== testCreepType &&
+						(x = testPosition.x) >= minX && x <= maxX &&
+						(y = testPosition.y) >= minY && y <= maxY)
 					{
 						closestObject = testObject; // Moving to the same creep type results in lots of wasteful jiggling around
 						closestObjectDistance = testDistance;
@@ -504,7 +506,7 @@ export abstract /* static */ class CreepBehavior
 		{
 			const closestObjectPosition: RoomPosition = closestObject.pos;
 
-			if (Find.IsSameRoomAndWithinRange(targetPosition, closestObjectPosition, --targetRange) !== false)
+			if (Find.IsSameRoomAndWithinRange(targetPosition, closestObjectPosition, targetRange - 1) !== false)
 			{
 				CreepBehavior.MoveTo(creep, closestObject);
 			}
@@ -540,19 +542,19 @@ export abstract /* static */ class CreepBehavior
 
 		let x: number = targetPosition.x;
 		let y: number = targetPosition.y;
-		const minX: number = x - targetRange;
-		const maxX: number = x + targetRange;
-		const minY: number = y - targetRange;
-		const maxY: number = y + targetRange;
+		let minX: number = x - targetRange;
+		let maxX: number = x + targetRange;
+		let minY: number = y - targetRange;
+		let maxY: number = y + targetRange;
 
 		let energyToPickUp: number = 0;
-		let closestObject: AnyEnergyGivingObject | Resource | undefined;
+		let closestObject: AnyEnergyGivingObject | Resource | Creep | undefined;
 		let closestObjectDistance: number = Find.Distance(creepPosition, targetPosition) + targetRange + 1;
 
 		let testPosition: RoomPosition;
 		let testDistance: number;
 		let testEnergy: number;
-		let testObject: AnyEnergyGivingObject | Resource;
+		let testObject: AnyEnergyGivingObject | Resource | Creep;
 		let testObjects: readonly (AnyEnergyGivingObject | Resource)[] = Find.MyObjects(room, Type.Resource);
 		let testObjectIndex: number = testObjects.length;
 
@@ -565,7 +567,8 @@ export abstract /* static */ class CreepBehavior
 			}
 			else if (testDistance > 1)
 			{
-				if ((x = testPosition.x) >= minX && x <= maxX && (y = testPosition.y) >= minY && y <= maxY)
+				if ((x = testPosition.x) >= minX && x <= maxX &&
+					(y = testPosition.y) >= minY && y <= maxY)
 				{
 					closestObject = testObject;
 					closestObjectDistance = testDistance;
@@ -629,7 +632,8 @@ export abstract /* static */ class CreepBehavior
 				}
 				else if (testDistance > 1)
 				{
-					if ((x = testPosition.x) >= minX && x <= maxX && (y = testPosition.y) >= minY && y <= maxY)
+					if ((x = testPosition.x) >= minX && x <= maxX &&
+						(y = testPosition.y) >= minY && y <= maxY)
 					{
 						closestObject = testObject;
 						closestObjectDistance = testDistance;
@@ -676,7 +680,70 @@ export abstract /* static */ class CreepBehavior
 				return energyToWithdraw + energyToPickUp;
 			}
 
-			if (closestObject !== undefined)
+			if (closestObject !== undefined) // Only daisy-chain it from creeps that are closer to closestObjectToCreep than us
+			{
+				const closestObjectToCreepDistanceMinus1 = closestObjectDistance - 1;
+
+				if ((x = creepPosition.x) < (y = (testPosition = closestObject.pos).x)) // [sic] (pretend "y" is "x2")
+				{
+					minX = Math.max(minX, y - closestObjectToCreepDistanceMinus1); // [sic] (pretend "y" is "x2")
+					maxX = Math.min(maxX, x + closestObjectToCreepDistanceMinus1);
+				}
+				else
+				{
+					minX = Math.max(minX, x - closestObjectToCreepDistanceMinus1);
+					maxX = Math.min(maxX, y + closestObjectToCreepDistanceMinus1); // [sic] (pretend "y" is "x2")
+				}
+
+				if ((y = creepPosition.y) < (x = testPosition.y)) // [sic] (pretend "x" is "y2")
+				{
+					minY = Math.max(minY, x - closestObjectToCreepDistanceMinus1); // [sic] (pretend "x" is "y2")
+					maxY = Math.min(maxY, y + closestObjectToCreepDistanceMinus1);
+				}
+				else
+				{
+					minY = Math.max(minY, y - closestObjectToCreepDistanceMinus1);
+					maxY = Math.min(maxY, x + closestObjectToCreepDistanceMinus1); // [sic] (pretend "x" is "y2")
+				}
+
+				break;
+			}
+		}
+
+		const creepType: number = creep.CreepType;
+
+		// See if we can daisy-chain our energy closer to our target to avoid moving
+		for (const testCreepType of creepTypesInPriorityOrder)
+		{
+			const testCreeps: readonly MyCreep[] = Find.Creeps(room, testCreepType);
+			let testCreepIndex: number = testCreeps.length;
+
+			while (testCreepIndex-- !== 0)
+			{
+				if ((testEnergy = (testObject = testCreeps[testCreepIndex]).EnergyLeftToGive) === 0 ||
+					testObject.spawning !== false ||
+					((testDistance = Find.Distance(creepPosition, testPosition = testObject.pos)) >= closestObjectDistance) ||
+					testDistance === 0) // 0 Distance means testObject == this creep
+				{
+					continue;
+				}
+				else if (testDistance !== 1)
+				{
+					if (creepType !== testCreepType &&
+						(x = testPosition.x) >= minX && x <= maxX &&
+						(y = testPosition.y) >= minY && y <= maxY)
+					{
+						closestObject = testObject; // Moving to the same creep type results in lots of wasteful jiggling around
+						closestObjectDistance = testDistance;
+					}
+
+					continue;
+				}
+
+				return energyToWithdraw + energyToPickUp;
+			}
+
+			if (closestObject !== undefined && closestObject.Type === Type.Creep)
 			{
 				break;
 			}
@@ -686,7 +753,7 @@ export abstract /* static */ class CreepBehavior
 		{
 			const closestObjectPosition: RoomPosition = closestObject.pos;
 
-			if (Find.IsSameRoomAndWithinRange(targetPosition, closestObjectPosition, --targetRange) !== false)
+			if (Find.IsSameRoomAndWithinRange(targetPosition, closestObjectPosition, targetRange - 1) !== false)
 			{
 				CreepBehavior.MoveTo(creep, closestObject);
 			}

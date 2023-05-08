@@ -6,15 +6,15 @@ import { Log } from "../Log";
 import { Type } from "../Type";
 
 const c_ticksToForecast = 100 as const;
-const c_maxSpawnDistanceFromTarget = 150 as const;
+const c_maxSpawnDistanceFromTarget = 100 as const;
 
 const c_harvesterBodyWithWorkCount =
 	[
-		null, // ["carry", "move"], //                                         0
+		null, // ["carry", "move"], //                                0
 		["work", "carry", "move"], //                                 1
 		["work", "work", "carry", "move"], //                         2
 		["work", "work", "work", "carry", "move"], //                 3
-		null, // ["work", "work", "work", "work", "carry", "move"], //         4
+		null, // ["work", "work", "work", "work", "carry", "move"],   4
 		["work", "work", "work", "work", "work", "carry", "move"], // 5
 	] as const;
 
@@ -34,6 +34,8 @@ const c_optimalRunnerBody =
 		"carry", "move", // 12 carry's
 		"carry", "move", // 13 carry's
 		"carry", "move", // 14 carry's
+		"carry", "move", // 15 carry's
+		"carry", "move", // 16 carry's
 		"work", "move",
 	] as const;
 
@@ -269,25 +271,23 @@ export abstract /* static */ class SpawnBehavior
 			return false;
 		}
 
-		const targetPosition: RoomPosition = targetRoom.controller.pos;
-
-		for (const testStorage of Find.MyObjects(targetRoom, Type.Storage))
+		const storage: StructureStorage | undefined = Find.MyObjects(targetRoom, Type.Storage)[0];
+		if (storage !== undefined &&
+			Find.IsSameRoomAndWithinRange(storage.pos, targetRoom.controller.pos, 4) !== false)
 		{
-			if (Find.IsSameRoomAndWithinRange(testStorage.pos, targetPosition, 4) !== false)
-			{
-				return testStorage.EnergyLeftToTake < 900000;
-			}
+			return SpawnBehavior.ShouldSpawnUpgraderForNearByStorage(targetRoom, storage);
 		}
 
-		if ((Game.time & 0x7F) !== 0)
+		if ((Game.time & 0xFF) !== 0)
 		{
 			return false;
 		}
 
+		const targetPosition: RoomPosition = targetRoom.controller.pos;
 		for (const testContainer of Find.MyObjects(targetRoom, Type.Container))
 		{
 			if (Find.IsSameRoomAndWithinRange(testContainer.pos, targetPosition, 4) !== false
-				&& testContainer.EnergyLeftToTake >= 50)
+				&& testContainer.EnergyLeftToTake >= 100)
 			{
 				return false;
 			}
@@ -296,7 +296,30 @@ export abstract /* static */ class SpawnBehavior
 		for (const testLink of Find.MyObjects(targetRoom, Type.Link))
 		{
 			if (Find.IsSameRoomAndWithinRange(testLink.pos, targetPosition, 4) !== false
-				&& testLink.EnergyLeftToTake >= 50)
+				&& testLink.EnergyLeftToTake >= 100)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static ShouldSpawnUpgraderForNearByStorage(targetRoom: ControllableRoom, storage: StructureStorage): boolean
+	{
+		let projectedEnergy: number = storage.store.energy; // The logic before CreepBehavior.Run messed up storage.EnergyToGive earlier in this tick
+		if (projectedEnergy < 75000)
+		{
+			return false;
+		}
+
+		const controllerId: Id<StructureController> = targetRoom.controller.id;
+
+		for (const testCreep of Find.MySpawningAndSpawnedCreeps())
+		{
+			if (testCreep.IsAny(CreepType.AllConsumers) !== false &&
+				testCreep.Target.id === controllerId &&
+				(projectedEnergy -= (testCreep.ticksToLive || 1500) * testCreep.getActiveBodyparts("work")) < 75000)
 			{
 				return false;
 			}
@@ -315,7 +338,7 @@ export abstract /* static */ class SpawnBehavior
 		let targetRoomEnergyToSpend: number = targetRoom.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry + BODYPART_COST.work);
 		const bodyParts: BodyPartConstant[] = [];
 
-		while ((targetRoomEnergyToSpend -= 100) >= 0)
+		while ((targetRoomEnergyToSpend -= 100) >= 0 && bodyParts.length < 47)
 		{
 			bodyParts.push("work");
 		}
