@@ -110,8 +110,8 @@ export abstract /* static */ class CreepBehavior
 				{
 					case CreepType.Harvester: // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 						CreepBehavior.TryHarvest(creep) !== false
-							|| CreepBehavior.TryRepair(creep) !== false
-							|| (constructionSites.length !== 0 && CreepBehavior.TryBuild(creep, Find.Closest(creep.pos, constructionSites)!));
+							|| (constructionSites.length !== 0 && CreepBehavior.TryBuild(creep, Find.Closest(creep.pos, constructionSites)!)
+							|| CreepBehavior.TryRepair(creep) !== false);
 						continue;
 
 					case CreepType.Upgrader:
@@ -175,7 +175,7 @@ export abstract /* static */ class CreepBehavior
 								(constructionSites[0] || creep.Target).pos,
 								4,
 								c_typesConsumersGiveEnergyTo,
-								Collection.c_empty);
+								c_creepTypesConsumersGiveEnergyTo);
 						}
 
 						if (creep.EnergyLeftToTake !== 0)
@@ -351,7 +351,8 @@ export abstract /* static */ class CreepBehavior
 				}
 				else if (testDistance > 1)
 				{
-					if ((x = testPosition.x) >= minX && x <= maxX && (y = testPosition.y) >= minY && y <= maxY)
+					if ((x = testPosition.x) >= minX && x <= maxX &&
+						(y = testPosition.y) >= minY && y <= maxY)
 					{
 						closestObject = testObject;
 						closestObjectDistance = testDistance;
