@@ -107,111 +107,105 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		let source: Source;
-
-		for (const room of Find.VisibleRooms()) // Harvesters, Upgraders, and Builders
+		for (const creep of Find.MySpawnedCreeps(CreepType.All)) // First, make sure non-runners prioritizes the things only they can do
 		{
-			const allCreeps: readonly AnyCreep[] = Find.Creeps(room, CreepType.All);
-			const constructionSites: readonly ConstructionSite[] = Find.MyObjects(room, Type.ConstructionSite);
-
-			for (const creep of allCreeps) // First, make sure non-runners prioritizes the things only they can do
+			switch (creep.CreepType)
 			{
-				if (creep.spawning !== false)
-				{
+				case CreepType.Harvester:
+					{
+						if (CreepBehavior.TryHarvest(creep, creep.Target) !== false)
+						{
+							continue;
+						}
+
+						const constructionSites: readonly ConstructionSite[] = Find.MyObjects(creep.Target.room, Type.ConstructionSite);
+
+						if (constructionSites.length !== 0 && CreepBehavior.TryBuild(creep, Find.Closest(creep.pos, constructionSites)!) !== false)
+						{
+							continue;
+						}
+
+						CreepBehavior.TryRepair(creep);
+						continue;
+					}
+
+				case CreepType.Upgrader:
+				case CreepType.Builder:
+					{
+						const constructionSites: readonly ConstructionSite[] = Find.MyObjects(creep.Target.room, Type.ConstructionSite);
+
+						if (constructionSites.length === 0)
+						{ // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+							CreepBehavior.TryUpgradeController(creep) !== false || CreepBehavior.TryRepair(creep);
+							continue;
+						}
+
+						if (CreepBehavior.TryBuild(creep, constructionSites[0]) !== false || CreepBehavior.TryRepair(creep) !== false)
+						{
+							continue;
+						}
+
+						const source: Source | undefined = Find.Closest(creep.pos, Find.MyObjects(creep.room, Type.Source));
+
+						if (source !== undefined
+							&& Find.IsSameRoomAndWithinRange(constructionSites[0].pos, source.pos, 4) !== false
+							&& CreepBehavior.TryHarvest(creep, source)) // Only harvest near the current construction site
+						{
+							continue;
+						}
+
+						continue;
+					}
+
+				case CreepType.Claimer:
+					CreepBehavior.TryClaim(creep);
 					continue;
-				}
 
-				switch (creep.CreepType)
-				{
-					case CreepType.Harvester: // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-						CreepBehavior.TryHarvest(creep, creep.Target) !== false
-							|| (constructionSites.length !== 0 && CreepBehavior.TryBuild(creep, Find.Closest(creep.pos, constructionSites)!) !== false
-								|| CreepBehavior.TryRepair(creep) !== false);
-						continue;
-
-					case CreepType.Upgrader:
-					case CreepType.Builder:
-						if (constructionSites.length !== 0)
-						{ // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-							CreepBehavior.TryBuild(creep, constructionSites[0]) !== false
-								|| CreepBehavior.TryRepair(creep) !== false
-								|| ((source = Find.Closest(creep.pos, Find.MyObjects(creep.room, Type.Source))!) !== undefined
-									&& Find.IsSameRoomAndWithinRange(constructionSites[0].pos, source.pos, 4) !== false
-									&& CreepBehavior.TryHarvest(creep, source)); // Only harvest near the current construction site
-						}
-						else
-						{ // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-							CreepBehavior.TryUpgradeController(creep) !== false
-								|| CreepBehavior.TryRepair(creep);
-						}
-						continue;
-
-					case CreepType.Claimer:
-						CreepBehavior.TryClaim(creep);
-						continue;
-
-					case CreepType.Attacker:
-						CreepBehavior.TryAttack(creep);
-						continue;
-				}
+				case CreepType.Attacker:
+					CreepBehavior.TryAttack(creep);
+					continue;
 			}
+		}
 
-			for (const creep of allCreeps) // Next, non-runners should give & take as many nearby resources as possible
+		for (const creep of Find.MySpawnedCreeps(CreepType.All)) // Next, non-runners should give & take as many nearby resources as possible
+		{
+			switch (creep.CreepType)
 			{
-				if (creep.spawning !== false)
-				{
-					continue;
-				}
+				case CreepType.Harvester:
+					{
+						const source: Source = creep.Target;
+						const rangeFromSource: number = source.energy !== 0 ? 2 : Math.max(2, (source.ticksToRegeneration / 6 - 3) | 0);
 
-				switch (creep.CreepType)
-				{
-					case CreepType.Harvester:
 						if (creep.EnergyLeftToGive !== 0)
 						{
-							CreepBehavior.GiveEnergyInRange(
-								creep,
-								(source = creep.Target).pos,
-								source.energy !== 0 ? 2 : Math.max(2, (source.ticksToRegeneration / 6 - 3) | 0),
-								c_typesHarvestersGiveEnergyTo,
-								c_creepTypesHarvestersGiveEnergyTo);
+							CreepBehavior.GiveEnergyInRange(creep, source.pos, rangeFromSource, c_typesHarvestersGiveEnergyTo, c_creepTypesHarvestersGiveEnergyTo);
 						}
 
 						if (creep.EnergyLeftToTake !== 0) // Harvesters only pick up if they have a place to put it
 						{
-							CreepBehavior.TakeEnergyInRange(
-								creep,
-								(source = creep.Target).pos,
-								source.energy !== 0 ? 2 : Math.max(2, (source.ticksToRegeneration / 6 - 3) | 0),
-								c_typesHarvestersTakeEnergyFrom,
-								Collection.c_empty);
+							CreepBehavior.TakeEnergyInRange(creep, source.pos, rangeFromSource, c_typesHarvestersTakeEnergyFrom, Collection.c_empty);
 						}
 
 						continue;
+					}
 
-					case CreepType.Upgrader:
-					case CreepType.Builder:
+				case CreepType.Upgrader:
+				case CreepType.Builder:
+					{
+						const targetPosition: RoomPosition = (Find.MyObjects(creep.Target.room, Type.ConstructionSite)[0] || creep.Target).pos;
+
 						if (creep.EnergyLeftToGive !== 0)
 						{
-							CreepBehavior.GiveEnergyInRange(
-								creep,
-								(constructionSites[0] || creep.Target).pos,
-								4,
-								c_typesConsumersGiveEnergyTo,
-								c_creepTypesConsumersGiveEnergyTo);
+							CreepBehavior.GiveEnergyInRange(creep, targetPosition, 4, c_typesConsumersGiveEnergyTo, c_creepTypesConsumersGiveEnergyTo);
 						}
 
 						if (creep.EnergyLeftToTake !== 0)
 						{
-							CreepBehavior.TakeEnergyInRange(
-								creep,
-								(constructionSites[0] || creep.Target).pos,
-								4,
-								c_typesConsumersTakeEnergyFrom,
-								c_creepTypesConsumersTakeEnergyFrom);
+							CreepBehavior.TakeEnergyInRange(creep, targetPosition, 4, c_typesConsumersTakeEnergyFrom, c_creepTypesConsumersTakeEnergyFrom);
 						}
 
 						continue;
-				}
+					}
 			}
 		}
 
@@ -477,7 +471,7 @@ export abstract /* static */ class CreepBehavior
 					testObject.spawning !== false ||
 					((testDistance = Find.Distance(creepPosition, testPosition = testObject.pos)) >= closestObjectDistance) ||
 					testDistance === 0) // || // 0 Distance means testObject == this creep
-					// (creepType === testCreepType && ))
+				// (creepType === testCreepType && ))
 				{
 					continue;
 				}
@@ -1128,6 +1122,7 @@ export abstract /* static */ class CreepBehavior
 
 		let runner: RunnerCreep | undefined;
 		if (distanceFromCreepToTargetArea === 1
+			|| creep.ticksToLive! <= 50 // If the cerep is about to die, don't waste the runners' time
 			|| (runner = Find.Closest(creepPosition, Find.MySpawnedCreeps(CreepType.Runner))) === undefined)
 		{
 			return CreepBehavior.MoveTo(creep, target);
