@@ -1,4 +1,5 @@
 import { } from "./Energy";
+import { Log } from "./Log";
 
 declare global // CreepType-specifics
 {
@@ -76,7 +77,7 @@ declare global // Creep-specifics
 	/*     */ type BuilderCreep = CreepOfType</*  */ BuilderCreepType, StructureController, true>;
 	// /*    */ type MinerCreep = CreepOfType</*    */ MinerCreepType, Mineral /*       */, true>;
 	/*     */ type ClaimerCreep = CreepOfType</*  */ ClaimerCreepType, never /* Various */, true>;
-	/*    */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, never /* Various */, true>;
+	/*    */ type AttackerCreep = CreepOfType</* */ AttackerCreepType, StructureController, true>;
 	/*       */ type EnemyCreep = CreepOfType</*    */ EnemyCreepType, never /*         */, false>;
 	/*          */ type MyCreep = IsMyCreep<true>;
 
@@ -213,7 +214,12 @@ export abstract /* static */ class CreepType
 			{
 				const creepMemory: CreepMemory = Memory.creeps[creep.name];
 				creep.CreepType = creepMemory.ct;
-				creep.Target = Game.getObjectById(creepMemory.tid)!;
+
+				if (!(creep.Target = Game.getObjectById(creepMemory.tid)!))
+				{
+					Log.Warning("Killing creep that is targeting an object that can not be found", OK, creep);
+					Log.Succeeded(creep.suicide(), creep);
+				}
 			}
 		}
 

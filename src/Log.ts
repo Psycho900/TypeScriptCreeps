@@ -88,14 +88,14 @@ export abstract /* static */ class Log
 			return true;
 		}
 
-		if (hr === ERR_NOT_IN_RANGE || hr === ERR_NOT_ENOUGH_RESOURCES)
+		if (hr === ERR_NO_PATH)
+		{
+			// Log.Warning("Semi-expected error code", hr, objectToLog, targetToLog);
+		}
+		else if (hr === ERR_NOT_IN_RANGE || hr === ERR_NOT_ENOUGH_RESOURCES)
 		{
 			// Expected?
-			Log.Error("Rarely expected error code?", hr, objectToLog, targetToLog);
-		}
-		else if (hr === ERR_NO_PATH)
-		{
-			Log.Warning("Rarely expected error code", hr, objectToLog, targetToLog);
+			Log.Error("Rarely expected error code", hr, objectToLog, targetToLog);
 		}
 		else if (hr === ERR_NO_BODYPART)
 		{
