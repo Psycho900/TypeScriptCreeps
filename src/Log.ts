@@ -16,7 +16,7 @@ export abstract /* static */ class Log
 		objectToLog?: RoomObject | string,
 		targetToLog?: RoomObject | RoomPosition | string): void
 	{
-		// @ts-ignore: Compiler optimization to not compile "console"
+		// @ts-expect-error: Compiler optimization to not compile "console"
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		console.log(Log.GetMessagePrefix() + Log.GenerateMessage(message, hr || OK, objectToLog, targetToLog));
 	}
@@ -101,7 +101,7 @@ export abstract /* static */ class Log
 		{
 			Log.Error("No body part", hr, objectToLog, targetToLog);
 
-			// @ts-ignore
+			// @ts-expect-error
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unused-expressions
 			objectToLog && objectToLog.suicide && objectToLog.suicide(); // TODO_KevSchil: Are we ready for this yet?
 		}

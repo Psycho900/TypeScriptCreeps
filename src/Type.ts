@@ -211,6 +211,7 @@ export abstract /* static */ class Type
 	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000 as const;
 
 	public static readonly SpawnsAndExtensions: SpawnType | ExtensionType = Type.Or(Type.Spawn, Type.Extension);
+	public static readonly DecayingEnegrySource /*                     */ = Type.Or(Type.Or(Type.Resource, Type.Ruin), Type.Tombstone);
 
 	public static Or<
 		TTypes1 extends number,

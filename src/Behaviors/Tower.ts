@@ -9,20 +9,49 @@ export abstract /* static */ class TowerBehavior
 	{
 		for (const room of Find.VisibleRooms())
 		{
-			const enemyCreeps: readonly EnemyCreep[] = Find.Creeps(room, CreepType.Enemy);
-			let towers: readonly StructureTower[];
-
-			if (enemyCreeps.length === 0 || (towers = Find.MyObjects(room, Type.Tower)).length === 0)
+			const towers: readonly StructureTower[] = Find.MyObjects(room, Type.Tower);
+			if (towers.length === 0)
 			{
 				continue;
 			}
 
-			const enemyCreep: EnemyCreep = TowerBehavior.GetEnemyToAttack(enemyCreeps);
-
-			for (const tower of towers)
+			const enemyCreeps: readonly EnemyCreep[] = Find.Creeps(room, CreepType.Enemy);
+			if (enemyCreeps.length !== 0)
 			{
-				Log.Succeeded(tower.attack(enemyCreep), tower, enemyCreep);
+				const enemyCreep: EnemyCreep = TowerBehavior.GetEnemyToAttack(enemyCreeps);
+				for (const tower of towers)
+				{
+					Log.Succeeded(tower.attack(enemyCreep), tower, enemyCreep);
+				}
 			}
+
+			// const allCreeps: readonly Creep[] = Find.Creeps(room, CreepType.All);
+			// const creepCount: number = allCreeps.length;
+			// let weakestCreep: Creep | undefined = allCreeps[0];
+			// 
+			// if (creepCount > 1)
+			// {
+			// 	let bestScore: number = scoreFunction(weakestCreep);
+			// 
+			// 	for (let i: number = 1; i < creepCount; ++i)
+			// 	{
+			// 		const currentElement: T = allCreeps[i];
+			// 		const currentScore: number = scoreFunction(currentElement);
+			// 
+			// 		if (currentScore > bestScore) // Take the 1st one with the highest score
+			// 		{
+			// 			weakestCreep = currentElement;
+			// 			bestScore = currentScore;
+			// 		}
+			// 	}
+			// }
+
+
+
+			// for (const tower of towers)
+			// {
+			// 	Log.Succeeded(tower.attack(enemyCreep), tower, enemyCreep);
+			// }
 		}
 	}
 

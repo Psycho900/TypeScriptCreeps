@@ -30,16 +30,29 @@ const c_optimalRunnerBody =
 		"carry", "move", //  8 carry's
 		"carry", "move", //  9 carry's
 		"carry", "move", // 10 carry's
+		"carry", "move", // 11 carry's
+		"carry", "move", // 12 carry's
+		"carry", "move", // 13 carry's
+		"carry", "move", // 14 carry's
+		"carry", "move", // 15 carry's
+		"carry", "move", // 16 carry's
 		"work", "move",
 	] as const;
 
-const c_optimalUpgraderBody =
+const c_optimalUpgraderBodyInRoomWith1Source =
+	[
+		"move",
+		"work", "work", "work", "work", "work", // 5 work's
+		"work", //                                 6 work's
+		"carry",
+	] as const;
+
+const c_optimalUpgraderBodyInRoomWith2Sources =
 	[
 		"move",
 		"work", "work", "work", "work", "work", //  5 work's
 		"work", "work", "work", "work", "work", // 10 work's
 		"work", "work", "work", "work", "work", // 15 work's
-		"work", "work", "work", //                 18 work's
 		"carry",
 	] as const;
 
@@ -48,7 +61,7 @@ const c_optimalBuilderBody =
 		"carry", "carry", "carry", "carry", "carry", //  5 carry's
 		"carry", "carry", "carry", "carry", "carry", // 10 carry's
 		"carry", "carry", "carry", "carry", "carry", // 15 carry's
-		"work", "carry", // 1 work's                    16 carry's
+		"work", "carry", // 1 work                      16 carry's
 		"work", "carry", // 2 work's                    17 carry's
 		"work", "carry", // 3 work's                    18 carry's
 		"work", "carry", // 4 work's                    19 carry's
@@ -166,6 +179,11 @@ export abstract /* static */ class SpawnBehavior
 
 		for (const targetRoom of targetRooms) // Make sure each source has at least 1 harvester on it
 		{
+			if (spawns.length === 0)
+			{
+				return;
+			}
+
 			if (SpawnBehavior.TrySpawnHarvesterInRoom(spawns, targetRoom, workPartCounts) !== false)
 			{
 				continue;
@@ -176,8 +194,10 @@ export abstract /* static */ class SpawnBehavior
 			if (runnerCarryPartCounts.has(targetControllerId) === false) // Make sure each room has at least 1 runner
 			{
 				SpawnBehavior.TrySpawnRunner(spawns, targetRoom);
+				continue;
 			}
-			else if (Find.MyObjects(targetRoom, Type.ConstructionSite).length === 0)
+
+			if (Find.MyObjects(targetRoom, Type.ConstructionSite).length === 0)
 			{
 				if (SpawnBehavior.ShouldSpawnUpgrader(targetRoom) !== false)
 				{
@@ -190,11 +210,6 @@ export abstract /* static */ class SpawnBehavior
 				SpawnBehavior.TrySpawnBuilder(spawns, targetRoom);
 			}
 
-			if (spawns.length === 0)
-			{
-				return;
-			}
-
 			for (let maxWorkCount: 1 | 2 | 3 | 4 = 1;
 				maxWorkCount !== 5 && SpawnBehavior.TrySpawnHarvesterInRoom(spawns, targetRoom, workPartCounts, maxWorkCount as 1 | 2 | 3 | 4) === false;
 				++maxWorkCount) // saturate sources with harvesters
@@ -205,11 +220,20 @@ export abstract /* static */ class SpawnBehavior
 				return;
 			}
 
-			const enemyCreeps: readonly EnemyCreep[] = Find.Creeps(targetRoom, CreepType.Enemy);
-			if (((Game.time & 0x7) === 0) && enemyCreeps.length !== 0 && enemyCreeps[0].owner.username !== "Invader")
+			// if (runnerCarryPartCount < 12) // Make sure each room has at least 2 runner
+			// {
+			// 	SpawnBehavior.TrySpawnRunner(spawns, targetRoom);
+			// }
+			//
+			// if (spawns.length === 0)
+			// {
+			// 	return;
+			// }
+
+			if (SpawnBehavior.ShouldSpawnAttacker(targetRoom) !== false)
 			{
 				SpawnBehavior.TrySpawnAttacker(spawns, targetRoom);
-				return;
+				continue;
 			}
 		}
 
@@ -341,7 +365,11 @@ export abstract /* static */ class SpawnBehavior
 
 	private static TrySpawnUpgrader(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
-		if (SpawnBehavior.TrySpawn(spawns, CreepType.Upgrader, targetRoom.controller, c_optimalUpgraderBody) !== false
+		if (SpawnBehavior.TrySpawn(
+			spawns,
+			CreepType.Upgrader,
+			targetRoom.controller,
+			Find.MyObjects(targetRoom, Type.Source).length <= 1 ? c_optimalUpgraderBodyInRoomWith1Source : c_optimalUpgraderBodyInRoomWith2Sources) !== false
 			|| targetRoom.EnergyLeftToGive <= targetRoom.energyCapacityAvailable - 50)
 		{
 			return true; // We have done everything we can do this tick!
@@ -385,7 +413,7 @@ export abstract /* static */ class SpawnBehavior
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Builder, targetRoom.controller, bodyParts);
 	}
 
-	// @ts-ignore: Expected to be unused when I'm not claiming
+	// @ts-expect-error: Expected to be unused when I'm not claiming
 	private static TrySpawnClaimer(spawns: StructureSpawn[]): boolean
 	{
 		for (const creep of Find.MySpawningAndSpawnedCreeps())
@@ -400,7 +428,31 @@ export abstract /* static */ class SpawnBehavior
 			SpawnBehavior.TrySpawn(spawns, CreepType.Claimer, spawns[0].room.controller, ["move", "move", "claim"]);
 	}
 
-	// @ts-ignore: Expected to be unused when I'm not attacking
+	private static ShouldSpawnAttacker(targetRoom: ControllableRoom): boolean
+	{
+		const enemyCreeps: readonly EnemyCreep[] = Find.Creeps(targetRoom, CreepType.Enemy);
+
+		if (enemyCreeps.length === 0 || Find.Creeps(targetRoom, CreepType.Attacker).length !== 0)
+		{
+			return false;
+		}
+
+		for (const enemyCreep of enemyCreeps)
+		{
+			if (enemyCreep.owner.username === "Invader" && Find.MyObjects(targetRoom, Type.Tower).length !== 0) // Towers are sufficient
+			{
+				continue;
+			}
+
+			if (enemyCreep.getActiveBodyparts("attack") !== 0 || enemyCreep.getActiveBodyparts("ranged_attack") !== 0)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private static TrySpawnAttacker(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
 		if (SpawnBehavior.TrySpawn(spawns, CreepType.Attacker, targetRoom.controller, c_optimalAttackerBody) !== false)
@@ -537,10 +589,10 @@ export abstract /* static */ class SpawnBehavior
 			+ targetPosition.roomName[5];
 
 		let i: number = Game.time;
-		const max: number = i + 11;
+		const max: number = i + 27;
 		while (++i !== max)
 		{
-			const creepName: string = creepNamePrefix + (i % 10).toString();
+			const creepName: string = creepNamePrefix + String.fromCharCode(0x61 + (i % 26)); // 'a'
 			if (Game.creeps[creepName] === undefined)
 			{
 				Game.creeps[creepName] = null!;

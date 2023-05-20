@@ -25,7 +25,7 @@ const s_roomNameToRoomCenters /**/: Map<string, /*      */ RoomPosition> = new M
 let s_mySpawns: /*              */ readonly StructureSpawn[] = Object.values(Game.spawns);
 let s_myConstructionSites: /* */ readonly ConstructionSite[] = Object.values(Game.constructionSites);
 let s_mySpawningAndSpawnedCreeps: /**/ readonly AnyMyCreep[] = Object.values(Game.creeps);
-const s_visibleRooms: /*                           */ Room[] = Object.values(Game.rooms);
+let s_visibleRooms: /*                           */ readonly Room[] = Object.values(Game.rooms);
 let s_mySpawnedCreepCache: CreepCache;
 
 export abstract /* static */ class Find
@@ -36,19 +36,18 @@ export abstract /* static */ class Find
 		s_mySpawns /*             */ = Object.values(Game.spawns); // reinitializeSpawnsFunction(Object.values(Game.spawns));
 		s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
 		s_mySpawningAndSpawnedCreeps = CreepType.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
+		s_visibleRooms = Object.values(Game.rooms);
 
-		// TODO_KevSchil: Remove this logic?
-		{
-			s_visibleRooms.length = 0;
-
-			for (const roomName in Game.rooms)
-			{
-				// if (roomName !== "W29S25")
-				{
-					s_visibleRooms.push(Game.rooms[roomName]);
-				}
-			}
-		}
+		// {
+		// 	s_visibleRooms.length = 0;
+		// 	for (const roomName in Game.rooms)
+		// 	{
+		// 		// if (roomName !== "W29S25")
+		// 		{
+		// 			s_visibleRooms.push(Game.rooms[roomName]);
+		// 		}
+		// 	}
+		// }
 
 		for (const room of s_visibleRooms)
 		{
@@ -154,17 +153,6 @@ export abstract /* static */ class Find
 			: Collection.c_empty;
 	}
 
-	// public static MyObjectsInRange<TRoomObjectTypes extends number>(
-	// 	roomObject: RoomObject,
-	// 	types: TRoomObjectTypes,
-	// 	range: number): readonly ToInterface<TRoomObjectTypes>[]
-	// {
-	// 	return Find.GetObjectsInRange(
-	// 		Find.MyObjects(roomObject.room!, types),
-	// 		roomObject.pos,
-	// 		range) as readonly ToInterface<TRoomObjectTypes>[];
-	// }
-
 	public static Creeps<TCreepTypes extends number>(
 		room: Room,
 		creepTypes: TCreepTypes): readonly ToCreepInterface<TCreepTypes>[]
@@ -174,17 +162,6 @@ export abstract /* static */ class Find
 		return creepCache.get(creepTypes) as TCreeps | undefined ||
 			Find.SetAndGet(creepCache, creepTypes, Find.GenerateCreepArray(creepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
 	}
-
-	// public static HighestScoring<TRoomObject extends RoomObject>(
-	// 	roomPosition: RoomPosition,
-	// 	elements: readonly TRoomObject[],
-	// 	scoreFunction: (element: TRoomObject) => number): TRoomObject | undefined
-	// {
-	// 	return Collection.HighestScoringElement2(
-	// 		elements,
-	// 		scoreFunction,
-	// 		(test: TRoomObject): number => -Find.Distance(roomPosition, test.pos));
-	// }
 
 	public static Closest<TRoomObject extends RoomObject>(
 		roomPosition: RoomPosition,
@@ -492,7 +469,7 @@ export abstract /* static */ class Find
 		{
 			const structure: Structure = allStructures[index];
 
-			// @ts-ignore: Intentional Reflection to collect all non-enemy structures
+			// @ts-expect-error: Intentional Reflection to collect all non-enemy structures
 			const store: StoreDefinition | undefined = structure.store as StoreDefinition | undefined;
 			if (store !== undefined)
 			{
@@ -500,7 +477,7 @@ export abstract /* static */ class Find
 				(structure as EnergyTaker & Structure).EnergyLeftToTake = store.getFreeCapacity("energy");
 			}
 
-			// @ts-ignore: Intentional Reflection to collect all non-enemy structures
+			// @ts-expect-error: Intentional Reflection to collect all non-enemy structures
 			if (structure.my !== false)
 			{
 				if (allNonEnemyStructures !== undefined)
@@ -539,39 +516,6 @@ export abstract /* static */ class Find
 
 		return allNonEnemyStructures !== undefined ? allNonEnemyStructures : allStructures;
 	}
-
-	// private static GetObjectsInRange(
-	// 	roomObjects: readonly RoomObject[],
-	// 	position: RoomPosition,
-	// 	range: number): readonly RoomObject[]
-	// {
-	// 	if (roomObjects.length <= 0)
-	// 	{
-	// 		return roomObjects;
-	// 	}
-	//
-	// 	let x: number = position.x;
-	// 	let y: number = position.y;
-	// 	const minX: number = x - range;
-	// 	const maxX: number = x + range;
-	// 	const minY: number = y - range;
-	// 	const maxY: number = y + range;
-	//
-	// 	const roomObjectsInRange: RoomObject[] = [];
-	//
-	// 	for (const testObject of roomObjects)
-	// 	{
-	// 		const testPosition: RoomPosition = testObject.pos;
-	//
-	// 		if ((x = testPosition.x) >= minX && x <= maxX &&
-	// 			(y = testPosition.y) >= minY && y <= maxY)
-	// 		{
-	// 			roomObjectsInRange.push(testObject);
-	// 		}
-	// 	}
-	//
-	// 	return roomObjectsInRange;
-	// }
 
 	private static GenerateCreepArray(
 		allCreeps: readonly Creep[],
