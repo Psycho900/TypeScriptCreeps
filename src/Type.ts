@@ -31,6 +31,9 @@ declare global
 	/*           */ type StorageType = 0b0010000000000000000000000000000;
 	/*          */ type TerminalType = 0b0100000000000000000000000000000;
 	/*             */ type TowerType = 0b1000000000000000000000000000000;
+	// Added:
+	/*     */ type AllStructuresType = 0b1111111111111111111110000000000;
+
 
 	// /*               */ type AnyType =
 	// 	| /*             */ RoomType
@@ -152,7 +155,9 @@ declare global
 		| (TRoomObjectType extends /*           */ SpawnType ? StructureSpawn /*      */ : never)
 		| (TRoomObjectType extends /*         */ StorageType ? StructureStorage /*    */ : never)
 		// | (TRoomObjectType extends /*     */ TerminalType ? StructureTerminal /*   */ : never)
-		| (TRoomObjectType extends /*           */ TowerType ? StructureTower /*      */ : never);
+		| (TRoomObjectType extends /*           */ TowerType ? StructureTower /*      */ : never)
+		// Added:
+		| (TRoomObjectType extends /*   */ AllStructuresType ? Structure /*           */ : never);
 }
 
 export abstract /* static */ class Type
@@ -204,7 +209,7 @@ export abstract /* static */ class Type
 
 	// public static readonly All /*                                  */  = 0b1111111111111111111111111111111 as const;
 	// public static readonly AllRoomObjects /*                       */  = 0b1111111111111111111111111111100 as const;
-	public static readonly AllStructures /*                           */  = 0b1111111111111111111110000000000 as const;
+	public static readonly AllStructures: /*         */ AllStructuresType = 0b1111111111111111111110000000000 as const;
 	// public static readonly AllOwnedStructures /*                   */  = 0b1111111111111111100000000000000 as const;
 
 	public static readonly BeforeFirstStructure: /*      */ TombstoneType = 0b0000000000000000000001000000000 as const;

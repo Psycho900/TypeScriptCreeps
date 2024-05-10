@@ -2,9 +2,41 @@
 
 let s_currentError: Error | null = null;
 let s_shouldReportError: boolean = true; // Gets reset every ~150 ticks or so
+let s_actionCount: number = 0;
 
 export abstract /* static */ class Log
 {
+	public static EnsureInitializedForBeginningOfTick(): void
+	{
+		s_actionCount = 0;
+	}
+
+	public static ReportDataForEndOfTick(): void
+	{
+		// const cpu: number = Game.cpu.getUsed();
+		// const cpuFromActions: number = 0.2 * s_actionCount;
+		// const percentageOfCpuFromActions: number = 100 * cpuFromActions / cpu;
+		//
+		// Log.Info(`${s_actionCount} actions take up ${percentageOfCpuFromActions | 0}% of CPU (${cpuFromActions | 0} CPU out of ${cpu | 0} CPU)`);
+	}
+
+	public static Performance(functionName: string, functionToMeasure: () => void): void
+	{
+		const previousActionCount: number = s_actionCount;
+		s_actionCount = 0;
+
+		const startingCpu: number = Game.cpu.getUsed();
+		functionToMeasure();
+		const cpu: number = Game.cpu.getUsed() - startingCpu;
+
+		const cpuFromActions: number = 0.2 * s_actionCount;
+		const percentageOfCpuFromActions: number = 100 * cpuFromActions / cpu;
+
+		Log.Info(`${functionName}:\t${s_actionCount} actions, taking up ${percentageOfCpuFromActions | 0}% of CPU (${cpuFromActions | 0} CPU out of ${cpu | 0} CPU)`);
+
+		s_actionCount = previousActionCount;
+	}
+
 	public static GetTimestamp(): number
 	{
 		return Game.time % 10000;
@@ -76,16 +108,17 @@ export abstract /* static */ class Log
 		objectToLog?: RoomObject | string,
 		targetToLog?: RoomObject | RoomPosition | string): boolean
 	{
+		if (hr === 0)
+		{
+			++s_actionCount;
+			return true;
+		}
+
 		// //if (Game.cpu.getUsed() > 1.4 * Game.cpu.limit)
 		if (s_shouldReportError !== false && Game.cpu.bucket < 9900)
 		{
 			Log.Error("Approaching CPU limit!", hr, objectToLog, targetToLog);
 			s_shouldReportError = false;
-		}
-
-		if (hr === 0)
-		{
-			return true;
 		}
 
 		if (hr === ERR_NO_PATH)
@@ -103,7 +136,7 @@ export abstract /* static */ class Log
 
 			// @ts-expect-error
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unused-expressions
-			objectToLog && objectToLog.suicide && objectToLog.suicide(); // TODO_KevSchil: Are we ready for this yet?
+			objectToLog && objectToLog.suicide && objectToLog.suicide();
 		}
 		else
 		{

@@ -6,7 +6,7 @@ import { Log } from "../Log";
 import { Type } from "../Type";
 
 const c_ticksToForecast = 100 as const;
-const c_maxSpawnDistanceFromTarget = 50 as const;
+const c_maxSpawnDistanceFromTarget = 75 as const;
 
 const c_harvesterBodyWithWorkCount =
 	[
@@ -34,8 +34,6 @@ const c_optimalRunnerBody =
 		"carry", "move", // 12 carry's
 		"carry", "move", // 13 carry's
 		"carry", "move", // 14 carry's
-		"carry", "move", // 15 carry's
-		"carry", "move", // 16 carry's
 		"work", "move",
 	] as const;
 
@@ -106,7 +104,8 @@ export abstract /* static */ class SpawnBehavior
 			{
 				continue;
 			}
-			else if (spawns === undefined)
+
+			if (spawns === undefined)
 			{
 				spawns = [spawn];
 			}
@@ -132,7 +131,8 @@ export abstract /* static */ class SpawnBehavior
 			{
 				continue;
 			}
-			else if (targetRooms === undefined) // Do not send creeps into not-my-rooms containing enemies
+
+			if (targetRooms === undefined) // Do not send creeps into not-my-rooms containing enemies
 			{
 				targetRooms = [room as ControllableRoom];
 			}
@@ -583,16 +583,14 @@ export abstract /* static */ class SpawnBehavior
 
 	private static GenerateCreepName(creepType: number, targetPosition: RoomPosition): string
 	{
-		const creepNamePrefix: string =
-			CreepType.ToString(creepType)[0]
-			+ targetPosition.roomName[2]
-			+ targetPosition.roomName[5];
+		const creepNamePrefix: string = CreepType.ToString(creepType)[0];
+		const creepNameSuffix: string = targetPosition.roomName[2] + targetPosition.roomName[5];
 
 		let i: number = Game.time;
 		const max: number = i + 27;
 		while (++i !== max)
 		{
-			const creepName: string = creepNamePrefix + String.fromCharCode(0x61 + (i % 26)); // 'a'
+			const creepName: string = creepNamePrefix + String.fromCharCode(0x61 + (i % 26)) + creepNameSuffix; // 'a'
 			if (Game.creeps[creepName] === undefined)
 			{
 				Game.creeps[creepName] = null!;
