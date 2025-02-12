@@ -14,8 +14,8 @@ const c_moveOptions =
 		},
 	} as const;
 
-// Max Sign Length is:   "00_345678_10_345678_20_345678_30_345678_40_345678_50_345678_60_345678_70_345678_80_345678_90_345678_"; // 100 chars
-const c_signText: string = "1,900 lines of JavaScript and counting...";
+// Max Sign Length is:     "00_345678_10_345678_20_345678_30_345678_40_345678_50_345678_60_345678_70_345678_80_345678_90_345678_"; // 100 chars
+const c_signText: string = "TypeScript is a game changer";
 
 // Harvester arrays:
 const c_typesHarvestersTakeEnergyFrom = // In priority order
