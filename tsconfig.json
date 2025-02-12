@@ -1,7 +1,9 @@
 {
 	"compilerOptions": {
 		"module": "ESNext",
-		"lib": [ "ESNext" ],
+		"lib": [
+			"ESNext"
+		],
 		"target": "ES2019",
 		"moduleResolution": "Node",
 		"outDir": "dist",
@@ -19,7 +21,6 @@
 		"importHelpers": true,
 		"incremental": true,
 		"inlineSourceMap": false,
-		"importsNotUsedAsValues": "error",
 		"newLine": "crlf",
 		"noEmitOnError": false,
 		"noFallthroughCasesInSwitch": true,
@@ -32,14 +33,22 @@
 		"noUncheckedIndexedAccess": false,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
+		"preserveConstEnums": false,
 		"pretty": true,
 		"removeComments": true,
 		"strictBindCallApply": true,
 		"strictFunctionTypes": true,
 		"strictNullChecks": true,
 		"strictPropertyInitialization": true,
-		"types": [ "screeps" ]
+		"types": [
+			"screeps"
+		]
 	},
-	"include": [ "src" ],
-	"exclude": [ "**/node_modules", "**/.*/" ]
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"**/node_modules",
+		"**/.*/"
+	]
 }

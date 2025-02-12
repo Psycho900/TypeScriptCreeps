@@ -568,4 +568,4 @@ export abstract /* static */ class Find
 	}
 }
 
-Log.Info(`[${Game.time}] ${s_mySpawns.length} spawns (last is ${Collection.Last(s_mySpawns)?.ToString()}). ${s_visibleRooms.length} rooms (last is ${Collection.Last(s_visibleRooms)?.ToString()})`);
+//Log.Info(`[${Game.time}] ${s_mySpawns.length} spawns (last is ${Collection.Last(s_mySpawns)?.ToString()}). ${s_visibleRooms.length} rooms (last is ${Collection.Last(s_visibleRooms)?.ToString()})`);
