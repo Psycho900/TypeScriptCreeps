@@ -15,7 +15,7 @@ const c_moveOptions =
 	} as const;
 
 // Max Sign Length is:     "00_345678_10_345678_20_345678_30_345678_40_345678_50_345678_60_345678_70_345678_80_345678_90_345678_"; // 100 chars
-const c_signText: string = "TypeScript is a game changer";
+const c_signText: string = "Using TypeScript for Screeps is a game changer =)";
 
 // Harvester arrays:
 const c_typesHarvestersTakeEnergyFrom = // In priority order
@@ -208,7 +208,7 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		for (const room of Find.VisibleRooms()) // Prepare for runners by setting Energy banks's EnergyLeftToGive or EnergyLeftToTake to 0 depending on position
+		for (const room of Find.s_visibleRooms) // Prepare for runners by setting Energy banks's EnergyLeftToGive or EnergyLeftToTake to 0 depending on position
 		{
 			if (room.controller === undefined)
 			{
@@ -1088,7 +1088,7 @@ export abstract /* static */ class CreepBehavior
 	// 	const target: EnemyCreep | PowerCreep | Structure | null = Game.getObjectById(targetId as Id<EnemyCreep | PowerCreep | Structure>);
 	// 	if (target === null)
 	// 	{
-	// 		for (const room of Find.VisibleRooms())
+	// 		for (const room of Find.s_visibleRooms)
 	// 		{
 	// 			if (room.name === targetRoomName)
 	// 			{
@@ -1186,7 +1186,7 @@ export abstract /* static */ class CreepBehavior
 					continue;
 				}
 
-				for (const room of Find.VisibleRooms())
+				for (const room of Find.s_visibleRooms)
 				{
 					for (const type of c_typesRunnersTakeEnergyFrom)
 					{

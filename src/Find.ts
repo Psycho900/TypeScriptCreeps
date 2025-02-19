@@ -22,21 +22,23 @@ const s_roomNameToMinerals /*   */: Map<string, /**/ readonly Mineral[]> = new M
 const s_roomNameToRoomCenters /**/: Map<string, /*      */ RoomPosition> = new Map<string, /*      */ RoomPosition>();
 
 // Should reset on each tick:
-let s_mySpawns: /*              */ readonly StructureSpawn[] = Object.values(Game.spawns);
-let s_myConstructionSites: /* */ readonly ConstructionSite[] = Object.values(Game.constructionSites);
-let s_mySpawningAndSpawnedCreeps: /**/ readonly AnyMyCreep[] = Object.values(Game.creeps);
-let s_visibleRooms: /*                           */ readonly Room[] = Object.values(Game.rooms);
 let s_mySpawnedCreepCache: CreepCache;
 
 export abstract /* static */ class Find
 {
+	// Should reset on each tick:
+	public static s_mySpawns: /*              */ readonly StructureSpawn[] = Object.values(Game.spawns);
+	public static s_myConstructionSites: /* */ readonly ConstructionSite[] = Object.values(Game.constructionSites);
+	public static s_mySpawningAndSpawnedCreeps: /**/ readonly AnyMyCreep[] = Object.values(Game.creeps);
+	public static s_visibleRooms: /*                           */ readonly Room[] = Object.values(Game.rooms);
+
 	public static EnsureInitializedForBeginningOfTick(): void // reinitializeSpawnsFunction: (spawns: readonly StructureSpawn[]) => readonly StructureSpawn[]): void
 	{
 		// See "Should reset on each tick" comment near top of file:
-		s_mySpawns /*             */ = Object.values(Game.spawns); // reinitializeSpawnsFunction(Object.values(Game.spawns));
-		s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
-		s_mySpawningAndSpawnedCreeps = CreepType.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
-		s_visibleRooms = Object.values(Game.rooms);
+		Find.s_mySpawns /*             */ = Object.values(Game.spawns); // reinitializeSpawnsFunction(Object.values(Game.spawns));
+		Find.s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
+		Find.s_mySpawningAndSpawnedCreeps = CreepType.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
+		Find.s_visibleRooms = Object.values(Game.rooms);
 
 		// {
 		// 	s_visibleRooms.length = 0;
@@ -49,7 +51,7 @@ export abstract /* static */ class Find
 		// 	}
 		// }
 
-		for (const room of s_visibleRooms)
+		for (const room of Find.s_visibleRooms)
 		{
 			const roomName: string = room.name;
 
@@ -68,11 +70,11 @@ export abstract /* static */ class Find
 					Find.SetAndGet(s_roomNameToSources, roomName, room.find(FIND_SOURCES)));
 		}
 
-		if (Find.AreAnyCreepsSpawning(s_mySpawningAndSpawnedCreeps) !== false)
+		if (Find.AreAnyCreepsSpawning(Find.s_mySpawningAndSpawnedCreeps) !== false)
 		{
 			const mySpawnedCreeps: MyCreep[] = [];
 
-			for (const creep of s_mySpawningAndSpawnedCreeps)
+			for (const creep of Find.s_mySpawningAndSpawnedCreeps)
 			{
 				if (creep.spawning === false)
 				{
@@ -84,14 +86,14 @@ export abstract /* static */ class Find
 				.set(CreepType.All, mySpawnedCreeps);
 			// .set(CreepType.AllMine, mySpawnedCreeps);
 		}
-		else if (s_visibleRooms.length === 1)
+		else if (Find.s_visibleRooms.length === 1)
 		{
-			s_mySpawnedCreepCache = s_visibleRooms[0].creepCache;
+			s_mySpawnedCreepCache = Find.s_visibleRooms[0].creepCache;
 		}
 		else
 		{
 			s_mySpawnedCreepCache = new Map<number, readonly MyCreep[]>()
-				.set(CreepType.All, s_mySpawningAndSpawnedCreeps);
+				.set(CreepType.All, Find.s_mySpawningAndSpawnedCreeps);
 			// .set(CreepType.AllMine, s_mySpawningAndSpawnedCreeps);
 		}
 	}
@@ -115,26 +117,6 @@ export abstract /* static */ class Find
 		type TCreeps = readonly ToMyCreepInterface<TCreepTypes>[];
 		return s_mySpawnedCreepCache.get(creepTypes) as TCreeps | undefined ||
 			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
-	}
-
-	public static MySpawningAndSpawnedCreeps(): readonly AnyMyCreep[]
-	{
-		return s_mySpawningAndSpawnedCreeps;
-	}
-
-	public static MySpawns(): readonly StructureSpawn[]
-	{
-		return s_mySpawns;
-	}
-
-	public static MyConstructionSites(): readonly ConstructionSite[]
-	{
-		return s_myConstructionSites;
-	}
-
-	public static VisibleRooms(): readonly Room[]
-	{
-		return s_visibleRooms;
 	}
 
 	public static Center(roomName: string): RoomPosition
@@ -568,4 +550,4 @@ export abstract /* static */ class Find
 	}
 }
 
-//Log.Info(`[${Game.time}] ${s_mySpawns.length} spawns (last is ${Collection.Last(s_mySpawns)?.ToString()}). ${s_visibleRooms.length} rooms (last is ${Collection.Last(s_visibleRooms)?.ToString()})`);
+// Log.Info(`[${Game.time}] ${s_mySpawns.length} spawns (last is ${Collection.Last(s_mySpawns)?.ToString()}). ${s_visibleRooms.length} rooms (last is ${Collection.Last(s_visibleRooms)?.ToString()})`);

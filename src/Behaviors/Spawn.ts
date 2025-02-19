@@ -95,7 +95,7 @@ export abstract /* static */ class SpawnBehavior
 	{
 		let spawns: StructureSpawn[] | undefined;
 
-		for (const spawn of Find.MySpawns()) // Get all my usable spawns
+		for (const spawn of Find.s_mySpawns) // Get all my usable spawns
 		{
 			if (spawn.spawning !== null ||
 				spawn.room.energyAvailable < 300 ||
@@ -122,7 +122,7 @@ export abstract /* static */ class SpawnBehavior
 
 		let targetRooms: ControllableRoom[] | undefined;
 
-		for (const room of Find.VisibleRooms()) // Get all target rooms
+		for (const room of Find.s_visibleRooms) // Get all target rooms
 		{
 			room.EnergyLeftToGive = room.energyAvailable;
 
@@ -151,7 +151,7 @@ export abstract /* static */ class SpawnBehavior
 		const carryPartCounts: Map<Id<AnyTargetRoomObject>, number> = new Map<Id<AnyTargetRoomObject>, number>();
 		const runnerCarryPartCounts: Map<Id<StructureController>, number> = new Map<Id<StructureController>, number>();
 
-		for (const creep of Find.MySpawningAndSpawnedCreeps()) // Collect how many body parts are working towards each target
+		for (const creep of Find.s_mySpawningAndSpawnedCreeps) // Collect how many body parts are working towards each target
 		{
 			const ticksToLive: number | undefined = creep.ticksToLive; // undefined means the creep is still spawning
 			if (ticksToLive !== undefined && (ticksToLive < c_ticksToForecast || 2 * creep.hits <= creep.hitsMax)) // Creep being murdered?
@@ -350,7 +350,7 @@ export abstract /* static */ class SpawnBehavior
 
 		const controllerId: Id<StructureController> = targetRoom.controller.id;
 
-		for (const testCreep of Find.MySpawningAndSpawnedCreeps())
+		for (const testCreep of Find.s_mySpawningAndSpawnedCreeps)
 		{
 			if (testCreep.IsAny(CreepType.AllConsumers) !== false &&
 				testCreep.Target.id === controllerId &&
@@ -416,7 +416,7 @@ export abstract /* static */ class SpawnBehavior
 	// @ts-expect-error: Expected to be unused when I'm not claiming
 	private static TrySpawnClaimer(spawns: StructureSpawn[]): boolean
 	{
-		for (const creep of Find.MySpawningAndSpawnedCreeps())
+		for (const creep of Find.s_mySpawningAndSpawnedCreeps)
 		{
 			if (creep.CreepType === CreepType.Claimer)
 			{
@@ -512,7 +512,7 @@ export abstract /* static */ class SpawnBehavior
 		}
 
 		if (closestSpawn === undefined ||
-			(closestDistance > c_maxSpawnDistanceFromTarget && closestSpawn.id !== Find.Closest(targetPosition, Find.MySpawns())!.id))
+			(closestDistance > c_maxSpawnDistanceFromTarget && closestSpawn.id !== Find.Closest(targetPosition, Find.s_mySpawns)!.id))
 		{
 			return false; // Wait for a closer spawn to be available
 		}

@@ -7,7 +7,7 @@ export abstract /* static */ class TowerBehavior
 {
 	public static Act(): void
 	{
-		for (const room of Find.VisibleRooms())
+		for (const room of Find.s_visibleRooms)
 		{
 			const towers: readonly StructureTower[] = Find.MyObjects(room, Type.Tower);
 			if (towers.length === 0)

@@ -121,28 +121,28 @@ export abstract /* static */ class Log
 			s_shouldReportError = false;
 		}
 
-		if (hr === ERR_NO_PATH)
+		switch (hr)
 		{
-			// Log.Warning("Semi-expected error code", hr, objectToLog, targetToLog);
-		}
-		else if (hr === ERR_NOT_IN_RANGE || hr === ERR_NOT_ENOUGH_RESOURCES)
-		{
-			// Expected?
-			Log.Error("Rarely expected error code", hr, objectToLog, targetToLog);
-		}
-		else if (hr === ERR_NO_BODYPART)
-		{
-			Log.Error("No body part", hr, objectToLog, targetToLog);
+			case ERR_NO_PATH:
+				// Log.Warning("Semi-expected error code", hr, objectToLog, targetToLog);
+				return false;
 
-			// @ts-expect-error
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unused-expressions
-			objectToLog && objectToLog.suicide && objectToLog.suicide();
-		}
-		else
-		{
-			Log.Error("Unexpected error code", hr, objectToLog, targetToLog);
+			case ERR_NOT_IN_RANGE:
+			case ERR_NOT_ENOUGH_RESOURCES:
+				// Expected?
+				Log.Error("Rarely expected error code", hr, objectToLog, targetToLog);
+				return false;
+
+			case ERR_NO_BODYPART:
+				Log.Error("No body part", hr, objectToLog, targetToLog);
+
+				// @ts-expect-error
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unused-expressions
+				objectToLog && objectToLog.suicide && objectToLog.suicide();
+				return false;
 		}
 
+		Log.Error("Unexpected error code", hr, objectToLog, targetToLog);
 		return false;
 	}
 
