@@ -1,9 +1,9 @@
 import { } from "../Energy";
 import { } from "../Objects";
 import { CreepType, CreepTypes } from "../CreepType";
+import { Type, Types } from "../Type";
 import { Find } from "../Find";
 import { Log } from "../Log";
-import { Type, Types } from "../Type";
 
 const c_ticksToForecast = 100 as const;
 const c_maxSpawnDistanceFromTarget = 75 as const;

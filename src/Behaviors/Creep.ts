@@ -1,8 +1,8 @@
-import { Collection } from "../Collection";
 import { CreepType, CreepTypes } from "../CreepType";
+import { Type, Types } from "../Type";
+import { Collection } from "../Collection";
 import { Find } from "../Find";
 import { Log } from "../Log";
-import { Type, Types } from "../Type";
 
 const c_moveOptions =
 	{

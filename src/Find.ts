@@ -1,8 +1,8 @@
 import { } from "./Objects";
+import { Type, Types } from "./Type";
 import { Collection } from "./Collection";
 import { CreepTypes } from "./CreepType";
 import { Log } from "./Log";
-import { Type, Types } from "./Type";
 
 type RoomObjectCache /*    */ = Map<number, readonly RoomObject[]>;
 type CreepCache /*         */ = Map<number, readonly Creep[]>;
@@ -30,7 +30,7 @@ export abstract /* static */ class Find
 	public static s_mySpawns: /*              */ readonly StructureSpawn[] = Object.values(Game.spawns);
 	public static s_myConstructionSites: /* */ readonly ConstructionSite[] = Object.values(Game.constructionSites);
 	public static s_mySpawningAndSpawnedCreeps: /**/ readonly AnyMyCreep[] = Object.values(Game.creeps);
-	public static s_visibleRooms: /*                           */ readonly Room[] = Object.values(Game.rooms);
+	public static s_visibleRooms: /*                    */ readonly Room[] = Object.values(Game.rooms);
 
 	public static EnsureInitializedForBeginningOfTick(): void // reinitializeSpawnsFunction: (spawns: readonly StructureSpawn[]) => readonly StructureSpawn[]): void
 	{
@@ -38,7 +38,7 @@ export abstract /* static */ class Find
 		Find.s_mySpawns /*             */ = Object.values(Game.spawns); // reinitializeSpawnsFunction(Object.values(Game.spawns));
 		Find.s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
 		Find.s_mySpawningAndSpawnedCreeps = CreepTypes.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
-		Find.s_visibleRooms = Object.values(Game.rooms);
+		Find.s_visibleRooms /*         */ = Object.values(Game.rooms);
 
 		// {
 		// 	s_visibleRooms.length = 0;
@@ -341,7 +341,7 @@ export abstract /* static */ class Find
 		if ((roomObjectTypesToInclude & Type.Creep) !== 0) // &&
 		// (roomObjectsToAdd = cache.get(Type.Creep)!).length !== 0)
 		{
-			Log.Error("Apparently we ask for Creeps this way now? Uncomment nearby code AND the commented logic in Find.Reinitialize*()", ERR_INVALID_ARGS, "roomObjectTypesToInclude: " + Types.ToString(roomObjectTypesToInclude));
+			Log.Error("Apparently we ask for Creeps this way now? Uncomment nearby code AND the commented logic in Find.Reinitialize*()", ERR_INVALID_ARGS, `roomObjectTypesToInclude: ${Types.ToString(roomObjectTypesToInclude)}`);
 
 			// if (lastRoomObjectsOfTypes !== undefined)
 			// {
