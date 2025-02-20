@@ -1,6 +1,6 @@
 import { } from "./Objects";
 import { Collection } from "./Collection";
-import { CreepType } from "./CreepType";
+import { CreepTypes } from "./CreepType";
 import { Log } from "./Log";
 import { Type, Types } from "./Type";
 
@@ -37,7 +37,7 @@ export abstract /* static */ class Find
 		// See "Should reset on each tick" comment near top of file:
 		Find.s_mySpawns /*             */ = Object.values(Game.spawns); // reinitializeSpawnsFunction(Object.values(Game.spawns));
 		Find.s_myConstructionSites /*  */ = Object.values(Game.constructionSites);
-		Find.s_mySpawningAndSpawnedCreeps = CreepType.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
+		Find.s_mySpawningAndSpawnedCreeps = CreepTypes.EnsureMyCreepsAreInitializedForBeginningOfTick(Object.values(Game.creeps));
 		Find.s_visibleRooms = Object.values(Game.rooms);
 
 		// {
@@ -58,7 +58,7 @@ export abstract /* static */ class Find
 			// Clear whatever existing caches we had from the previous tick
 			const creepCache: CreepCache = (room.creepCache ||= new Map<number, readonly Creep[]>());
 			creepCache.clear();
-			creepCache.set(CreepType.All, CreepType.EnsureEnemyCreepsAreInitializedForBeginningOfTick(room.find(FIND_CREEPS)));
+			creepCache.set(CreepTypes.All, CreepTypes.EnsureEnemyCreepsAreInitializedForBeginningOfTick(room.find(FIND_CREEPS)));
 
 			const roomCache: RoomObjectCache = (room.cache ||= new Map<number, readonly RoomObject[]>());
 			roomCache.clear();
@@ -83,7 +83,7 @@ export abstract /* static */ class Find
 			}
 
 			s_mySpawnedCreepCache = new Map<number, readonly MyCreep[]>()
-				.set(CreepType.All, mySpawnedCreeps);
+				.set(CreepTypes.All, mySpawnedCreeps);
 			// .set(CreepType.AllMine, mySpawnedCreeps);
 		}
 		else if (Find.s_visibleRooms.length === 1)
@@ -93,7 +93,7 @@ export abstract /* static */ class Find
 		else
 		{
 			s_mySpawnedCreepCache = new Map<number, readonly MyCreep[]>()
-				.set(CreepType.All, Find.s_mySpawningAndSpawnedCreeps);
+				.set(CreepTypes.All, Find.s_mySpawningAndSpawnedCreeps);
 			// .set(CreepType.AllMine, s_mySpawningAndSpawnedCreeps);
 		}
 	}
@@ -116,7 +116,7 @@ export abstract /* static */ class Find
 	{
 		type TCreeps = readonly ToMyCreepInterface<TCreepTypes>[];
 		return s_mySpawnedCreepCache.get(creepTypes) as TCreeps | undefined ||
-			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
+			Find.SetAndGet(s_mySpawnedCreepCache, creepTypes, Find.GenerateCreepArray(s_mySpawnedCreepCache.get(CreepTypes.All)!, creepTypes)) as TCreeps;
 	}
 
 	public static Center(roomName: string): RoomPosition
@@ -142,7 +142,7 @@ export abstract /* static */ class Find
 		type TCreeps = readonly ToCreepInterface<TCreepTypes>[];
 		const creepCache: CreepCache = room.creepCache;
 		return creepCache.get(creepTypes) as TCreeps | undefined ||
-			Find.SetAndGet(creepCache, creepTypes, Find.GenerateCreepArray(creepCache.get(CreepType.All)!, creepTypes)) as TCreeps;
+			Find.SetAndGet(creepCache, creepTypes, Find.GenerateCreepArray(creepCache.get(CreepTypes.All)!, creepTypes)) as TCreeps;
 	}
 
 	public static Closest<TRoomObject extends RoomObject>(

@@ -1,5 +1,5 @@
 import { Collection } from "../Collection";
-import { CreepType } from "../CreepType";
+import { CreepType, CreepTypes } from "../CreepType";
 import { Find } from "../Find";
 import { Log } from "../Log";
 import { Type, Types } from "../Type";
@@ -98,7 +98,7 @@ export abstract /* static */ class CreepBehavior
 {
 	public static Act(this: void): void
 	{
-		for (const creep of Find.MySpawnedCreeps(CreepType.All)) // Get off room boundaries
+		for (const creep of Find.MySpawnedCreeps(CreepTypes.All)) // Get off room boundaries
 		{
 			const creepPosition: RoomPosition = creep.pos;
 			if (creepPosition.x === 0 || creepPosition.x === 49 || creepPosition.y === 0 || creepPosition.y === 49)
@@ -107,7 +107,7 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		for (const creep of Find.MySpawnedCreeps(CreepType.All)) // First, make sure non-runners prioritizes the things only they can do
+		for (const creep of Find.MySpawnedCreeps(CreepTypes.All)) // First, make sure non-runners prioritizes the things only they can do
 		{
 			switch (creep.CreepType)
 			{
@@ -168,7 +168,7 @@ export abstract /* static */ class CreepBehavior
 			}
 		}
 
-		for (const creep of Find.MySpawnedCreeps(CreepType.All)) // Next, non-runners should give & take as many nearby resources as possible
+		for (const creep of Find.MySpawnedCreeps(CreepTypes.All)) // Next, non-runners should give & take as many nearby resources as possible
 		{
 			switch (creep.CreepType)
 			{
@@ -1248,7 +1248,7 @@ export abstract /* static */ class CreepBehavior
 					}
 				}
 
-				for (const testObject of Find.Creeps(runnerTargetRoom, CreepType.AllConsumers))
+				for (const testObject of Find.Creeps(runnerTargetRoom, CreepTypes.AllConsumers))
 				{
 					if (testObject.spawning === false &&
 						(testEnergy = testObject.EnergyLeftToTake) > maxEnergyFlowPerTick &&

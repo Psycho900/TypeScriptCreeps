@@ -69,7 +69,7 @@ export abstract /* static */ class TowerBehavior
 			// 	Log.Succeeded(tower.attack(enemyCreep), tower, enemyCreep);
 			// }
 			//
-			// const allCreeps: readonly Creep[] = Find.Creeps(room, CreepType.All);
+			// const allCreeps: readonly Creep[] = Find.Creeps(room, CreepTypes.All);
 			// const creepCount: number = allCreeps.length;
 			// let weakestCreep: Creep | undefined = allCreeps[0];
 			//

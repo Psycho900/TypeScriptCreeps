@@ -1,6 +1,6 @@
 import { } from "../Energy";
 import { } from "../Objects";
-import { CreepType } from "../CreepType";
+import { CreepType, CreepTypes } from "../CreepType";
 import { Find } from "../Find";
 import { Log } from "../Log";
 import { Type, Types } from "../Type";
@@ -352,7 +352,7 @@ export abstract /* static */ class SpawnBehavior
 
 		for (const testCreep of Find.s_mySpawningAndSpawnedCreeps)
 		{
-			if (testCreep.IsAny(CreepType.AllConsumers) !== false &&
+			if (testCreep.IsAny(CreepTypes.AllConsumers) !== false &&
 				testCreep.Target.id === controllerId &&
 				(projectedEnergy -= (testCreep.ticksToLive || 1500) * testCreep.getActiveBodyparts("work")) < 30000)
 			{
@@ -583,7 +583,7 @@ export abstract /* static */ class SpawnBehavior
 
 	private static GenerateCreepName(creepType: number, targetPosition: RoomPosition): string
 	{
-		const creepNamePrefix: string = CreepType.ToString(creepType)[0];
+		const creepNamePrefix: string = CreepTypes.ToString(creepType)[0];
 		const creepNameSuffix: string = targetPosition.roomName[2] + targetPosition.roomName[5];
 
 		let i: number = Game.time;
