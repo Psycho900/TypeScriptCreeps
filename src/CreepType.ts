@@ -257,7 +257,8 @@ export abstract /* static */ class CreepTypes
 // 	return this.CreepType === creepType;
 // };
 
-Creep.prototype.IsAny = function(creepType: number): boolean
+// @ts-ignore: Suppress bogus VSCode error
+Creep.prototype.IsAny = function<TCreepTypes extends number>(creepType: TCreepTypes): boolean
 {
 	return (this.CreepType & creepType) !== 0;
 };
