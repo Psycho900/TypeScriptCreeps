@@ -1,6 +1,6 @@
 import { } from "./Energy";
 import { CreepType } from "./CreepType";
-import { Type } from "./Type";
+import { Type, Types } from "./Type";
 
 // declare global
 // {
@@ -105,7 +105,7 @@ RoomObject.prototype.ToString = function(): string
 	AppendPropertyString(resultArray, this, "id");
 	AppendPropertyString(resultArray, this, "memory", JSON.stringify);
 
-	return `${Type.IsCreep(this) ? CreepType.ToString(this.CreepType) : Type.ToString(this.Type)}: { ${resultArray.join(", ")} }`;
+	return `${Types.IsCreep(this) ? CreepType.ToString(this.CreepType) : Types.ToString(this.Type)}: { ${resultArray.join(", ")} }`;
 };
 
 

@@ -2,7 +2,7 @@ import { Collection } from "../Collection";
 import { CreepType } from "../CreepType";
 import { Find } from "../Find";
 import { Log } from "../Log";
-import { Type } from "../Type";
+import { Type, Types } from "../Type";
 
 const c_moveOptions =
 	{
@@ -1190,9 +1190,9 @@ export abstract /* static */ class CreepBehavior
 				{
 					for (const type of c_typesRunnersTakeEnergyFrom)
 					{
-						if ((type & Type.DecayingEnegrySource) === 0
+						if ((type & Types.DecayingEnegrySource) === 0
 							&& bestTarget !== undefined
-							&& (bestTarget.Type & Type.DecayingEnegrySource) !== 0
+							&& (bestTarget.Type & Types.DecayingEnegrySource) !== 0
 							&& bestTarget.pos.roomName === runnerPosition.roomName)
 						{
 							break; // Get those decaying resources in our room!

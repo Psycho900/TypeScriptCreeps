@@ -2,7 +2,7 @@ import { } from "./Objects";
 import { Collection } from "./Collection";
 import { CreepType } from "./CreepType";
 import { Log } from "./Log";
-import { Type } from "./Type";
+import { Type, Types } from "./Type";
 
 type RoomObjectCache /*    */ = Map<number, readonly RoomObject[]>;
 type CreepCache /*         */ = Map<number, readonly Creep[]>;
@@ -341,7 +341,7 @@ export abstract /* static */ class Find
 		if ((roomObjectTypesToInclude & Type.Creep) !== 0) // &&
 		// (roomObjectsToAdd = cache.get(Type.Creep)!).length !== 0)
 		{
-			Log.Error("Apparently we ask for Creeps this way now? Uncomment nearby code AND the commented logic in Find.Reinitialize*()", ERR_INVALID_ARGS, "roomObjectTypesToInclude: " + Type.ToString(roomObjectTypesToInclude));
+			Log.Error("Apparently we ask for Creeps this way now? Uncomment nearby code AND the commented logic in Find.Reinitialize*()", ERR_INVALID_ARGS, "roomObjectTypesToInclude: " + Types.ToString(roomObjectTypesToInclude));
 
 			// if (lastRoomObjectsOfTypes !== undefined)
 			// {

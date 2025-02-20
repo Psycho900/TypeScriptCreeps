@@ -3,7 +3,7 @@ import { } from "../Objects";
 import { CreepType } from "../CreepType";
 import { Find } from "../Find";
 import { Log } from "../Log";
-import { Type } from "../Type";
+import { Type, Types } from "../Type";
 
 const c_ticksToForecast = 100 as const;
 const c_maxSpawnDistanceFromTarget = 75 as const;
@@ -521,7 +521,7 @@ export abstract /* static */ class SpawnBehavior
 		let creepName: string = SpawnBehavior.GenerateCreepName(creepType, targetPosition);
 
 		// Take energy from the furthest away spawns and extensions first:
-		const energyStructuresPriority: (StructureSpawn | StructureExtension)[] = Find.MyObjects(closestSpawnRoom, Type.SpawnsAndExtensions) as (StructureSpawn | StructureExtension)[];
+		const energyStructuresPriority: (StructureSpawn | StructureExtension)[] = Find.MyObjects(closestSpawnRoom, Types.SpawnsAndExtensions) as (StructureSpawn | StructureExtension)[];
 		const controllerPosition: RoomPosition = closestSpawnRoom.controller.pos;
 		energyStructuresPriority.sort((spawnOrExtension1, spawnOrExtension2) =>
 		{

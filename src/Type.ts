@@ -160,63 +160,66 @@ declare global
 		| (TRoomObjectType extends /*   */ AllStructuresType ? Structure /*           */ : never);
 }
 
-export abstract /* static */ class Type
+export const enum Type
 {
 	// Built-in types :
-	public static readonly Room: /*                           */ RoomType = 0b0000000000000000000000000000001 as const;
-	public static readonly RoomPosition: /*           */ RoomPositionType = 0b0000000000000000000000000000010 as const;
+	Room/* :                                 RoomType */ = 0b0000000000000000000000000000001,
+	RoomPosition/* :                 RoomPositionType */ = 0b0000000000000000000000000000010,
 
 	// RoomObject's (room, pos) :
 	// {
-	public static readonly Creep: /*                        */ CreepsType = 0b0000000000000000000000000000100 as const;
-	public static readonly ConstructionSite: /*   */ ConstructionSiteType = 0b0000000000000000000000000001000 as const;
-	public static readonly Flag: /*                           */ FlagType = 0b0000000000000000000000000010000 as const;
-	public static readonly Mineral: /*                     */ MineralType = 0b0000000000000000000000000100000 as const;
-	public static readonly Resource: /*                   */ ResourceType = 0b0000000000000000000000001000000 as const;
-	public static readonly Ruin: /*                           */ RuinType = 0b0000000000000000000000010000000 as const;
-	public static readonly Source: /*                       */ SourceType = 0b0000000000000000000000100000000 as const;
-	public static readonly Tombstone: /*                 */ TombstoneType = 0b0000000000000000000001000000000 as const;
+	Creep/* :                              CreepsType */ = 0b0000000000000000000000000000100,
+	ConstructionSite/* :         ConstructionSiteType */ = 0b0000000000000000000000000001000,
+	Flag/* :                                 FlagType */ = 0b0000000000000000000000000010000,
+	Mineral/* :                           MineralType */ = 0b0000000000000000000000000100000,
+	Resource/* :                         ResourceType */ = 0b0000000000000000000000001000000,
+	Ruin/* :                                 RuinType */ = 0b0000000000000000000000010000000,
+	Source/* :                             SourceType */ = 0b0000000000000000000000100000000,
+	Tombstone/* :                       TombstoneType */ = 0b0000000000000000000001000000000,
 
 	//     Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
 	//     {
-	public static readonly Container: /*                 */ ContainerType = 0b0000000000000000000010000000000 as const;
-	public static readonly Portal: /*                       */ PortalType = 0b0000000000000000000100000000000 as const;
-	public static readonly Road: /*                           */ RoadType = 0b0000000000000000001000000000000 as const;
-	public static readonly Wall: /*                           */ WallType = 0b0000000000000000010000000000000 as const;
+	Container/* :                       ContainerType */ = 0b0000000000000000000010000000000,
+	Portal/* :                             PortalType */ = 0b0000000000000000000100000000000,
+	Road/* :                                 RoadType */ = 0b0000000000000000001000000000000,
+	Wall/* :                                 WallType */ = 0b0000000000000000010000000000000,
 
 	//         OwnedStructure (my, owner)
 	//         {
-	public static readonly Controller: /*               */ ControllerType = 0b0000000000000000100000000000000 as const;
-	public static readonly Extension: /*                 */ ExtensionType = 0b0000000000000001000000000000000 as const;
-	public static readonly Extractor: /*                 */ ExtractorType = 0b0000000000000010000000000000000 as const;
-	public static readonly Factory: /*                     */ FactoryType = 0b0000000000000100000000000000000 as const;
-	public static readonly InvaderCore: /*             */ InvaderCoreType = 0b0000000000001000000000000000000 as const;
-	public static readonly KeeperLair: /*               */ KeeperLairType = 0b0000000000010000000000000000000 as const;
-	public static readonly Lab: /*                             */ LabType = 0b0000000000100000000000000000000 as const;
-	public static readonly Link: /*                           */ LinkType = 0b0000000001000000000000000000000 as const;
-	public static readonly Nuker: /*                         */ NukerType = 0b0000000010000000000000000000000 as const;
-	public static readonly Observer: /*                   */ ObserverType = 0b0000000100000000000000000000000 as const;
-	public static readonly PowerBank: /*                 */ PowerBankType = 0b0000001000000000000000000000000 as const;
-	public static readonly PowerSpawn: /*               */ PowerSpawnType = 0b0000010000000000000000000000000 as const;
-	public static readonly Rampart: /*                     */ RampartType = 0b0000100000000000000000000000000 as const;
-	public static readonly Spawn: /*                         */ SpawnType = 0b0001000000000000000000000000000 as const;
-	public static readonly Storage: /*                     */ StorageType = 0b0010000000000000000000000000000 as const;
-	public static readonly Terminal: /*                   */ TerminalType = 0b0100000000000000000000000000000 as const;
-	public static readonly Tower: /*                         */ TowerType = 0b1000000000000000000000000000000 as const;
+	Controller/* :                     ControllerType */ = 0b0000000000000000100000000000000,
+	Extension/* :                       ExtensionType */ = 0b0000000000000001000000000000000,
+	Extractor/* :                       ExtractorType */ = 0b0000000000000010000000000000000,
+	Factory/* :                           FactoryType */ = 0b0000000000000100000000000000000,
+	InvaderCore/* :                   InvaderCoreType */ = 0b0000000000001000000000000000000,
+	KeeperLair/* :                     KeeperLairType */ = 0b0000000000010000000000000000000,
+	Lab/* :                                   LabType */ = 0b0000000000100000000000000000000,
+	Link/* :                                 LinkType */ = 0b0000000001000000000000000000000,
+	Nuker/* :                               NukerType */ = 0b0000000010000000000000000000000,
+	Observer/* :                         ObserverType */ = 0b0000000100000000000000000000000,
+	PowerBank/* :                       PowerBankType */ = 0b0000001000000000000000000000000,
+	PowerSpawn/* :                     PowerSpawnType */ = 0b0000010000000000000000000000000,
+	Rampart/* :                           RampartType */ = 0b0000100000000000000000000000000,
+	Spawn/* :                               SpawnType */ = 0b0001000000000000000000000000000,
+	Storage/* :                           StorageType */ = 0b0010000000000000000000000000000,
+	Terminal/* :                         TerminalType */ = 0b0100000000000000000000000000000,
+	Tower/* :                               TowerType */ = 0b1000000000000000000000000000000,
 	//         }
 	//     }
 	// }
 
-	// public static readonly All /*                                  */  = 0b1111111111111111111111111111111 as const;
-	// public static readonly AllRoomObjects /*                       */  = 0b1111111111111111111111111111100 as const;
-	public static readonly AllStructures: /*         */ AllStructuresType = 0b1111111111111111111110000000000 as const;
-	// public static readonly AllOwnedStructures /*                   */  = 0b1111111111111111100000000000000 as const;
+	// All /*                                         */ = 0b1111111111111111111111111111111,
+	// AllRoomObjects /*                              */ = 0b1111111111111111111111111111100,
+	AllStructures/* :               AllStructuresType */ = 0b1111111111111111111110000000000,
+	// AllOwnedStructures /*                          */ = 0b1111111111111111100000000000000,
 
-	public static readonly BeforeFirstStructure: /*      */ TombstoneType = 0b0000000000000000000001000000000 as const;
-	public static readonly LastStructure: /*                 */ TowerType = 0b1000000000000000000000000000000 as const;
+	BeforeFirstStructure/* :            TombstoneType */ = 0b0000000000000000000001000000000,
+	LastStructure/* :                       TowerType */ = 0b1000000000000000000000000000000,
+}
 
-	public static readonly SpawnsAndExtensions: SpawnType | ExtensionType = Type.Or(Type.Spawn, Type.Extension);
-	public static readonly DecayingEnegrySource /*                     */ = Type.Or(Type.Or(Type.Resource, Type.Ruin), Type.Tombstone);
+export abstract /* static */ class Types
+{
+	public static readonly SpawnsAndExtensions /* */ = Types.Or(Type.Spawn, Type.Extension);
+	public static readonly DecayingEnegrySource /**/ = Types.Or(Types.Or(Type.Resource, Type.Ruin), Type.Tombstone);
 
 	public static Or<
 		TTypes1 extends number,
