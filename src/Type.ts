@@ -163,57 +163,57 @@ declare global
 export const enum Type
 {
 	// Built-in types :
-	Room/* :                                 RoomType */ = 0b0000000000000000000000000000001,
-	RoomPosition/* :                 RoomPositionType */ = 0b0000000000000000000000000000010,
+	Room /*                         RoomType */ = 0b0000000000000000000000000000001,
+	RoomPosition /*         RoomPositionType */ = 0b0000000000000000000000000000010,
 
 	// RoomObject's (room, pos) :
 	// {
-	Creep/* :                              CreepsType */ = 0b0000000000000000000000000000100,
-	ConstructionSite/* :         ConstructionSiteType */ = 0b0000000000000000000000000001000,
-	Flag/* :                                 FlagType */ = 0b0000000000000000000000000010000,
-	Mineral/* :                           MineralType */ = 0b0000000000000000000000000100000,
-	Resource/* :                         ResourceType */ = 0b0000000000000000000000001000000,
-	Ruin/* :                                 RuinType */ = 0b0000000000000000000000010000000,
-	Source/* :                             SourceType */ = 0b0000000000000000000000100000000,
-	Tombstone/* :                       TombstoneType */ = 0b0000000000000000000001000000000,
+	Creep /*                      CreepsType */ = 0b0000000000000000000000000000100,
+	ConstructionSite /* ConstructionSiteType */ = 0b0000000000000000000000000001000,
+	Flag /*                         FlagType */ = 0b0000000000000000000000000010000,
+	Mineral /*                   MineralType */ = 0b0000000000000000000000000100000,
+	Resource /*                 ResourceType */ = 0b0000000000000000000000001000000,
+	Ruin /*                         RuinType */ = 0b0000000000000000000000010000000,
+	Source /*                     SourceType */ = 0b0000000000000000000000100000000,
+	Tombstone /*               TombstoneType */ = 0b0000000000000000000001000000000,
 
 	//     Structure (structureType, hits, hitsMax, destroy, notifyWhenAttacked, isActive)
 	//     {
-	Container/* :                       ContainerType */ = 0b0000000000000000000010000000000,
-	Portal/* :                             PortalType */ = 0b0000000000000000000100000000000,
-	Road/* :                                 RoadType */ = 0b0000000000000000001000000000000,
-	Wall/* :                                 WallType */ = 0b0000000000000000010000000000000,
+	Container /*               ContainerType */ = 0b0000000000000000000010000000000,
+	Portal /*                     PortalType */ = 0b0000000000000000000100000000000,
+	Road /*                         RoadType */ = 0b0000000000000000001000000000000,
+	Wall /*                         WallType */ = 0b0000000000000000010000000000000,
 
 	//         OwnedStructure (my, owner)
 	//         {
-	Controller/* :                     ControllerType */ = 0b0000000000000000100000000000000,
-	Extension/* :                       ExtensionType */ = 0b0000000000000001000000000000000,
-	Extractor/* :                       ExtractorType */ = 0b0000000000000010000000000000000,
-	Factory/* :                           FactoryType */ = 0b0000000000000100000000000000000,
-	InvaderCore/* :                   InvaderCoreType */ = 0b0000000000001000000000000000000,
-	KeeperLair/* :                     KeeperLairType */ = 0b0000000000010000000000000000000,
-	Lab/* :                                   LabType */ = 0b0000000000100000000000000000000,
-	Link/* :                                 LinkType */ = 0b0000000001000000000000000000000,
-	Nuker/* :                               NukerType */ = 0b0000000010000000000000000000000,
-	Observer/* :                         ObserverType */ = 0b0000000100000000000000000000000,
-	PowerBank/* :                       PowerBankType */ = 0b0000001000000000000000000000000,
-	PowerSpawn/* :                     PowerSpawnType */ = 0b0000010000000000000000000000000,
-	Rampart/* :                           RampartType */ = 0b0000100000000000000000000000000,
-	Spawn/* :                               SpawnType */ = 0b0001000000000000000000000000000,
-	Storage/* :                           StorageType */ = 0b0010000000000000000000000000000,
-	Terminal/* :                         TerminalType */ = 0b0100000000000000000000000000000,
-	Tower/* :                               TowerType */ = 0b1000000000000000000000000000000,
+	Controller /*             ControllerType */ = 0b0000000000000000100000000000000,
+	Extension /*               ExtensionType */ = 0b0000000000000001000000000000000,
+	Extractor /*               ExtractorType */ = 0b0000000000000010000000000000000,
+	Factory /*                   FactoryType */ = 0b0000000000000100000000000000000,
+	InvaderCore /*           InvaderCoreType */ = 0b0000000000001000000000000000000,
+	KeeperLair /*             KeeperLairType */ = 0b0000000000010000000000000000000,
+	Lab /*                           LabType */ = 0b0000000000100000000000000000000,
+	Link /*                         LinkType */ = 0b0000000001000000000000000000000,
+	Nuker /*                       NukerType */ = 0b0000000010000000000000000000000,
+	Observer /*                 ObserverType */ = 0b0000000100000000000000000000000,
+	PowerBank /*               PowerBankType */ = 0b0000001000000000000000000000000,
+	PowerSpawn /*             PowerSpawnType */ = 0b0000010000000000000000000000000,
+	Rampart /*                   RampartType */ = 0b0000100000000000000000000000000,
+	Spawn /*                       SpawnType */ = 0b0001000000000000000000000000000,
+	Storage /*                   StorageType */ = 0b0010000000000000000000000000000,
+	Terminal /*                 TerminalType */ = 0b0100000000000000000000000000000,
+	Tower /*                       TowerType */ = 0b1000000000000000000000000000000,
 	//         }
 	//     }
 	// }
 
-	// All /*                                         */ = 0b1111111111111111111111111111111,
-	// AllRoomObjects /*                              */ = 0b1111111111111111111111111111100,
-	AllStructures/* :               AllStructuresType */ = 0b1111111111111111111110000000000,
-	// AllOwnedStructures /*                          */ = 0b1111111111111111100000000000000,
+	// All  /*                               */ = 0b1111111111111111111111111111111,
+	// AllRoomObjects  /*                    */ = 0b1111111111111111111111111111100,
+	AllStructures /*       AllStructuresType */ = 0b1111111111111111111110000000000,
+	// AllOwnedStructures  /*                */ = 0b1111111111111111100000000000000,
 
-	BeforeFirstStructure/* :            TombstoneType */ = 0b0000000000000000000001000000000,
-	LastStructure/* :                       TowerType */ = 0b1000000000000000000000000000000,
+	BeforeFirstStructure /*    TombstoneType */ = 0b0000000000000000000001000000000,
+	LastStructure /*               TowerType */ = 0b1000000000000000000000000000000,
 }
 
 export abstract /* static */ class Types
@@ -221,7 +221,7 @@ export abstract /* static */ class Types
 	public static readonly SpawnsAndExtensions /* */ = Types.Or(Type.Spawn, Type.Extension);
 	public static readonly DecayingEnegrySource /**/ = Types.Or(Types.Or(Type.Resource, Type.Ruin), Type.Tombstone);
 
-	public static Or<
+	private static Or<
 		TTypes1 extends number,
 		TTypes2 extends number>(
 			types1: TTypes1,
