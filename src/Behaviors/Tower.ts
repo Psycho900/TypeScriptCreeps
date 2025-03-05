@@ -63,39 +63,6 @@ export abstract /* static */ class TowerBehavior
 
 				continue;
 			}
-
-			// for (const tower of towers)
-			// {
-			// 	Log.Succeeded(tower.attack(enemyCreep), tower, enemyCreep);
-			// }
-			//
-			// const allCreeps: readonly Creep[] = Find.Creeps(room, CreepTypes.All);
-			// const creepCount: number = allCreeps.length;
-			// let weakestCreep: Creep | undefined = allCreeps[0];
-			//
-			// if (creepCount > 1)
-			// {
-			// 	let bestScore: number = scoreFunction(weakestCreep);
-			//
-			// 	for (let i: number = 1; i < creepCount; ++i)
-			// 	{
-			// 		const currentElement: T = allCreeps[i];
-			// 		const currentScore: number = scoreFunction(currentElement);
-			//
-			// 		if (currentScore > bestScore) // Take the 1st one with the highest score
-			// 		{
-			// 			weakestCreep = currentElement;
-			// 			bestScore = currentScore;
-			// 		}
-			// 	}
-			// }
-			//
-			//
-			//
-			// for (const tower of towers)
-			// {
-			// 	Log.Succeeded(tower.attack(enemyCreep), tower, enemyCreep);
-			// }
 		}
 	}
 

@@ -162,8 +162,11 @@ export abstract /* static */ class SpawnBehavior
 			switch (creep.CreepType)
 			{
 				case CreepType.Runner:
-					runnerCarryPartCounts.set(creep.Target.id, (runnerCarryPartCounts.get(creep.Target.id) || 0) + creep.getActiveBodyparts("carry"));
-					continue;
+					{
+						const targetId: Id<StructureController> = creep.Target.id;
+						runnerCarryPartCounts.set(targetId, (runnerCarryPartCounts.get(targetId) || 0) + creep.getActiveBodyparts("carry"));
+						continue;
+					}
 
 				case CreepType.Harvester:
 				case CreepType.Upgrader:
@@ -199,13 +202,13 @@ export abstract /* static */ class SpawnBehavior
 
 			if (Find.MyObjects(targetRoom, Type.ConstructionSite).length === 0)
 			{
-				if (SpawnBehavior.ShouldSpawnUpgrader(targetRoom) !== false)
+				if ((Game.time & 0xFF) === 0)
 				{
 					SpawnBehavior.TrySpawnUpgrader(spawns, targetRoom);
 				}
 			}
 			else if ((workPartCounts.get(targetControllerId) || 0) < 4
-				|| (carryPartCounts.get(targetControllerId) || 0) < 5)
+				 || (carryPartCounts.get(targetControllerId) || 0) < 5)
 			{
 				SpawnBehavior.TrySpawnBuilder(spawns, targetRoom);
 			}
@@ -299,7 +302,7 @@ export abstract /* static */ class SpawnBehavior
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Runner, targetRoom.controller, bodyParts);
 	}
 
-	private static ShouldSpawnUpgrader(targetRoom: ControllableRoom): boolean
+	private static TrySpawnUpgrader(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
 	{
 		if (Find.Creeps(targetRoom, CreepType.Enemy).length !== 0)
 		{
@@ -310,69 +313,58 @@ export abstract /* static */ class SpawnBehavior
 		if (storage !== undefined &&
 			Find.IsSameRoomAndWithinRange(storage.pos, targetRoom.controller.pos, 4) !== false)
 		{
-			return SpawnBehavior.ShouldSpawnUpgraderForNearByStorage(targetRoom, storage);
-		}
+			let projectedEnergy: number = storage.store.energy; // The logic before CreepBehavior.Run messed up storage.EnergyToGive earlier in this tick
+			if (projectedEnergy < 30000)
+			{
+				return false;
+			}
 
-		if ((Game.time & 0xFF) !== 0)
+			const controllerId: Id<StructureController> = targetRoom.controller.id;
+
+			for (const testCreep of Find.s_mySpawningAndSpawnedCreeps)
+			{
+				if (testCreep.IsAny(CreepTypes.AllConsumers) !== false &&
+					testCreep.Target.id === controllerId &&
+					(projectedEnergy -= (testCreep.ticksToLive || 1500) * testCreep.getActiveBodyparts("work")) < 30000)
+				{
+					return false;
+				}
+			}
+		}
+		else if ((Game.time & 0x1FF) !== 0) // No storage near the controller
 		{
 			return false;
 		}
-
-		const targetPosition: RoomPosition = targetRoom.controller.pos;
-		for (const testContainer of Find.MyObjects(targetRoom, Type.Container))
+		else
 		{
-			if (Find.IsSameRoomAndWithinRange(testContainer.pos, targetPosition, 4) !== false
-				&& testContainer.EnergyLeftToTake >= 100)
+			const targetPosition: RoomPosition = targetRoom.controller.pos;
+			for (const testContainer of Find.MyObjects(targetRoom, Type.Container))
 			{
-				return false;
+				if (Find.IsSameRoomAndWithinRange(testContainer.pos, targetPosition, 4) !== false
+					&& testContainer.EnergyLeftToTake >= 200)
+				{
+					return false;
+				}
 			}
-		}
 
-		for (const testLink of Find.MyObjects(targetRoom, Type.Link))
-		{
-			if (Find.IsSameRoomAndWithinRange(testLink.pos, targetPosition, 4) !== false
-				&& testLink.EnergyLeftToTake >= 100)
+			for (const testLink of Find.MyObjects(targetRoom, Type.Link))
 			{
-				return false;
+				if (Find.IsSameRoomAndWithinRange(testLink.pos, targetPosition, 4) !== false
+					&& testLink.EnergyLeftToTake >= 200)
+				{
+					return false;
+				}
 			}
-		}
 
-		return true;
-	}
-
-	private static ShouldSpawnUpgraderForNearByStorage(targetRoom: ControllableRoom, storage: StructureStorage): boolean
-	{
-		let projectedEnergy: number = storage.store.energy; // The logic before CreepBehavior.Run messed up storage.EnergyToGive earlier in this tick
-		if (projectedEnergy < 30000)
-		{
-			return false;
-		}
-
-		const controllerId: Id<StructureController> = targetRoom.controller.id;
-
-		for (const testCreep of Find.s_mySpawningAndSpawnedCreeps)
-		{
-			if (testCreep.IsAny(CreepTypes.AllConsumers) !== false &&
-				testCreep.Target.id === controllerId &&
-				(projectedEnergy -= (testCreep.ticksToLive || 1500) * testCreep.getActiveBodyparts("work")) < 30000)
+			if (SpawnBehavior.TrySpawn(
+				spawns,
+				CreepType.Upgrader,
+				targetRoom.controller,
+				Find.MyObjects(targetRoom, Type.Source).length <= 1 ? c_optimalUpgraderBodyInRoomWith1Source : c_optimalUpgraderBodyInRoomWith2Sources) !== false
+				|| targetRoom.EnergyLeftToGive <= targetRoom.energyCapacityAvailable - 50)
 			{
-				return false;
+				return true; // We have done everything we can do this tick!
 			}
-		}
-
-		return true;
-	}
-
-	private static TrySpawnUpgrader(spawns: StructureSpawn[], targetRoom: ControllableRoom): boolean
-	{
-		if (SpawnBehavior.TrySpawn(
-			spawns,
-			CreepType.Upgrader,
-			targetRoom.controller,
-			Find.MyObjects(targetRoom, Type.Source).length <= 1 ? c_optimalUpgraderBodyInRoomWith1Source : c_optimalUpgraderBodyInRoomWith2Sources) !== false
-			|| targetRoom.EnergyLeftToGive <= targetRoom.energyCapacityAvailable - 50)
-		{
-			return true; // We have done everything we can do this tick!
 		}
 
 		let targetRoomEnergyToSpend: number = targetRoom.EnergyLeftToGive - (BODYPART_COST.move + BODYPART_COST.carry + 2 * BODYPART_COST.work);
@@ -521,7 +513,7 @@ export abstract /* static */ class SpawnBehavior
 		let creepName: string = SpawnBehavior.GenerateCreepName(creepType, targetPosition);
 
 		// Take energy from the furthest away spawns and extensions first:
-		const energyStructuresPriority: (StructureSpawn | StructureExtension)[] = Find.MyObjects(closestSpawnRoom, Types.SpawnsAndExtensions) as (StructureSpawn | StructureExtension)[];
+		const energyStructuresPriority = Find.MyObjects(closestSpawnRoom, Types.SpawnsAndExtensions) as (StructureSpawn | StructureExtension)[];
 		const controllerPosition: RoomPosition = closestSpawnRoom.controller.pos;
 		energyStructuresPriority.sort((spawnOrExtension1, spawnOrExtension2) =>
 		{
