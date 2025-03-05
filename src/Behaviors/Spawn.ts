@@ -288,13 +288,11 @@ export abstract /* static */ class SpawnBehavior
 
 		if ((targetRoomEnergyToSpend -= BODYPART_COST.move + BODYPART_COST.work) >= 0)
 		{
-			bodyParts.push("work");
-			bodyParts.push("move");
+			bodyParts.push("work", "move");
 
 			while ((targetRoomEnergyToSpend -= 100) >= 0)
 			{
-				bodyParts.push("carry");
-				bodyParts.push("move");
+				bodyParts.push("carry", "move");
 			}
 		}
 
@@ -314,7 +312,7 @@ export abstract /* static */ class SpawnBehavior
 			Find.IsSameRoomAndWithinRange(storage.pos, targetRoom.controller.pos, 4) !== false)
 		{
 			let projectedEnergy: number = storage.store.energy; // The logic before CreepBehavior.Run messed up storage.EnergyToGive earlier in this tick
-			if (projectedEnergy < 30000)
+			if (projectedEnergy < 75000)
 			{
 				return false;
 			}
@@ -325,7 +323,7 @@ export abstract /* static */ class SpawnBehavior
 			{
 				if (testCreep.IsAny(CreepTypes.AllConsumers) !== false &&
 					testCreep.Target.id === controllerId &&
-					(projectedEnergy -= (testCreep.ticksToLive || 1500) * testCreep.getActiveBodyparts("work")) < 30000)
+					(projectedEnergy -= (testCreep.ticksToLive || 1500) * testCreep.getActiveBodyparts("work")) < 75000)
 				{
 					return false;
 				}
@@ -356,6 +354,7 @@ export abstract /* static */ class SpawnBehavior
 				}
 			}
 
+			// Confirmed, build the ideal upgrader when there is no storage near the controller
 			if (SpawnBehavior.TrySpawn(
 				spawns,
 				CreepType.Upgrader,
@@ -394,7 +393,7 @@ export abstract /* static */ class SpawnBehavior
 		{
 			bodyParts.push("carry");
 
-			if (bodyParts.length < 8 && targetRoomEnergyToSpend >= 100)
+			if (targetRoomEnergyToSpend >= 100 && bodyParts.length < 8)
 			{
 				targetRoomEnergyToSpend -= 100;
 				bodyParts.push("work");
@@ -462,8 +461,7 @@ export abstract /* static */ class SpawnBehavior
 
 		while ((targetRoomEnergyToSpend -= BODYPART_COST.attack + BODYPART_COST.move) >= 0)
 		{
-			bodyParts.push("attack");
-			bodyParts.push("move");
+			bodyParts.push("attack", "move");
 		}
 
 		return SpawnBehavior.TrySpawn(spawns, CreepType.Attacker, targetRoom.controller, bodyParts);
